@@ -1,0 +1,16 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="..\..\Downloads\BasicLobby\BasicLobby\Assets\Scripts\LoginScreen.cs">
+    <Files>
+      <File FileName="..\..\Downloads\BasicLobby\BasicLobby\Assets\Scripts\GameScreen.cs" Line="22" Column="19" />
+      <File FileName="..\..\Downloads\BasicLobby\BasicLobby\Assets\Scripts\BasicLobby.cs" Line="42" Column="18" />
+      <File FileName="..\..\Downloads\BasicLobby\BasicLobby\Assets\Scripts\Server.cs" Line="19" Column="26" />
+      <File FileName="..\..\Downloads\BasicLobby\BasicLobby\Assets\Scripts\Client.cs" Line="34" Column="3" />
+      <File FileName="..\..\Downloads\BasicLobby\BasicLobby\Assets\Scripts\LoginScreen.cs" Line="87" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

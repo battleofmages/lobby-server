@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+	<ProductVersion>10.0.20506</ProductVersion>
+	<SchemaVersion>2.0</SchemaVersion>
+	<ProjectGuid>{E1A87070-112A-3FEC-00FE-CB0D07723EC3}</ProjectGuid>
+	<OutputType>Library</OutputType>
+	<AppDesignerFolder>Properties</AppDesignerFolder>
+	<RootNamespace></RootNamespace>
+	<AssemblyName>Assembly-CSharp-firstpass</AssemblyName>
+	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+	<FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+	<DebugSymbols>true</DebugSymbols>
+	<DebugType>full</DebugType>
+	<Optimize>false</Optimize>
+	<OutputPath>Temp\bin\Debug\</OutputPath>
+	<DefineConstants>DEBUG;TRACE;UNITY_STANDALONE_WIN;ENABLE_MICROPHONE;ENABLE_IMAGEEFFECTS;ENABLE_WEBCAM;ENABLE_AUDIO_FMOD;UNITY_STANDALONE;ENABLE_NETWORK;ENABLE_MONO;ENABLE_PHYSICS;ENABLE_TERRAIN;ENABLE_CACHING;ENABLE_SUBSTANCE;ENABLE_GENERICS;ENABLE_CLOTH;ENABLE_MOVIES;ENABLE_AUDIO;ENABLE_WWW;ENABLE_SHADOWS;ENABLE_DUCK_TYPING;UNITY_4_1_0;UNITY_4_1;UNITY_64;ENABLE_PROFILER;UNITY_EDITOR;UNITY_TEAM_LICENSE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+	<NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+	<DebugType>pdbonly</DebugType>
+	<Optimize>true</Optimize>
+	<OutputPath>Temp\bin\Release\</OutputPath>
+	<DefineConstants>TRACE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+	<NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+	<Reference Include="System" />
+    <Reference Include="System.XML" />
+	<Reference Include="System.Core" />
+	<Reference Include="UnityEngine">
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
+	</Reference>
+	<Reference Include="UnityEditor">
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
+	</Reference>
+  </ItemGroup>
+  <ItemGroup>
+     <Compile Include="Assets\Plugins\uGameDB\Utility Scripts\uGameDBAdminInterface.cs" />
+     <Compile Include="Assets\Plugins\uGameDB\Utility Scripts\uGameDBConnection.cs" />
+     <Compile Include="Assets\Plugins\uGameDB\Utility Scripts\uGameDBStatisticsGUI.cs" />
+     <Compile Include="Assets\Plugins\uLink\Basic Scripts\uLinkEnterLicenseKey.cs" />
+     <Compile Include="Assets\Plugins\uLink\Basic Scripts\uLinkInternalHelper.cs" />
+     <Compile Include="Assets\Plugins\uLink\Basic Scripts\uLinkNetworkP2P.cs" />
+     <Compile Include="Assets\Plugins\uLink\Basic Scripts\uLinkNetworkView.cs" />
+     <Compile Include="Assets\Plugins\uLink\Basic Scripts\uLinkRegisterPrefabs.cs" />
+     <Compile Include="Assets\Plugins\uLink\Basic Scripts\uLinkServerAuthentication.cs" />
+     <Compile Include="Assets\Plugins\uLink\Utility Scripts\uLinkChatGUI.cs" />
+     <Compile Include="Assets\Plugins\uLink\Utility Scripts\uLinkClientGUI.cs" />
+     <Compile Include="Assets\Plugins\uLink\Utility Scripts\uLinkConsoleGUI.cs" />
+     <Compile Include="Assets\Plugins\uLink\Utility Scripts\uLinkInstantiateForOthers.cs" />
+     <Compile Include="Assets\Plugins\uLink\Utility Scripts\uLinkObjectLabel.cs" />
+     <Compile Include="Assets\Plugins\uLink\Utility Scripts\uLinkObservedList.cs" />
+     <Compile Include="Assets\Plugins\uLink\Utility Scripts\uLinkOverrideNetworkDestroy.cs" />
+     <Compile Include="Assets\Plugins\uLink\Utility Scripts\uLinkOverrideSettings.cs" />
+     <Compile Include="Assets\Plugins\uLink\Utility Scripts\uLinkP2PConnector.cs" />
+     <Compile Include="Assets\Plugins\uLink\Utility Scripts\uLinkSimpleServer.cs" />
+     <Compile Include="Assets\Plugins\uLink\Utility Scripts\uLinkSmoothCharacter.cs" />
+     <Compile Include="Assets\Plugins\uLink\Utility Scripts\uLinkSmoothPlatformer.cs" />
+     <Compile Include="Assets\Plugins\uLink\Utility Scripts\uLinkSmoothRigidbody.cs" />
+     <Compile Include="Assets\Plugins\uLink\Utility Scripts\uLinkSmoothRigidbodyImproved.cs" />
+     <Compile Include="Assets\Plugins\uLink\Utility Scripts\uLinkStatisticsGUI.cs" />
+     <Compile Include="Assets\Plugins\uLink\Utility Scripts\uLinkStrictCharacter.cs" />
+     <Compile Include="Assets\Plugins\uLink\Utility Scripts\uLinkStrictPlatformer.cs" />
+     <Compile Include="Assets\Plugins\uLink\Utility Scripts\uLinkTargetFrameRateFix.cs" />
+     <None Include="Assets\Jboy\Library\Jboy.xml" />
+     <None Include="Assets\Plugins\uLink\Assembly\uLink.xml" />
+     <None Include="Assets\Plugins\uZone\Assembly\uZone.xml" />
+     <None Include="Assets\Resources\uLinkPrefs.txt" />
+     <None Include="Assets\Plugins\uGameDB\Assembly\uGameDB.xml" />
+     <None Include="Assets\Plugins\uLobby\uLobby License.txt" />
+     <None Include="Assets\Jboy\Library\Jboy.Core.xml" />
+     <None Include="Assets\Plugins\uLobby\Extras\link.xml" />
+     <None Include="Assets\Plugins\uGameDB\uGameDB License.txt" />
+     <None Include="Assets\Plugins\uLink\uLink License.txt" />
+ <Reference Include="Jboy.Core">
+ <HintPath>Assets\Jboy\Library\Jboy.Core.dll</HintPath>
+ </Reference>
+ <Reference Include="Jboy">
+ <HintPath>Assets\Jboy\Library\Jboy.dll</HintPath>
+ </Reference>
+ <Reference Include="uGameDB">
+ <HintPath>Assets\Plugins\uGameDB\Assembly\uGameDB.dll</HintPath>
+ </Reference>
+ <Reference Include="uLink">
+ <HintPath>Assets\Plugins\uLink\Assembly\uLink.dll</HintPath>
+ </Reference>
+ <Reference Include="uLobby">
+ <HintPath>Assets\Plugins\uLobby\Assembly\uLobby.dll</HintPath>
+ </Reference>
+ <Reference Include="uZone">
+ <HintPath>Assets\Plugins\uZone\Assembly\uZone.dll</HintPath>
+ </Reference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+	   Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  
+</Project>

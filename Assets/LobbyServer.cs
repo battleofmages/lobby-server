@@ -30,6 +30,8 @@ using System.Collections.Generic;
 */
 
 public class LobbyServer : MonoBehaviour {
+	public static string gameName = "bomWithFlags";
+	
 	public int maxConnections = 1024;
 	public int listenPort = 1310;
 	public string databaseHost = "blitzprog.org";

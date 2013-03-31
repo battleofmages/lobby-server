@@ -38,7 +38,7 @@ public class Match {
 		}
 		
 		// Async: Start game server instance for this match
-		requestId = uZone.InstanceManager.StartGameInstance("bom", args);
+		requestId = uZone.InstanceManager.StartGameInstance(LobbyServer.gameName, args);
 	}
 	
 	// Starts playing on game server instance

@@ -8,6 +8,7 @@ public class QueueSettings {
 }
 
 public class GenericSerializer {
+	// Write a single value in JSON
 	public static void WriteJSONValue(Jboy.JsonWriter writer, object val) {
 		if(val is long) {
 			writer.WriteNumber((double)((long)val));
@@ -30,6 +31,7 @@ public class GenericSerializer {
 		}
 	}
 	
+	// Writes all fields of a class instance
 	public static void WriteJSONClassInstance<T>(Jboy.JsonWriter writer, T instance) {
 		// Type pointer
 		Type type = typeof(T);
@@ -57,6 +59,7 @@ public class GenericSerializer {
 		writer.WriteObjectEnd();
 	}
 	
+	// Read a single value from JSON
 	public static object ReadJSONValue(Jboy.JsonReader reader, FieldInfo field) {
 		if(field.FieldType == typeof(long)) {
 			return (long)(reader.ReadNumber());
@@ -81,6 +84,7 @@ public class GenericSerializer {
 		}
 	}
 	
+	// Read a new class instance from JSON
 	public static T ReadJSONClassInstance<T>(Jboy.JsonReader reader) where T : new() {
 		T instance = new T();
 		
@@ -105,17 +109,66 @@ public class GenericSerializer {
 [Serializable]
 public class PlayerQueueStats {
 	public int ranking;
+	public int rankingOffset;
+	
 	public int kills;
 	public int deaths;
 	public int assists;
+	
 	public int wins;
 	public int losses;
 	public int leaves;
+	
+	public int hits;
+	public int hitsTaken;
+	
+	public int blocks;
+	public int blocksTaken;
+	
+	public int lifeDrain;
+	public int lifeDrainTaken;
+	
+	public long damage;
+	public long damageTaken;
+	
+	public long cc;
+	public long ccTaken;
+	
+	public int runeDetonations;
+	public int runeDetonationsTaken;
+	
+	public int runeDetonationsLevel;
+	public int runeDetonationsLevelTaken;
+	
 	public int topScorerOwnTeam;
 	public int topScorerAllTeams;
-	public long damage;
-	public long cc;
+	
 	public double secondsPlayed;
+	
+	// Ranking formula
+	public void CalculateRanking() {
+		int winLoseDifference = wins - losses;
+		int killDeathDifference = kills - deaths;
+		long damageDifference = damage - damageTaken;
+		
+		int actualRanking = (int)(
+			winLoseDifference * 2
+			+ killDeathDifference * 0.1f
+			+ damageDifference * 0.0001f
+		);
+		
+		// This is the ranking we'd currently have
+		int currentRanking = actualRanking + rankingOffset;
+		
+		// If we are below 0, reset ranking offset
+		if(currentRanking < 0) {
+			rankingOffset = -actualRanking;
+			ranking = 0;
+		// Otherwise just accept the calculated rating with its offset
+		} else {
+			ranking = currentRanking;
+		}
+	}
 	
 	// Calculated stats
 	public double dps {get{
@@ -217,31 +270,69 @@ public class PlayerStats {
 		db.kills += matchStats.kills;
 		db.deaths += matchStats.deaths;
 		db.assists += matchStats.assists;
+		
 		db.wins += matchStats.wins;
 		db.losses += matchStats.losses;
 		db.leaves += matchStats.leaves;
+		
+		db.hits += matchStats.hits;
+		db.hitsTaken += matchStats.hitsTaken;
+		
+		db.blocks += matchStats.blocks;
+		db.blocksTaken += matchStats.blocksTaken;
+		
+		db.lifeDrain += matchStats.lifeDrain;
+		db.lifeDrainTaken += matchStats.lifeDrainTaken;
+		
+		db.damage += matchStats.damage;
+		db.damageTaken += matchStats.damageTaken;
+		
+		db.cc += matchStats.cc;
+		db.ccTaken += matchStats.ccTaken;
+		
+		db.runeDetonations += matchStats.runeDetonations;
+		db.runeDetonationsTaken += matchStats.runeDetonationsTaken;
+		
+		db.runeDetonationsLevel += matchStats.runeDetonationsLevel;
+		db.runeDetonationsLevelTaken += matchStats.runeDetonationsLevelTaken;
+		
 		db.topScorerOwnTeam += matchStats.topScorerOwnTeam;
 		db.topScorerAllTeams += matchStats.topScorerAllTeams;
-		db.damage += matchStats.damage;
-		db.cc += matchStats.cc;
+		
 		db.secondsPlayed += matchStats.secondsPlayed;
+		
+		db.CalculateRanking();
 	}
 	
 	double CalculateLevel() {
 		double winValue = 0d;
 		double loseValue = 0d;
 		
-		if(wins > 0)
-			winValue = Math.Log(wins);
+		if(total.wins > 0)
+			winValue = Math.Log(total.wins);
 		
-		if(losses > 0)
-			loseValue = Math.Log(losses) / 2;
+		if(total.losses > 0)
+			loseValue = Math.Log(total.losses) / 2;
 		
 		return 1.0d + winValue + loseValue;
 	}
 	
 	int ChooseBestRanking() {
-		return 0;
+		int tmpBestRanking = 0;
+		
+		for(int i = 0; i < QueueSettings.queueCount; i++) {
+			int queueRanking = queue[i].ranking;
+			
+			if(queueRanking > tmpBestRanking) {
+				tmpBestRanking = queueRanking;
+			}
+		}
+		
+		if(total.ranking > tmpBestRanking) {
+			tmpBestRanking = total.ranking;
+		}
+		
+		return tmpBestRanking;
 	}
 	
 	// uLink Bitstream write
@@ -264,62 +355,6 @@ public class PlayerStats {
 	// Reader
 	public static object JsonDeserializer(Jboy.JsonReader reader) {
 		return GenericSerializer.ReadJSONClassInstance<PlayerStats>(reader);
-	}
-	
-	// Wrapped stats
-	public int kills {
-		get { return total.kills; }
-		set { total.kills = value; }
-	}
-	
-	public int deaths {
-		get { return total.deaths; }
-		set { total.deaths = value; }
-	}
-	
-	public int assists {
-		get { return total.deaths; }
-		set { total.deaths = value; }
-	}
-	
-	public int wins {
-		get { return total.wins; }
-		set { total.wins = value; }
-	}
-	
-	public int losses {
-		get { return total.losses; }
-		set { total.losses = value; }
-	}
-	
-	public int leaves {
-		get { return total.leaves; }
-		set { total.leaves = value; }
-	}
-	
-	public int topScorerOwnTeam {
-		get { return total.topScorerOwnTeam; }
-		set { total.topScorerOwnTeam = value; }
-	}
-	
-	public int topScorerAllTeams {
-		get { return total.topScorerAllTeams; }
-		set { total.topScorerAllTeams = value; }
-	}
-	
-	public long damage {
-		get { return total.damage; }
-		set { total.damage = value; }
-	}
-	
-	public long cc {
-		get { return total.cc; }
-		set { total.cc = value; }
-	}
-	
-	public double secondsPlayed {
-		get { return total.secondsPlayed; }
-		set { total.secondsPlayed = value; }
 	}
 	
 	// Calculated stats

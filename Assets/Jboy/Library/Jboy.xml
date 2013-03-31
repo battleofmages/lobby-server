@@ -418,73 +418,6 @@
             The value of the <see cref="T:Jboy.JsonString"/> instance.
             </summary>
         </member>
-        <member name="T:Jboy.JsonNull">
-            <summary>
-            Represents a JSON null node in a JSON data tree.
-            </summary>
-        </member>
-        <member name="M:Jboy.JsonNull.Equals(Jboy.JsonNull)">
-            <summary>
-            Determines if two instances of <see cref="T:Jboy.JsonNull"/> are equal.
-            </summary>
-            <param name="other">The other instance to compare to.</param>
-            <returns>True if the instances are equal, and false otherwise.</returns>
-            <remarks>
-            Two existing <see cref="T:Jboy.JsonNull"/> instances are always equal.
-            </remarks>
-        </member>
-        <member name="M:Jboy.JsonNull.ToString">
-            <summary>
-            Produces a string representation of the <see cref="T:Jboy.JsonBoolean"/> instance.
-            </summary>
-            <returns>A string containing true or false.</returns>
-        </member>
-        <member name="T:Jboy.JsonNumber">
-            <summary>
-            Represents a JSON number node in a JSON data tree.
-            </summary>
-        </member>
-        <member name="F:Jboy.JsonNumber.Value">
-            <summary>
-            The value of the <see cref="T:Jboy.JsonNumber"/> instance.
-            </summary>
-        </member>
-        <member name="M:Jboy.JsonNumber.#ctor(System.Double)">
-            <summary>
-            Creates a new <see cref="T:Jboy.JsonNumber"/> instance with the given value.
-            </summary>
-            <param name="value">The value of the node.</param>
-        </member>
-        <member name="M:Jboy.JsonNumber.op_Implicit(System.Double)~Jboy.JsonNumber">
-            <summary>
-            Converts a <see cref="T:System.Double"/> value to a <see cref="T:Jboy.JsonNumber"/> instance.
-            </summary>
-            <param name="value">The value to convert.</param>
-            <returns>A new <see cref="T:Jboy.JsonNumber"/> instance with the given value.</returns>
-        </member>
-        <member name="M:Jboy.JsonNumber.op_Explicit(Jboy.JsonNumber)~System.Double">
-            <summary>
-            Converts a <see cref="T:Jboy.JsonNumber"/> instance to a <see cref="T:System.Double"/> value.
-            </summary>
-            <param name="jsonNumber">The instance to convert.</param>
-            <returns>The <see cref="T:System.Double"/> value of the instance.</returns>
-        </member>
-        <member name="M:Jboy.JsonNumber.Equals(Jboy.JsonNumber)">
-            <summary>
-            Determines if two instances of <see cref="T:Jboy.JsonNumber"/> are equal.
-            </summary>
-            <param name="other">The other instance to compare to.</param>
-            <returns>True if the instances are equal, and false otherwise.</returns>
-            <remarks>
-            For two <see cref="T:Jboy.JsonNumber"/> instances to be equal, they must have the same value.
-            </remarks>
-        </member>
-        <member name="M:Jboy.JsonNumber.ToString">
-            <summary>
-            Produces a string representation of the <see cref="T:Jboy.JsonNumber"/> instance.
-            </summary>
-            <returns>A string containing the number.</returns>
-        </member>
         <member name="T:Jboy.JsonArray">
             <summary>
             Represents a JSON array node in a JSON data tree.
@@ -773,6 +706,73 @@
             You normally don't have to call this function, but it can be convenient during testing, and for use in Unity where
             static state can remain between different runs within the Unity Editor.
             </remarks>
+        </member>
+        <member name="T:Jboy.JsonNull">
+            <summary>
+            Represents a JSON null node in a JSON data tree.
+            </summary>
+        </member>
+        <member name="M:Jboy.JsonNull.Equals(Jboy.JsonNull)">
+            <summary>
+            Determines if two instances of <see cref="T:Jboy.JsonNull"/> are equal.
+            </summary>
+            <param name="other">The other instance to compare to.</param>
+            <returns>True if the instances are equal, and false otherwise.</returns>
+            <remarks>
+            Two existing <see cref="T:Jboy.JsonNull"/> instances are always equal.
+            </remarks>
+        </member>
+        <member name="M:Jboy.JsonNull.ToString">
+            <summary>
+            Produces a string representation of the <see cref="T:Jboy.JsonBoolean"/> instance.
+            </summary>
+            <returns>A string containing true or false.</returns>
+        </member>
+        <member name="T:Jboy.JsonNumber">
+            <summary>
+            Represents a JSON number node in a JSON data tree.
+            </summary>
+        </member>
+        <member name="F:Jboy.JsonNumber.Value">
+            <summary>
+            The value of the <see cref="T:Jboy.JsonNumber"/> instance.
+            </summary>
+        </member>
+        <member name="M:Jboy.JsonNumber.#ctor(System.Double)">
+            <summary>
+            Creates a new <see cref="T:Jboy.JsonNumber"/> instance with the given value.
+            </summary>
+            <param name="value">The value of the node.</param>
+        </member>
+        <member name="M:Jboy.JsonNumber.op_Implicit(System.Double)~Jboy.JsonNumber">
+            <summary>
+            Converts a <see cref="T:System.Double"/> value to a <see cref="T:Jboy.JsonNumber"/> instance.
+            </summary>
+            <param name="value">The value to convert.</param>
+            <returns>A new <see cref="T:Jboy.JsonNumber"/> instance with the given value.</returns>
+        </member>
+        <member name="M:Jboy.JsonNumber.op_Explicit(Jboy.JsonNumber)~System.Double">
+            <summary>
+            Converts a <see cref="T:Jboy.JsonNumber"/> instance to a <see cref="T:System.Double"/> value.
+            </summary>
+            <param name="jsonNumber">The instance to convert.</param>
+            <returns>The <see cref="T:System.Double"/> value of the instance.</returns>
+        </member>
+        <member name="M:Jboy.JsonNumber.Equals(Jboy.JsonNumber)">
+            <summary>
+            Determines if two instances of <see cref="T:Jboy.JsonNumber"/> are equal.
+            </summary>
+            <param name="other">The other instance to compare to.</param>
+            <returns>True if the instances are equal, and false otherwise.</returns>
+            <remarks>
+            For two <see cref="T:Jboy.JsonNumber"/> instances to be equal, they must have the same value.
+            </remarks>
+        </member>
+        <member name="M:Jboy.JsonNumber.ToString">
+            <summary>
+            Produces a string representation of the <see cref="T:Jboy.JsonNumber"/> instance.
+            </summary>
+            <returns>A string containing the number.</returns>
         </member>
     </members>
 </doc>

@@ -235,4 +235,12 @@ public class LobbyServer : MonoBehaviour {
 		// Send him his new stats
 		StartCoroutine(LobbyGameDB.GetPlayerStats(lobbyPlayer));
 	}
+	
+	[RPC]
+	void RankingListRequest(LobbyMessageInfo info) {
+		uint maxPlayerCount = 10;
+		
+		Debug.Log("Retrieving top " + maxPlayerCount + " ranks");
+		StartCoroutine(LobbyGameDB.GetTopRanks(maxPlayerCount, info.sender));
+	}
 }

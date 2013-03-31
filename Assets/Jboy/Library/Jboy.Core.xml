@@ -4,6 +4,29 @@
         <name>Jboy.Core</name>
     </assembly>
     <members>
+        <member name="T:Jboy.JsonException">
+            <summary>
+            Signals that something went wrong while reading or writing JSON data.
+            </summary>
+        </member>
+        <member name="M:Jboy.JsonException.#ctor">
+            <summary>
+            Creates a new JsonException instance.
+            </summary>
+        </member>
+        <member name="M:Jboy.JsonException.#ctor(System.String)">
+            <summary>
+            Creates a new JsonException instance.
+            </summary>
+            <param name="message">The message to present to the user.</param>
+        </member>
+        <member name="M:Jboy.JsonException.#ctor(System.String,System.Exception)">
+            <summary>
+            Creates a new JsonException instance.
+            </summary>
+            <param name="message">The message to present to the user.</param>
+            <param name="innerException">An inner exception that is contained in this JsonException instance.</param>
+        </member>
         <member name="T:Jboy.JsonWriter">
             <summary>
             Represents a stream of JSON text that the user can write to. Writing is performed using the class methods.
@@ -417,29 +440,6 @@
             <summary>
             Represents the end of the input JSON stream.
             </summary>
-        </member>
-        <member name="T:Jboy.JsonException">
-            <summary>
-            Signals that something went wrong while reading or writing JSON data.
-            </summary>
-        </member>
-        <member name="M:Jboy.JsonException.#ctor">
-            <summary>
-            Creates a new JsonException instance.
-            </summary>
-        </member>
-        <member name="M:Jboy.JsonException.#ctor(System.String)">
-            <summary>
-            Creates a new JsonException instance.
-            </summary>
-            <param name="message">The message to present to the user.</param>
-        </member>
-        <member name="M:Jboy.JsonException.#ctor(System.String,System.Exception)">
-            <summary>
-            Creates a new JsonException instance.
-            </summary>
-            <param name="message">The message to present to the user.</param>
-            <param name="innerException">An inner exception that is contained in this JsonException instance.</param>
         </member>
     </members>
 </doc>

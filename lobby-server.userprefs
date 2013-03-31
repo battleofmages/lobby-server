@@ -1,9 +1,8 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\LobbyServer.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="..\battle-of-mages\Assets\Scripts\Lobby\InGameLobby.cs">
     <Files>
-      <File FileName="Assets\LobbyServer.cs" Line="44" Column="11" />
-      <File FileName="Assets\Match.cs" Line="39" Column="3" />
+      <File FileName="..\battle-of-mages\Assets\Scripts\Lobby\InGameLobby.cs" Line="380" Column="34" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

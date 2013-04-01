@@ -101,9 +101,9 @@ public class LobbyGameDB : GameDB {
 			
 			IEnumerable<RankEntry> rankingEntriesTmp = getHighscoresRequest.GetResult<RankEntry>();
 			
-			foreach(var entry in rankingEntriesTmp) {
+			/*foreach(var entry in rankingEntriesTmp) {
 				Debug.Log(entry.accountId);
-			}
+			}*/
 			
 			//rankingEntriesTmp = rankingEntriesTmp.Concat();
 			
@@ -113,7 +113,7 @@ public class LobbyGameDB : GameDB {
 			//Debug.Log (getHighscoresRequest.TryGetResult<RankEntry>(out rankingEntriesTmp));
 			
 			rankingEntries = rankingEntriesTmp.ToArray();
-			Debug.Log(rankingEntries.Length.ToString() + " entries");
+			//Debug.Log(rankingEntries.Length.ToString() + " entries");
 			
 			// Get player names
 			// TODO: Send X requests at once, then wait for all of them

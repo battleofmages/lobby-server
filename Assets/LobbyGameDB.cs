@@ -66,6 +66,9 @@ public class LobbyGameDB : GameDB {
 			Debug.Log("Account " + accountId + " doesn't have any player stats yet");
 		}
 		
+		// Assign stats
+		lobbyPlayer.stats = statsInDB;
+		
 		// Send the stats to the player
 		Lobby.RPC("ReceivePlayerStats", lobbyPlayer.peer,
 			Jboy.Json.WriteObject(statsInDB)

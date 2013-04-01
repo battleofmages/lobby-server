@@ -205,6 +205,10 @@ public class LobbyServer : MonoBehaviour {
 		
 		LobbyPlayer lobbyPlayer = GetLobbyPlayer(info);
 		
+		// Do we have ranking information?
+		if(lobbyPlayer.stats == null)
+			return;
+		
 		// Add the player to the queue
 		queue[playersPerTeam - 1].AddPlayer(lobbyPlayer);
 		
@@ -228,6 +232,7 @@ public class LobbyServer : MonoBehaviour {
 	[RPC]
 	void ReturnedFromMatch(LobbyMessageInfo info) {
 		LobbyPlayer lobbyPlayer = GetLobbyPlayer(info);
+		Debug.Log("Player '" + lobbyPlayer.name + "' returned from a match");
 		
 		// A player just returned from a match, we'll send him queue infos again
 		lobbyPlayer.inMatch = false;

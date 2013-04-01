@@ -260,7 +260,6 @@ public class PlayerStats {
 			MergeQueueStats(queue[QueueSettings.queueIndex], matchStats.total);
 		}
 		
-		ping = matchStats.ping;
 		level = CalculateLevel();
 		bestRanking = ChooseBestRanking();
 	}

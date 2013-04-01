@@ -14,7 +14,7 @@ public class LobbyPlayer {
 	public Account account;
 	public LobbyPeer peer;
 	public string name;
-	public int ranking;
+	public PlayerStats stats;
 	public LobbyQueue queue;
 	public bool inMatch;
 	
@@ -22,8 +22,8 @@ public class LobbyPlayer {
 	public LobbyPlayer(Account nAccount) {
 		account = nAccount;
 		peer = AccountManager.Master.GetLoggedInPeer(account);
-		ranking = 0;
 		queue = null;
+		stats = null;
 		LobbyPlayer.list.Add(this);
 	}
 	

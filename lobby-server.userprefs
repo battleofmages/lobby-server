@@ -1,8 +1,11 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="..\battle-of-mages\Assets\Scripts\Lobby\InGameLobby.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\LobbyQueue.cs">
     <Files>
-      <File FileName="..\battle-of-mages\Assets\Scripts\Lobby\InGameLobby.cs" Line="380" Column="34" />
+      <File FileName="Assets\LobbyServer.cs" Line="235" Column="72" />
+      <File FileName="Assets\LobbyPlayer.cs" Line="1" Column="1" />
+      <File FileName="Assets\LobbyGameDB.cs" Line="1" Column="1" />
+      <File FileName="Assets\LobbyQueue.cs" Line="62" Column="24" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

@@ -31,10 +31,11 @@ using System.Collections.Generic;
 
 public class LobbyServer : MonoBehaviour {
 	public static string gameName = "bomWithFlags";
+	public static LobbyChatChannel globalChannel = new LobbyChatChannel("Global");
 	
 	public int maxConnections = 1024;
 	public int listenPort = 1310;
-	public string databaseHost = "blitzprog.org";
+	public string databaseHost = "battle-of-mages.com";
 	public int databasePort = 8087;
 	public string uZoneHost = "127.0.0.1";
 	public int uZonePort = 12345;
@@ -71,57 +72,6 @@ public class LobbyServer : MonoBehaviour {
 		// Initialize the lobby
 		Debug.Log("Initializing lobby on port " + listenPort + " with a maximum of " + maxConnections + " players.");
 		Lobby.InitializeLobby(maxConnections, listenPort, databaseHost, databasePort);
-		
-		// Add ourselves as listeners for when accounts log in or out.
-		AccountManager.OnAccountLoggedIn += OnAccountLoggedIn;
-		AccountManager.OnAccountLoggedOut += OnAccountLoggedOut;
-		
-		// Send queue stats
-		InvokeRepeating("SendQueueStats", 1.0f, 1.0f);
-	}
-	
-	// A new game server has finished starting up
-	void uZone_OnInstanceStarted(uZone.GameInstance instance) {
-		// TODO: Use a dictionary
-		
-		// Pick the match this instance has been started for
-		foreach(Match match in Match.matchesWaitingForServer) {
-			if(match.requestId == instance.requestId) {
-				match.StartPlayingOn(instance);
-				return;
-			}
-		}
-	}
-	
-	// uZone errors
-	void uZone_OnError(uZone.ErrorCode error) {
-		Debug.LogWarning ("uZone error code: " + error);
-	}
-	
-	// Lobby initialized
-	void uLobby_OnLobbyInitialized() {
-		Debug.Log("Successfully initialized lobby.");
-	}
-	
-	// Account login
-	void OnAccountLoggedIn(Account account) {
-		Debug.Log("Account '" + account.name + "' logged in.");
-		
-		// Save the reference in a dictionary
-		LobbyPlayer lobbyPlayer = new LobbyPlayer(account);
-		LobbyPlayer.accountToLobbyPlayer[account] = lobbyPlayer;
-		
-		// Async: Retrieve the player name
-		StartCoroutine(LobbyGameDB.GetPlayerName(lobbyPlayer));
-		StartCoroutine(LobbyGameDB.GetPlayerStats(lobbyPlayer));
-	}
-	
-	// Account logout
-	void OnAccountLoggedOut(Account account) {
-		//Debug.Log("'" + account.name + "' logged out.");
-		
-		LobbyPlayer player = LobbyPlayer.accountToLobbyPlayer[account];
-		RemovePlayer(player);
 	}
 	
 	void RemovePlayer(LobbyPlayer player) {
@@ -134,6 +84,11 @@ public class LobbyServer : MonoBehaviour {
 		
 		// Remove the player from the global list
 		LobbyPlayer.list.Remove(player);
+		
+		// Remove the player from all chat channels
+		foreach(var channel in new List<LobbyChatChannel>(player.channels)) {
+			channel.RemovePlayer(player);
+		}
 		
 		// Log it
 		Debug.Log("Player '" + player.name + "' from account '" + player.account.name + "' logged out.");
@@ -178,10 +133,75 @@ public class LobbyServer : MonoBehaviour {
 		}
 	}
 	
+	// Gets the lobby player by the supplied message info
 	LobbyPlayer GetLobbyPlayer(LobbyMessageInfo info) {
 		Account account = AccountManager.Master.GetLoggedInAccount(info.sender);
 		return LobbyPlayer.accountToLobbyPlayer[account];
 	}
+	
+	// --------------------------------------------------------------------------------
+	// Callbacks
+	// --------------------------------------------------------------------------------
+	
+	// Lobby initialized
+	void uLobby_OnLobbyInitialized() {
+		Debug.Log("Successfully initialized lobby.");
+		
+		// Add ourselves as listeners for when accounts log in or out.
+		AccountManager.OnAccountLoggedIn += OnAccountLoggedIn;
+		AccountManager.OnAccountLoggedOut += OnAccountLoggedOut;
+		
+		// Send queue stats
+		InvokeRepeating("SendQueueStats", 1.0f, 1.0f);
+	}
+	
+	// A new game server has finished starting up
+	void uZone_OnInstanceStarted(uZone.GameInstance instance) {
+		// TODO: Use a dictionary
+		
+		// Pick the match this instance has been started for
+		foreach(Match match in Match.matchesWaitingForServer) {
+			if(match.requestId == instance.requestId) {
+				match.StartPlayingOn(instance);
+				return;
+			}
+		}
+	}
+	
+	// Account login
+	void OnAccountLoggedIn(Account account) {
+		Debug.Log("Account '" + account.name + "' logged in.");
+		
+		// Save the reference in a dictionary
+		LobbyPlayer lobbyPlayer = new LobbyPlayer(account);
+		LobbyPlayer.accountToLobbyPlayer[account] = lobbyPlayer;
+		
+		// Async: Retrieve the player name
+		StartCoroutine(LobbyGameDB.GetPlayerName(lobbyPlayer));
+		StartCoroutine(LobbyGameDB.GetPlayerStats(lobbyPlayer));
+	}
+	
+	// Account logout
+	void OnAccountLoggedOut(Account account) {
+		//Debug.Log("'" + account.name + "' logged out.");
+		
+		LobbyPlayer player = LobbyPlayer.accountToLobbyPlayer[account];
+		RemovePlayer(player);
+	}
+	
+	// Once we have the player name, let him join the channel
+	public static void OnReceivePlayerName(LobbyPlayer player) {
+		LobbyServer.globalChannel.AddPlayer(player);
+	}
+	
+	// uZone errors
+	void uZone_OnError(uZone.ErrorCode error) {
+		Debug.LogWarning ("uZone error code: " + error);
+	}
+	
+	// --------------------------------------------------------------------------------
+	// RPCs
+	// --------------------------------------------------------------------------------
 	
 	[RPC]
 	void PlayerNameChange(string newName, LobbyMessageInfo info) {
@@ -189,12 +209,12 @@ public class LobbyServer : MonoBehaviour {
 		if(newName.Length < 2)
 			return;
 		
-		// Get the account from the uLobby.LobbyPeer
-		Account acc = AccountManager.Master.GetLoggedInAccount(info.sender);
+		// Get the account
+		LobbyPlayer lobbyPlayer = GetLobbyPlayer(info);
 		
 		// Change name
-		Debug.Log(acc.name + " has requested to change his player name to '" + newName + "'");
-		StartCoroutine(LobbyGameDB.SetPlayerName(acc, newName));
+		Debug.Log("Account " + lobbyPlayer.account.id.value + " has requested to change his player name to '" + newName + "'");
+		StartCoroutine(LobbyGameDB.SetPlayerName(lobbyPlayer, newName));
 	}
 	
 	[RPC]
@@ -247,5 +267,20 @@ public class LobbyServer : MonoBehaviour {
 		
 		Debug.Log("Retrieving top " + maxPlayerCount + " ranks");
 		StartCoroutine(LobbyGameDB.GetTopRanks(maxPlayerCount, info.sender));
+	}
+	
+	[RPC]
+	void ClientChat(string channelName, string msg, LobbyMessageInfo info) {
+		LobbyPlayer lobbyPlayer = GetLobbyPlayer(info);
+		Debug.Log("[" + channelName + "][" + lobbyPlayer.name + "] '" + msg + "'");
+		
+		if(LobbyChatChannel.channels.ContainsKey(channelName)) {
+			var channel = LobbyChatChannel.channels[channelName];
+			
+			// Channel member?
+			if(channel.members.Contains(lobbyPlayer)) {
+				channel.BroadcastMessage(lobbyPlayer.name, msg);
+			}
+		}
 	}
 }

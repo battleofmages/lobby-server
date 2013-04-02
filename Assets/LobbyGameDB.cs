@@ -20,6 +20,7 @@ public class LobbyGameDB : GameDB {
 			
 			Debug.Log("Queried player name of '" + account.name + "' successfully: " + lobbyPlayer.name);
 			Lobby.RPC("ReceivePlayerInfo", lobbyPlayer.peer, account.id.value, lobbyPlayer.name);
+			LobbyServer.OnReceivePlayerName(lobbyPlayer);
 		} else {
 			Debug.Log("Account " + account.name + " doesn't have a player name yet, asking him to enter one.");
 			Lobby.RPC("AskPlayerName", lobbyPlayer.peer);
@@ -27,7 +28,8 @@ public class LobbyGameDB : GameDB {
 	}
 	
 	// Sets the player name
-	public static IEnumerator SetPlayerName(uLobby.Account account, string playerName) {
+	public static IEnumerator SetPlayerName(LobbyPlayer lobbyPlayer, string playerName) {
+		Account account = lobbyPlayer.account;
 		Debug.Log("Setting name for account " + account.name + " with ID " + account.id.value + " to " + playerName);
 		
 		var bucket = new Bucket("AccountToName");
@@ -37,6 +39,7 @@ public class LobbyGameDB : GameDB {
 		if(request.isSuccessful) {
 			Debug.Log("Set player name of '" + account.name + "' successfully: " + playerName);
 			Lobby.RPC("ReceivePlayerInfo", AccountManager.Master.GetLoggedInPeer(account), account.id.value, playerName);
+			LobbyServer.OnReceivePlayerName(lobbyPlayer);
 		} else {
 			Debug.LogWarning("Failed setting player name of account " + account.name + " to '" + playerName + "'.");
 			Lobby.RPC("PlayerNameChangeError", AccountManager.Master.GetLoggedInPeer(account));

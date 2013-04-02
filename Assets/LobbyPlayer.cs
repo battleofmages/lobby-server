@@ -17,6 +17,7 @@ public class LobbyPlayer {
 	public PlayerStats stats;
 	public LobbyQueue queue;
 	public bool inMatch;
+	public List<LobbyChatChannel> channels;
 	
 	// Constructor
 	public LobbyPlayer(Account nAccount) {
@@ -24,6 +25,7 @@ public class LobbyPlayer {
 		peer = AccountManager.Master.GetLoggedInPeer(account);
 		queue = null;
 		stats = null;
+		channels = new List<LobbyChatChannel>();
 		LobbyPlayer.list.Add(this);
 	}
 	

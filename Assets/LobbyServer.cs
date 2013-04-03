@@ -43,7 +43,6 @@ public class LobbyServer : MonoBehaviour {
 	private LobbyQueue[] queue;
 	
 	void Awake() {
-		// TODO: Set this to 1 or 0 on release, we don't need Update() or OnGUI()
 		// Limit frame rate
 		//Application.targetFrameRate = 25;
 		uLinkTargetFrameRateFix.SetTargetFrameRate(25);

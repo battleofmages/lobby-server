@@ -37,8 +37,10 @@ public class LobbyGameDB : GameDB {
 		yield return request.WaitUntilDone();
 		
 		if(request.isSuccessful) {
-			Debug.Log("Set player name of '" + account.name + "' successfully: " + playerName);
-			Lobby.RPC("ReceivePlayerInfo", AccountManager.Master.GetLoggedInPeer(account), account.id.value, playerName);
+			lobbyPlayer.name = playerName;
+			Debug.Log("Set player name of '" + account.name + "' successfully: " + lobbyPlayer.name);
+			
+			Lobby.RPC("ReceivePlayerInfo", AccountManager.Master.GetLoggedInPeer(account), account.id.value, lobbyPlayer.name);
 			LobbyServer.OnReceivePlayerName(lobbyPlayer);
 		} else {
 			Debug.LogWarning("Failed setting player name of account " + account.name + " to '" + playerName + "'.");

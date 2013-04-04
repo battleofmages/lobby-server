@@ -44,8 +44,8 @@ public class LobbyServer : MonoBehaviour {
 	
 	void Awake() {
 		// Limit frame rate
-		//Application.targetFrameRate = 25;
-		uLinkTargetFrameRateFix.SetTargetFrameRate(25);
+		//Application.targetFrameRate = 20;
+		uLinkTargetFrameRateFix.SetTargetFrameRate(20);
 		
 		// Initialize uZone
 		uZone.InstanceManager.Initialise();

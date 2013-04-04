@@ -208,21 +208,21 @@ public class PlayerQueueStats {
 		if(matchesPlayed == 0)
 			return 0;
 		
-		return kills / matchesPlayed;
+		return (float)kills / matchesPlayed;
 	}}
 	
 	public float averageDeaths {get{
 		if(matchesPlayed == 0)
 			return 0;
 		
-		return deaths / matchesPlayed;
+		return (float)deaths / matchesPlayed;
 	}}
 	
 	public float averageAssists {get{
 		if(matchesPlayed == 0)
 			return 0;
 		
-		return assists / matchesPlayed;
+		return (float)assists / matchesPlayed;
 	}}
 }
 
@@ -262,6 +262,7 @@ public class PlayerStats {
 		
 		level = CalculateLevel();
 		bestRanking = ChooseBestRanking();
+		ping = matchStats.ping;
 	}
 	
 	// Merges 2 queue stats

@@ -6,6 +6,23 @@ using System.Collections.Generic;
 using System.Linq;
 
 public class LobbyGameDB : GameDB {
+	public static IEnumerator SetCharacterStats(LobbyPlayer lobbyPlayer, CharacterStats charStats) {
+		Account account = lobbyPlayer.account;
+		Debug.Log("Setting character stats for account '" + account.name + "' with ID '" + account.id.value + "' to " + charStats.ToString());
+		
+		var bucket = new Bucket("AccountToCharacterStats");
+		var request = bucket.Set(account.id.value, charStats, Encoding.Json);
+		yield return request.WaitUntilDone();
+		
+		if(request.isSuccessful) {
+			lobbyPlayer.charStats = charStats;
+			Debug.Log("Set character stats of '" + account.name + "' successfully: " + charStats.ToString());
+		} else {
+			Debug.LogWarning("Failed setting character stats of account '" + account.name + "' to " + charStats.ToString());
+			Lobby.RPC("CharacterStatsSaveError", lobbyPlayer.peer);
+		}
+	}
+	
 	// Get the player name
 	public static IEnumerator GetPlayerName(LobbyPlayer lobbyPlayer) {
 		Account account = lobbyPlayer.account;
@@ -30,7 +47,7 @@ public class LobbyGameDB : GameDB {
 	// Sets the player name
 	public static IEnumerator SetPlayerName(LobbyPlayer lobbyPlayer, string playerName) {
 		Account account = lobbyPlayer.account;
-		Debug.Log("Setting name for account " + account.name + " with ID " + account.id.value + " to " + playerName);
+		Debug.Log("Setting name for account '" + account.name + "' with ID '" + account.id.value + "' to '" + playerName + "'");
 		
 		var bucket = new Bucket("AccountToName");
 		var request = bucket.Set(account.id.value, playerName, Encoding.Json);
@@ -40,11 +57,11 @@ public class LobbyGameDB : GameDB {
 			lobbyPlayer.name = playerName;
 			Debug.Log("Set player name of '" + account.name + "' successfully: " + lobbyPlayer.name);
 			
-			Lobby.RPC("ReceivePlayerInfo", AccountManager.Master.GetLoggedInPeer(account), account.id.value, lobbyPlayer.name);
+			Lobby.RPC("ReceivePlayerInfo", lobbyPlayer.peer, account.id.value, lobbyPlayer.name);
 			LobbyServer.OnReceivePlayerName(lobbyPlayer);
 		} else {
 			Debug.LogWarning("Failed setting player name of account " + account.name + " to '" + playerName + "'.");
-			Lobby.RPC("PlayerNameChangeError", AccountManager.Master.GetLoggedInPeer(account));
+			Lobby.RPC("PlayerNameChangeError", lobbyPlayer.peer);
 		}
 	}
 	

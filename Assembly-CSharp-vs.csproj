@@ -50,6 +50,7 @@
      <Compile Include="Assets\LobbyQueue.cs" />
      <Compile Include="Assets\LobbyServer.cs" />
      <Compile Include="Assets\Match.cs" />
+     <Compile Include="Assets\Shared\CharacterStats.cs" />
      <Compile Include="Assets\Shared\GameDB.cs" />
      <Compile Include="Assets\Shared\PlayerStats.cs" />
      <None Include="Assets\Jboy\Library\Jboy.xml" />

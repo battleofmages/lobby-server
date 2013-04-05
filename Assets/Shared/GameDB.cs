@@ -66,6 +66,7 @@ public class GameDB {
 	public static void InitCodecs() {
 		// Register JSON codec for player statistics
 		Json.AddCodec<PlayerStats>(PlayerStats.JsonDeserializer, PlayerStats.JsonSerializer);
+		Json.AddCodec<CharacterStats>(CharacterStats.JsonDeserializer, CharacterStats.JsonSerializer);
 		
 		// Register JSON codec for rank entries
 		uLink.BitStreamCodec.AddAndMakeArray<RankEntry>(RankEntry.ReadRankEntry, RankEntry.WriteRankEntry);

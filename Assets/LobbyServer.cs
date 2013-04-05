@@ -191,6 +191,9 @@ public class LobbyServer : MonoBehaviour {
 	// Once we have the player name, let him join the channel
 	public static void OnReceivePlayerName(LobbyPlayer player) {
 		LobbyServer.globalChannel.AddPlayer(player);
+		
+		var charStats = new CharacterStats();
+		Lobby.RPC("ReceiveCharacterStats", player.peer, charStats);
 	}
 	
 	// uZone errors
@@ -266,6 +269,19 @@ public class LobbyServer : MonoBehaviour {
 		
 		Debug.Log("Retrieving top " + maxPlayerCount + " ranks");
 		StartCoroutine(LobbyGameDB.GetTopRanks(maxPlayerCount, info.sender));
+	}
+	
+	[RPC]
+	void ClientCharacterStats(CharacterStats charStats, LobbyMessageInfo info) {
+		LobbyPlayer lobbyPlayer = GetLobbyPlayer(info);
+		
+		if(charStats.totalStatPointsUsed > charStats.maxStatPoints) {
+			Debug.LogWarning("Detected character stat points hack on player '" +lobbyPlayer.name  + "'");
+			return;
+		}
+		
+		Debug.Log("Player '" + lobbyPlayer.name + "' sent new character stats " + charStats.ToString());
+		StartCoroutine(LobbyGameDB.SetCharacterStats(lobbyPlayer, charStats));
 	}
 	
 	[RPC]

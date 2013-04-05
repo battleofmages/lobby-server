@@ -15,6 +15,7 @@ public class LobbyPlayer {
 	public LobbyPeer peer;
 	public string name;
 	public PlayerStats stats;
+	public CharacterStats charStats;
 	public LobbyQueue queue;
 	public bool inMatch;
 	public List<LobbyChatChannel> channels;

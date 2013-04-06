@@ -53,6 +53,7 @@
      <Compile Include="Assets\Shared\CharacterStats.cs" />
      <Compile Include="Assets\Shared\GameDB.cs" />
      <Compile Include="Assets\Shared\PlayerStats.cs" />
+     <Compile Include="Assets\Shared\RankEntry.cs" />
      <None Include="Assets\Jboy\Library\Jboy.xml" />
      <None Include="Assets\Plugins\uLink\Assembly\uLink.xml" />
      <None Include="Assets\Plugins\uZone\Assembly\uZone.xml" />

@@ -23,6 +23,25 @@ public class LobbyGameDB : GameDB {
 		}
 	}
 	
+	public static IEnumerator GetCharacterStats(LobbyPlayer lobbyPlayer) {
+		Account account = lobbyPlayer.account;
+		Debug.Log("Getting character stats for account '" + account.name + "' with ID '" + account.id.value + "'");
+		
+		var bucket = new Bucket("AccountToCharacterStats");
+		var request = bucket.Get(account.id.value);
+		yield return request.WaitUntilDone();
+		
+		if(request.isSuccessful) {
+			lobbyPlayer.charStats = request.GetValue<CharacterStats>();
+			Debug.Log("Retrieved character stats of '" + account.name + "' successfully: " + lobbyPlayer.charStats.ToString());
+		} else {
+			lobbyPlayer.charStats = new CharacterStats();
+			Debug.Log("Account '" + account.name + "' doesn't have any character stats yet, creating default ones");
+		}
+		
+		Lobby.RPC("ReceiveCharacterStats", lobbyPlayer.peer, lobbyPlayer.charStats);
+	}
+	
 	// Get the player name
 	public static IEnumerator GetPlayerName(LobbyPlayer lobbyPlayer) {
 		Account account = lobbyPlayer.account;

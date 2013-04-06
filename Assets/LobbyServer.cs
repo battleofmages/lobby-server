@@ -175,9 +175,10 @@ public class LobbyServer : MonoBehaviour {
 		LobbyPlayer lobbyPlayer = new LobbyPlayer(account);
 		LobbyPlayer.accountToLobbyPlayer[account] = lobbyPlayer;
 		
-		// Async: Retrieve the player name
+		// Async: Retrieve the player information
 		StartCoroutine(LobbyGameDB.GetPlayerName(lobbyPlayer));
 		StartCoroutine(LobbyGameDB.GetPlayerStats(lobbyPlayer));
+		StartCoroutine(LobbyGameDB.GetCharacterStats(lobbyPlayer));
 	}
 	
 	// Account logout
@@ -191,9 +192,6 @@ public class LobbyServer : MonoBehaviour {
 	// Once we have the player name, let him join the channel
 	public static void OnReceivePlayerName(LobbyPlayer player) {
 		LobbyServer.globalChannel.AddPlayer(player);
-		
-		var charStats = new CharacterStats();
-		Lobby.RPC("ReceiveCharacterStats", player.peer, charStats);
 	}
 	
 	// uZone errors

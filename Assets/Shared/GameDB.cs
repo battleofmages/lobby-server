@@ -14,7 +14,10 @@ public class GameDB {
 		Json.AddCodec<CharacterStats>(CharacterStats.JsonDeserializer, CharacterStats.JsonSerializer);
 		
 		// Register JSON codec for rank entries
-		uLink.BitStreamCodec.AddAndMakeArray<RankEntry>(RankEntry.ReadRankEntry, RankEntry.WriteRankEntry);
+		uLink.BitStreamCodec.AddAndMakeArray<RankEntry>(RankEntry.ReadFromBitStream, RankEntry.WriteToBitStream);
 		Json.AddCodec<RankEntry>(RankEntry.JsonDeserializer, RankEntry.JsonSerializer);
+		
+		// Chat member
+		uLink.BitStreamCodec.AddAndMakeArray<ChatMember>(ChatMember.ReadFromBitStream, ChatMember.WriteToBitStream);
 	}
 }

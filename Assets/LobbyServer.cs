@@ -149,6 +149,7 @@ public class LobbyServer : MonoBehaviour {
 		// Add ourselves as listeners for when accounts log in or out.
 		AccountManager.OnAccountLoggedIn += OnAccountLoggedIn;
 		AccountManager.OnAccountLoggedOut += OnAccountLoggedOut;
+		AccountManager.OnAccountRegistered += OnAccountRegistered;
 		
 		// Send queue stats
 		InvokeRepeating("SendQueueStats", 1.0f, 1.0f);
@@ -169,7 +170,7 @@ public class LobbyServer : MonoBehaviour {
 	
 	// Account login
 	void OnAccountLoggedIn(Account account) {
-		Debug.Log("Account '" + account.name + "' logged in.");
+		Debug.Log("Account '<color=yellow>" + account.name + "</color>' logged in.");
 		
 		// Save the reference in a dictionary
 		LobbyPlayer lobbyPlayer = new LobbyPlayer(account);
@@ -179,6 +180,11 @@ public class LobbyServer : MonoBehaviour {
 		StartCoroutine(LobbyGameDB.GetPlayerName(lobbyPlayer));
 		StartCoroutine(LobbyGameDB.GetPlayerStats(lobbyPlayer));
 		StartCoroutine(LobbyGameDB.GetCharacterStats(lobbyPlayer));
+		
+		//StartCoroutine(LobbyGameDB.GetAccountRegistrationDate(lobbyPlayer));
+		
+		// Async: Set last login date
+		StartCoroutine(LobbyGameDB.SetLastLoginDate(lobbyPlayer, System.DateTime.UtcNow));
 	}
 	
 	// Account logout
@@ -189,9 +195,16 @@ public class LobbyServer : MonoBehaviour {
 		RemovePlayer(player);
 	}
 	
+	// Account registered
+	void OnAccountRegistered(Account account) {
+		StartCoroutine(LobbyGameDB.SetAccountRegistrationDate(account.id.value, System.DateTime.UtcNow));
+	}
+	
 	// Once we have the player name, let him join the channel
 	public static void OnReceivePlayerName(LobbyPlayer player) {
+		LobbyGameDB.accountIdToName[player.account.id.value] = player.name;
 		LobbyServer.globalChannel.AddPlayer(player);
+		Debug.Log("'<color=yellow><b>" + player.name + "</b></color>' is online");
 	}
 	
 	// uZone errors
@@ -265,7 +278,7 @@ public class LobbyServer : MonoBehaviour {
 	void RankingListRequest(LobbyMessageInfo info) {
 		uint maxPlayerCount = 10;
 		
-		Debug.Log("Retrieving top " + maxPlayerCount + " ranks");
+		//Debug.Log("Retrieving top " + maxPlayerCount + " ranks");
 		StartCoroutine(LobbyGameDB.GetTopRanks(maxPlayerCount, info.sender));
 	}
 	

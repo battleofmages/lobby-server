@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 
 public class LobbyGameDB : GameDB {
+	public static Dictionary<string, string> accountIdToName = new Dictionary<string, string>();
+	
 	public static IEnumerator SetCharacterStats(LobbyPlayer lobbyPlayer, CharacterStats charStats) {
 		Account account = lobbyPlayer.account;
 		Debug.Log("Setting character stats for account '" + account.name + "' with ID '" + account.id.value + "' to " + charStats.ToString());
@@ -125,6 +127,52 @@ public class LobbyGameDB : GameDB {
 		);
 	}
 	
+	// Sets last login date
+	public static IEnumerator SetLastLoginDate(LobbyPlayer lobbyPlayer, System.DateTime timestamp) {
+		string accountId = lobbyPlayer.account.id.value;
+		
+		var bucket = new Bucket("AccountToLastLoginDate");
+		var request = bucket.Set(accountId, timestamp, Encoding.Json);
+		yield return request.WaitUntilDone();
+		
+		if(request.isSuccessful) {
+			Debug.Log("Set last login date of account ID '" + accountId + "' successfully: " + timestamp);
+		} else {
+			Debug.LogWarning("Failed setting last login date of account ID '" + accountId + "' to: " + timestamp);
+		}
+	}
+	
+	// Sets account registration date
+	public static IEnumerator SetAccountRegistrationDate(string accountId, System.DateTime timestamp) {
+		//Debug.Log("Setting account registration date for account ID '" + accountId + "' to '" + timestamp + "'");
+		
+		var bucket = new Bucket("AccountToRegistrationDate");
+		var request = bucket.Set(accountId, timestamp, Encoding.Json);
+		yield return request.WaitUntilDone();
+		
+		if(request.isSuccessful) {
+			Debug.Log("Set registration date of account ID '" + accountId + "' successfully: " + timestamp);
+		} else {
+			Debug.LogWarning("Failed setting registration date of account ID '" + accountId + "' to: " + timestamp);
+		}
+	}
+	
+	// Gets account registration date
+	public static IEnumerator GetAccountRegistrationDate(LobbyPlayer lobbyPlayer) {
+		//Debug.Log("Getting account registration date for account ID '" + lobbyPlayer.account.id.value + "'");
+		
+		var bucket = new Bucket("AccountToRegistrationDate");
+		var request = bucket.Get(lobbyPlayer.account.id.value);
+		yield return request.WaitUntilDone();
+		
+		if(request.isSuccessful) {
+			var timestamp = request.GetValue<System.DateTime>();
+			Debug.Log("Got registration date of account ID '" + lobbyPlayer.account.id.value + "' successfully: " + timestamp);
+		} else {
+			Debug.LogWarning("Failed getting registration date of account ID '" + lobbyPlayer.account.id.value + "'");
+		}
+	}
+	
 	// Get top ranks
 	public static IEnumerator GetTopRanks(uint maxPlayerCount, uLobby.LobbyPeer peer) {
 		// Retrieve the highscore list from the database by using MapReduce. The MapReduce request consists of a
@@ -138,43 +186,40 @@ public class LobbyGameDB : GameDB {
 		yield return getHighscoresRequest.WaitUntilDone();
 		
 		if(getHighscoresRequest.isSuccessful) {
-			Debug.Log("Top ranks request finished successfully.");
-			
 			IEnumerable<RankEntry> rankingEntriesTmp = getHighscoresRequest.GetResult<RankEntry>();
-			
-			/*foreach(var entry in rankingEntriesTmp) {
-				Debug.Log(entry.accountId);
-			}*/
-			
-			//rankingEntriesTmp = rankingEntriesTmp.Concat();
-			
-			/*while(getHighscoresRequest.TryGetResult<RankEntry>(out rankingEntriesTmp)) {
-				// ...
-			}*/
-			//Debug.Log (getHighscoresRequest.TryGetResult<RankEntry>(out rankingEntriesTmp));
-			
 			rankingEntries = rankingEntriesTmp.ToArray();
-			//Debug.Log(rankingEntries.Length.ToString() + " entries");
 			
 			// Get player names
 			// TODO: Send X requests at once, then wait for all of them
-			int count = 0;
-			foreach(var entry in rankingEntries) {
-				entry.rankIndex = count;
+			var nameBucket = new Bucket("AccountToName");
+			var nameRequests = new GetRequest[rankingEntries.Length];
+			for(int i = 0; i < rankingEntries.Length; i++) {
+				var entry = rankingEntries[i];
+				entry.rankIndex = i;
 				
-				var nameBucket = new Bucket("AccountToName");
-				var nameRequest = nameBucket.Get(entry.accountId);
+				if(LobbyGameDB.accountIdToName.ContainsKey(entry.accountId)) {
+					entry.name = LobbyGameDB.accountIdToName[entry.accountId];
+					nameRequests[i] = null;
+				} else {
+					nameRequests[i] = nameBucket.Get(entry.accountId);
+				}
+			}
+			
+			for(int i = 0; i < nameRequests.Length; i++) {
+				var nameRequest = nameRequests[i];
+				if(nameRequest == null)
+					continue;
+				
 				yield return nameRequest.WaitUntilDone();
 				
 				if(nameRequest.isSuccessful) {
+					var entry = rankingEntries[i];
 					entry.name = nameRequest.GetValue<string>();
+					LobbyGameDB.accountIdToName[entry.accountId] = entry.name;
 				}
-				
-				count += 1;
 			}
-			//Debug.Log("First entry: " + rankingEntries[0].accountId + " with " + rankingEntries[0].bestRanking + " points");
 			
-			Debug.Log("Sending the ranking list " + GameDB.rankingEntries + " with " + count + " entries");
+			//Debug.Log("Sending the ranking list " + GameDB.rankingEntries + " with " + rankingEntries.Length + " entries");
 			Lobby.RPC("ReceiveRankingList", peer, rankingEntries, false);
 		} else {
 			Debug.Log("Failed getting the ranking list: " + getHighscoresRequest.GetErrorString());

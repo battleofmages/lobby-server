@@ -10,7 +10,7 @@ public class RankEntry {
 	public string name;
 	public int bestRanking;
 	
-	public static void WriteRankEntry(uLink.BitStream stream, object val, params object[] args) {
+	public static void WriteToBitStream(uLink.BitStream stream, object val, params object[] args) {
 		//Debug.Log("WriteRankEntry");
 		RankEntry myObj = (RankEntry)val;
 		stream.WriteInt32(myObj.rankIndex);
@@ -20,7 +20,7 @@ public class RankEntry {
 		//Debug.Log("WriteRankEntry: " + myObj.accountId + ", " + myObj.bestRanking);
 	}
 	
-	public static object ReadRankEntry(uLink.BitStream stream, params object[] args) {
+	public static object ReadFromBitStream(uLink.BitStream stream, params object[] args) {
 		//Debug.Log("ReadRankEntry");
 		RankEntry myObj = new RankEntry();
 		myObj.rankIndex = stream.ReadInt32();

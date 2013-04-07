@@ -8,7 +8,7 @@ public class LobbyChatChannel {
 	public static Dictionary<string, LobbyChatChannel> channels = new Dictionary<string, LobbyChatChannel>();
 	
 	public List<LobbyPlayer> members;
-	protected string name;
+	public string name;
 	
 	public LobbyChatChannel(string channelName) {
 		members = new List<LobbyPlayer>();
@@ -42,19 +42,22 @@ public class LobbyChatChannel {
 	}
 	
 	public void AddPlayer(LobbyPlayer player) {
+		var chatMemberList = this.members.Select(o => o.chatMember).ToArray();
+		//Debug.Log ("Sending " + chatMemberList + " list with " + chatMemberList.Length + " entries");
+		
 		// Receive member list
-		Lobby.RPC("ChatMembers", player.peer, this.name, this.members.Select(o => o.name).ToArray());
+		Lobby.RPC("ChatMembers", player.peer, this.name, chatMemberList);
 		
 		members.Add(player);
 		player.channels.Add(this);
 		
-		this.Broadcast(p => Lobby.RPC("ChatJoin", p.peer, this.name, player.name));
+		this.Broadcast(p => Lobby.RPC("ChatJoin", p.peer, this.name, player.chatMember));
 	}
 	
 	public void RemovePlayer(LobbyPlayer player) {
 		members.Remove(player);
 		player.channels.Remove(this);
 		
-		this.Broadcast(p => Lobby.RPC("ChatLeave", p.peer, this.name, player.name));
+		this.Broadcast(p => Lobby.RPC("ChatLeave", p.peer, this.name, player.chatMember.name));
 	}
 }

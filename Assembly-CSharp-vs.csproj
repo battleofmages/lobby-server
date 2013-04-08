@@ -53,7 +53,11 @@
      <Compile Include="Assets\Shared\CharacterStats.cs" />
      <Compile Include="Assets\Shared\ChatMember.cs" />
      <Compile Include="Assets\Shared\GameDB.cs" />
+     <Compile Include="Assets\Shared\GenericSerializer.cs" />
+     <Compile Include="Assets\Shared\InputControl.cs" />
+     <Compile Include="Assets\Shared\PlayerQueueStats.cs" />
      <Compile Include="Assets\Shared\PlayerStats.cs" />
+     <Compile Include="Assets\Shared\QueueSettings.cs" />
      <Compile Include="Assets\Shared\RankEntry.cs" />
      <None Include="Assets\Jboy\Library\Jboy.xml" />
      <None Include="Assets\Plugins\uLink\Assembly\uLink.xml" />

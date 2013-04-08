@@ -1,15 +1,16 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\LobbyGameDB.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\LobbyServer.cs">
     <Files>
-      <File FileName="Assets\LobbyServer.cs" Line="187" Column="46" />
+      <File FileName="Assets\LobbyServer.cs" Line="211" Column="73" />
       <File FileName="Assets\Match.cs" Line="1" Column="1" />
-      <File FileName="Assets\Shared\GameDB.cs" Line="1" Column="1" />
-      <File FileName="Assets\LobbyGameDB.cs" Line="136" Column="40" />
-      <File FileName="Assets\LobbyPlayer.cs" Line="65" Column="3" />
+      <File FileName="Assets\Shared\GameDB.cs" Line="70" Column="25" />
+      <File FileName="Assets\LobbyGameDB.cs" Line="110" Column="3" />
+      <File FileName="Assets\LobbyPlayer.cs" Line="1" Column="1" />
       <File FileName="Assets\Shared\CharacterStats.cs" Line="1" Column="1" />
-      <File FileName="Assets\LobbyChatChannel.cs" Line="1" Column="1" />
+      <File FileName="Assets\LobbyChatChannel.cs" Line="27" Column="2" />
       <File FileName="Assets\Shared\ChatMember.cs" Line="13" Column="2" />
+      <File FileName="Assets\Shared\GenericSerializer.cs" Line="25" Column="4" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

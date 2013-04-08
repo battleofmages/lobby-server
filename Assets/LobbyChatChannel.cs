@@ -42,11 +42,7 @@ public class LobbyChatChannel {
 	}
 	
 	public void AddPlayer(LobbyPlayer player) {
-		var chatMemberList = this.members.Select(o => o.chatMember).ToArray();
-		//Debug.Log ("Sending " + chatMemberList + " list with " + chatMemberList.Length + " entries");
-		
-		// Receive member list
-		Lobby.RPC("ChatMembers", player.peer, this.name, chatMemberList);
+		this.SendMemberListToPlayer(player);
 		
 		members.Add(player);
 		player.channels.Add(this);
@@ -59,5 +55,13 @@ public class LobbyChatChannel {
 		player.channels.Remove(this);
 		
 		this.Broadcast(p => Lobby.RPC("ChatLeave", p.peer, this.name, player.chatMember.name));
+	}
+	
+	public void SendMemberListToPlayer(LobbyPlayer player) {
+		var chatMemberList = this.members.Select(o => o.chatMember).ToArray();
+		//Debug.Log ("Sending " + chatMemberList + " list with " + chatMemberList.Length + " entries");
+		
+		// Receive member list
+		Lobby.RPC("ChatMembers", player.peer, this.name, chatMemberList);
 	}
 }

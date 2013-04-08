@@ -32,6 +32,7 @@ using System.Collections.Generic;
 public class LobbyServer : MonoBehaviour {
 	public static string gameName = "bomWithFlags";
 	public static LobbyChatChannel globalChannel = new LobbyChatChannel("Global");
+	public static LobbyGameDB lobbyGameDB;
 	
 	public int maxConnections = 1024;
 	public int listenPort = 1310;
@@ -65,6 +66,9 @@ public class LobbyServer : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
+		// Get lobby game DB component
+		lobbyGameDB = this.GetComponent<LobbyGameDB>();
+		
 		// Make this class listen to Lobby events
 		Lobby.AddListener(this);
 		
@@ -177,14 +181,14 @@ public class LobbyServer : MonoBehaviour {
 		LobbyPlayer.accountToLobbyPlayer[account] = lobbyPlayer;
 		
 		// Async: Retrieve the player information
-		StartCoroutine(LobbyGameDB.GetPlayerName(lobbyPlayer));
-		StartCoroutine(LobbyGameDB.GetPlayerStats(lobbyPlayer));
-		StartCoroutine(LobbyGameDB.GetCharacterStats(lobbyPlayer));
+		StartCoroutine(lobbyGameDB.GetPlayerName(lobbyPlayer));
+		StartCoroutine(lobbyGameDB.GetPlayerStats(lobbyPlayer));
+		StartCoroutine(lobbyGameDB.GetCharacterStats(lobbyPlayer));
 		
 		//StartCoroutine(LobbyGameDB.GetAccountRegistrationDate(lobbyPlayer));
 		
 		// Async: Set last login date
-		StartCoroutine(LobbyGameDB.SetLastLoginDate(lobbyPlayer, System.DateTime.UtcNow));
+		StartCoroutine(lobbyGameDB.SetLastLoginDate(lobbyPlayer, System.DateTime.UtcNow));
 	}
 	
 	// Account logout
@@ -197,14 +201,14 @@ public class LobbyServer : MonoBehaviour {
 	
 	// Account registered
 	void OnAccountRegistered(Account account) {
-		StartCoroutine(LobbyGameDB.SetAccountRegistrationDate(account.id.value, System.DateTime.UtcNow));
+		StartCoroutine(lobbyGameDB.SetAccountRegistrationDate(account.id.value, System.DateTime.UtcNow));
 	}
 	
 	// Once we have the player name, let him join the channel
 	public static void OnReceivePlayerName(LobbyPlayer player) {
-		LobbyGameDB.accountIdToName[player.account.id.value] = player.name;
+		GameDB.accountIdToName[player.account.id.value] = player.name;
 		LobbyServer.globalChannel.AddPlayer(player);
-		Debug.Log("'<color=yellow><b>" + player.name + "</b></color>' is online");
+		Debug.Log("<color=yellow><b>" + player.name + "</b></color> is online.");
 	}
 	
 	// uZone errors
@@ -227,7 +231,7 @@ public class LobbyServer : MonoBehaviour {
 		
 		// Change name
 		Debug.Log("Account " + lobbyPlayer.account.id.value + " has requested to change his player name to '" + newName + "'");
-		StartCoroutine(LobbyGameDB.SetPlayerName(lobbyPlayer, newName));
+		StartCoroutine(lobbyGameDB.SetPlayerName(lobbyPlayer, newName));
 	}
 	
 	[RPC]
@@ -271,7 +275,12 @@ public class LobbyServer : MonoBehaviour {
 		lobbyPlayer.inMatch = false;
 		
 		// Send him his new stats
-		StartCoroutine(LobbyGameDB.GetPlayerStats(lobbyPlayer));
+		StartCoroutine(lobbyGameDB.GetPlayerStats(lobbyPlayer));
+		
+		// Send him the chat members again to prevent wrong status info
+		foreach(var channel in lobbyPlayer.channels) {
+			channel.SendMemberListToPlayer(lobbyPlayer);
+		}
 	}
 	
 	[RPC]
@@ -279,7 +288,7 @@ public class LobbyServer : MonoBehaviour {
 		uint maxPlayerCount = 10;
 		
 		//Debug.Log("Retrieving top " + maxPlayerCount + " ranks");
-		StartCoroutine(LobbyGameDB.GetTopRanks(maxPlayerCount, info.sender));
+		StartCoroutine(lobbyGameDB.GetTopRanks(maxPlayerCount, info.sender));
 	}
 	
 	[RPC]
@@ -292,7 +301,7 @@ public class LobbyServer : MonoBehaviour {
 		}
 		
 		Debug.Log("Player '" + lobbyPlayer.name + "' sent new character stats " + charStats.ToString());
-		StartCoroutine(LobbyGameDB.SetCharacterStats(lobbyPlayer, charStats));
+		StartCoroutine(lobbyGameDB.SetCharacterStats(lobbyPlayer, charStats));
 	}
 	
 	[RPC]

@@ -123,6 +123,32 @@ public class LobbyGameDB : MonoBehaviour {
 		yield break;
 	}
 	
+	// Get input settings
+	public IEnumerator GetInputSettings(LobbyPlayer lobbyPlayer) {
+		yield return StartCoroutine(GameDB.Get<InputSettings>(
+		"AccountToInputSettings",
+		lobbyPlayer.account.id.value,
+		data => {
+			if(data == null) {
+				Lobby.RPC("ReceiveInputSettingsError", lobbyPlayer.peer);
+			} else {
+				// Send the controls to the player
+				Lobby.RPC("ReceiveInputSettings", lobbyPlayer.peer, Jboy.Json.WriteObject(data));
+			}
+		}));
+	}
+	
+	// Set input settings
+	public IEnumerator SetInputSettings(LobbyPlayer lobbyPlayer, InputSettings inputMgr) {
+		yield return StartCoroutine(GameDB.Set<InputSettings>(
+		"AccountToInputSettings",
+		lobbyPlayer.account.id.value,
+		inputMgr,
+		data => {
+			// ...
+		}));
+	}
+	
 	// Get top ranks
 	public IEnumerator GetTopRanks(uint maxPlayerCount, uLobby.LobbyPeer peer) {
 		// Retrieve the highscore list from the database by using MapReduce. The MapReduce request consists of a

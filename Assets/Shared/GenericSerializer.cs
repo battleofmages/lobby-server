@@ -7,7 +7,7 @@ using UnityEngine;
 public class GenericSerializer {
 	// Write a single value in JSON
 	public static void WriteJSONValue(Jboy.JsonWriter writer, object val) {
-		if(val is int) {
+		if(val is int || val is KeyCode) {
 			writer.WriteNumber((double)((int)val));
 		} else if(val is long) {
 			writer.WriteNumber((double)((long)val));
@@ -63,11 +63,17 @@ public class GenericSerializer {
 	
 	// Read a single value from JSON
 	public static object ReadJSONValue(Jboy.JsonReader reader, FieldInfo field) {
-		if(field.FieldType == typeof(long)) {
+		if(field.FieldType == typeof(int)) {
+			return (int)(reader.ReadNumber());
+		} else if(field.FieldType == typeof(long)) {
 			return (long)(reader.ReadNumber());
 		} else if(field.FieldType == typeof(double)) {
 			return reader.ReadNumber();
-		} else if(field.FieldType == typeof(PlayerQueueStats)) {
+		} else if(field.FieldType == typeof(KeyCode)) {
+			return (KeyCode)(reader.ReadNumber());
+		} else if(field.FieldType == typeof(string)) {
+			return reader.ReadString();
+		}else if(field.FieldType == typeof(PlayerQueueStats)) {
 			return GenericSerializer.ReadJSONClassInstance<PlayerQueueStats>(reader);
 		} else if(field.FieldType == typeof(PlayerQueueStats[])) {
 			reader.ReadArrayStart();
@@ -80,7 +86,23 @@ public class GenericSerializer {
 			reader.ReadArrayEnd();
 			
 			return valArray;
+		} else if(field.FieldType == typeof(InputControl[])) {
+			reader.ReadArrayStart();
+			
+			List<InputControl> valList = new List<InputControl>();
+			while(true) {
+				try {
+					valList.Add(GenericSerializer.ReadJSONClassInstance<InputControl>(reader));
+				} catch {
+					break;
+				}
+			}
+			
+			reader.ReadArrayEnd();
+			
+			return valList.ToArray();
 		} else {
+			Debug.LogError("Unknown field type for GenericSerializer.ReadJSONValue: " + field.FieldType);
 			return (int)(reader.ReadNumber());
 		}
 	}

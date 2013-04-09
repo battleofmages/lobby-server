@@ -184,6 +184,7 @@ public class LobbyServer : MonoBehaviour {
 		StartCoroutine(lobbyGameDB.GetPlayerName(lobbyPlayer));
 		StartCoroutine(lobbyGameDB.GetPlayerStats(lobbyPlayer));
 		StartCoroutine(lobbyGameDB.GetCharacterStats(lobbyPlayer));
+		StartCoroutine(lobbyGameDB.GetInputSettings(lobbyPlayer));
 		
 		//StartCoroutine(LobbyGameDB.GetAccountRegistrationDate(lobbyPlayer));
 		
@@ -302,6 +303,15 @@ public class LobbyServer : MonoBehaviour {
 		
 		Debug.Log("Player '" + lobbyPlayer.name + "' sent new character stats " + charStats.ToString());
 		StartCoroutine(lobbyGameDB.SetCharacterStats(lobbyPlayer, charStats));
+	}
+	
+	[RPC]
+	void ClientInputSettings(string inputSettingsString, LobbyMessageInfo info) {
+		LobbyPlayer lobbyPlayer = GetLobbyPlayer(info);
+		
+		Debug.Log("Player '" + lobbyPlayer.name + "' sent new input settings");
+		InputSettings inputSettings = Jboy.Json.ReadObject<InputSettings>(inputSettingsString);
+		StartCoroutine(lobbyGameDB.SetInputSettings(lobbyPlayer, inputSettings));
 	}
 	
 	[RPC]

@@ -55,6 +55,8 @@
      <Compile Include="Assets\Shared\GameDB.cs" />
      <Compile Include="Assets\Shared\GenericSerializer.cs" />
      <Compile Include="Assets\Shared\InputControl.cs" />
+     <Compile Include="Assets\Shared\InputManager.cs" />
+     <Compile Include="Assets\Shared\InputSettings.cs" />
      <Compile Include="Assets\Shared\PlayerQueueStats.cs" />
      <Compile Include="Assets\Shared\PlayerStats.cs" />
      <Compile Include="Assets\Shared\QueueSettings.cs" />

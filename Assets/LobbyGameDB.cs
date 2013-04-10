@@ -89,10 +89,10 @@ public class LobbyGameDB : MonoBehaviour {
 	
 	// Sets last login date
 	public IEnumerator SetLastLoginDate(LobbyPlayer lobbyPlayer, System.DateTime timestamp) {
-		yield return StartCoroutine(GameDB.Set<System.DateTime>(
+		yield return StartCoroutine(GameDB.Set<TimeStamp>(
 		"AccountToLastLoginDate",
 		lobbyPlayer.account.id.value,
-		timestamp,
+		new TimeStamp(timestamp),
 		data => {
 			// ...
 		}));
@@ -100,10 +100,10 @@ public class LobbyGameDB : MonoBehaviour {
 	
 	// Sets account registration date
 	public IEnumerator SetAccountRegistrationDate(string accountId, System.DateTime timestamp) {
-		yield return StartCoroutine(GameDB.Set<System.DateTime>(
+		yield return StartCoroutine(GameDB.Set<TimeStamp>(
 		"AccountToRegistrationDate",
 		accountId,
-		timestamp,
+		new TimeStamp(timestamp),
 		data => {
 			// ...
 		}));
@@ -111,7 +111,7 @@ public class LobbyGameDB : MonoBehaviour {
 	
 	// Gets account registration date
 	public IEnumerator GetAccountRegistrationDate(LobbyPlayer lobbyPlayer) {
-		/*yield return StartCoroutine(GameDB.Get<System.DateTime>(
+		/*yield return StartCoroutine(GameDB.Get<TimeStamp>(
 		"AccountToRegistrationDate",
 		lobbyPlayer.account.id.value,
 		data => {

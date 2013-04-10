@@ -41,6 +41,8 @@ public class LobbyServer : MonoBehaviour {
 	public string uZoneHost = "127.0.0.1";
 	public int uZonePort = 12345;
 	
+	private int serverVersionNumber;
+	
 	private LobbyQueue[] queue;
 	
 	void Awake() {
@@ -68,6 +70,9 @@ public class LobbyServer : MonoBehaviour {
 	void Start () {
 		// Get lobby game DB component
 		lobbyGameDB = this.GetComponent<LobbyGameDB>();
+		
+		// Version number
+		serverVersionNumber = this.GetComponent<Version>().versionNumber;
 		
 		// Make this class listen to Lobby events
 		Lobby.AddListener(this);
@@ -155,8 +160,16 @@ public class LobbyServer : MonoBehaviour {
 		AccountManager.OnAccountLoggedOut += OnAccountLoggedOut;
 		AccountManager.OnAccountRegistered += OnAccountRegistered;
 		
+		// Lobby connect
+		Lobby.OnPeerConnected += OnPeerConnected;
+		
 		// Send queue stats
 		InvokeRepeating("SendQueueStats", 1.0f, 1.0f);
+	}
+	
+	// Peer connected
+	void OnPeerConnected(LobbyPeer peer) {
+		Lobby.RPC("VersionNumber", peer, serverVersionNumber);
 	}
 	
 	// A new game server has finished starting up

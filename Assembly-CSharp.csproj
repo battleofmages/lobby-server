@@ -61,6 +61,8 @@
      <Compile Include="Assets\Shared\PlayerStats.cs" />
      <Compile Include="Assets\Shared\QueueSettings.cs" />
      <Compile Include="Assets\Shared\RankEntry.cs" />
+     <Compile Include="Assets\Shared\TimeStamp.cs" />
+     <Compile Include="Assets\Shared\Version.cs" />
      <None Include="Assets\Jboy\Library\Jboy.xml" />
      <None Include="Assets\Plugins\uLink\Assembly\uLink.xml" />
      <None Include="Assets\Plugins\uZone\Assembly\uZone.xml" />

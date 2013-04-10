@@ -37,6 +37,14 @@ public class InputControl {
 			}
 		}
 		
+		if(kc == KeyCode.None) {
+			if(Input.GetKey(KeyCode.LeftShift)) {
+				kc = KeyCode.LeftShift;
+			} else if(Input.GetKey(KeyCode.RightShift)) {
+				kc = KeyCode.RightShift;
+			}
+		}
+		
 		if(kc == KeyCode.None)
 			return KeyCode.None;
 		

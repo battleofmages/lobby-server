@@ -19,6 +19,8 @@ public class GameDB {
 		Json.AddCodec<InputControl>(InputControl.JsonDeserializer, InputControl.JsonSerializer);
 		Json.AddCodec<InputSettings>(InputSettings.JsonDeserializer, InputSettings.JsonSerializer);
 		Json.AddCodec<TimeStamp>(TimeStamp.JsonDeserializer, TimeStamp.JsonSerializer);
+		Json.AddCodec<GuildMember>(GuildMember.JsonDeserializer, GuildMember.JsonSerializer);
+		Json.AddCodec<Guild>(Guild.JsonDeserializer, Guild.JsonSerializer);
 		
 		// Register JSON codec for rank entries
 		uLink.BitStreamCodec.AddAndMakeArray<RankEntry>(RankEntry.ReadFromBitStream, RankEntry.WriteToBitStream);
@@ -40,6 +42,17 @@ public class GameDB {
 		return key;
 	}
 	
+	// GetUniqueKey
+	public static string GetUniqueKey() {
+		return Hash(System.DateTime.UtcNow).ToString();
+	}
+	
+	// Hash
+	private static ulong Hash(System.DateTime when) {
+	    ulong kind = (ulong) (int) when.Kind;
+	    return (kind << 62) | (ulong) when.Ticks;
+	}
+	
 	// Get
 	public static IEnumerator Get<T>(string bucketName, string key, ActionOnResult<T> func) {
 		var bucket = new Bucket(bucketName);
@@ -50,10 +63,10 @@ public class GameDB {
 		
 		if(request.isSuccessful) {
 			T val = request.GetValue<T>();
-			Debug.Log("GET successful: " + logInfo + " -> " + val.ToString());
+			XDebug.Log("GET successful: " + logInfo + " -> " + val.ToString());
 			func(val);
 		} else {
-			Debug.LogWarning("GET failed: " + logInfo);
+			XDebug.LogWarning("GET failed: " + logInfo);
 			func(default (T));
 		}
 	}
@@ -67,10 +80,10 @@ public class GameDB {
 		string logInfo = logBucketPrefix + bucketName + logBucketMid + Resolve(key) + logBucketPostfix;
 		
 		if(request.isSuccessful) {
-			Debug.Log("SET successful: " + logInfo + " <- " + val.ToString());
+			XDebug.Log("SET successful: " + logInfo + " <- " + val.ToString());
 			func(val);
 		} else {
-			Debug.LogWarning("SET failed: " + logInfo + " <- " + val.ToString());
+			XDebug.LogWarning("SET failed: " + logInfo + " <- " + val.ToString());
 			func(default (T));
 		}
 	}

@@ -59,7 +59,7 @@ public class LobbyChatChannel {
 	
 	public void SendMemberListToPlayer(LobbyPlayer player) {
 		var chatMemberList = this.members.Select(o => o.chatMember).ToArray();
-		//Debug.Log ("Sending " + chatMemberList + " list with " + chatMemberList.Length + " entries");
+		//XDebug.Log ("Sending " + chatMemberList + " list with " + chatMemberList.Length + " entries");
 		
 		// Receive member list
 		Lobby.RPC("ChatMembers", player.peer, this.name, chatMemberList);

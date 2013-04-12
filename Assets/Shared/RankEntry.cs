@@ -9,25 +9,28 @@ public class RankEntry {
 	public string accountId;
 	public string name;
 	public int bestRanking;
+	public long totalDamage;
 	
 	public static void WriteToBitStream(uLink.BitStream stream, object val, params object[] args) {
-		//Debug.Log("WriteRankEntry");
+		//XDebug.Log("WriteRankEntry");
 		RankEntry myObj = (RankEntry)val;
 		stream.WriteInt32(myObj.rankIndex);
 		stream.WriteString(myObj.accountId);
 		stream.WriteString(myObj.name);
 		stream.WriteInt32(myObj.bestRanking);
-		//Debug.Log("WriteRankEntry: " + myObj.accountId + ", " + myObj.bestRanking);
+		stream.WriteInt64(myObj.totalDamage);
+		//XDebug.Log("WriteRankEntry: " + myObj.accountId + ", " + myObj.bestRanking);
 	}
 	
 	public static object ReadFromBitStream(uLink.BitStream stream, params object[] args) {
-		//Debug.Log("ReadRankEntry");
+		//XDebug.Log("ReadRankEntry");
 		RankEntry myObj = new RankEntry();
 		myObj.rankIndex = stream.ReadInt32();
 		myObj.accountId = stream.ReadString();
 		myObj.name = stream.ReadString();
 		myObj.bestRanking = stream.ReadInt32();
-		//Debug.Log("ReadRankEntry: " + myObj.accountId + ", " + myObj.bestRanking);
+		myObj.totalDamage = stream.ReadInt64();
+		//XDebug.Log("ReadRankEntry: " + myObj.accountId + ", " + myObj.bestRanking);
 		return myObj;
 	}
 	
@@ -40,6 +43,7 @@ public class RankEntry {
 		writer.WriteString(scoreEntry.accountId);
 		writer.WriteString(scoreEntry.name);
 		writer.WriteNumber(scoreEntry.bestRanking);
+		writer.WriteNumber(scoreEntry.totalDamage);
 		writer.WriteArrayEnd();
 	}
 	
@@ -52,6 +56,7 @@ public class RankEntry {
 		scoreEntry.accountId = reader.ReadString();
 		scoreEntry.name = reader.ReadString();
 		scoreEntry.bestRanking = (int)reader.ReadNumber();
+		scoreEntry.totalDamage = (long)reader.ReadNumber();
 		reader.ReadArrayEnd();
 		
 		return scoreEntry;

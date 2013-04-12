@@ -49,9 +49,9 @@ public class GenericSerializer {
 			
 			object val = field.GetValue(instance);
 			
-			//Debug.Log("Writing '" + name + "'"); // with value '" + ((double)val).ToString() + "'");
-			//Debug.Log("ValueType " + val.GetType().ToString());
-			//Debug.Log("Value " + val.ToString());
+			//XDebug.Log("Writing '" + name + "'"); // with value '" + ((double)val).ToString() + "'");
+			//XDebug.Log("ValueType " + val.GetType().ToString());
+			//XDebug.Log("Value " + val.ToString());
 			
 			// Write them to the JSON stream
 			writer.WritePropertyName(name);

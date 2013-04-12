@@ -18,7 +18,7 @@
 	<DebugType>full</DebugType>
 	<Optimize>false</Optimize>
 	<OutputPath>Temp\bin\Debug\</OutputPath>
-	<DefineConstants>DEBUG;TRACE;UNITY_STANDALONE_WIN;ENABLE_MICROPHONE;ENABLE_IMAGEEFFECTS;ENABLE_WEBCAM;ENABLE_AUDIO_FMOD;UNITY_STANDALONE;ENABLE_NETWORK;ENABLE_MONO;ENABLE_PHYSICS;ENABLE_TERRAIN;ENABLE_CACHING;ENABLE_SUBSTANCE;ENABLE_GENERICS;ENABLE_CLOTH;ENABLE_MOVIES;ENABLE_AUDIO;ENABLE_WWW;ENABLE_SHADOWS;ENABLE_DUCK_TYPING;UNITY_4_1_0;UNITY_4_1;UNITY_64;ENABLE_PROFILER;UNITY_EDITOR;UNITY_TEAM_LICENSE</DefineConstants>
+	<DefineConstants>DEBUG;TRACE;UNITY_STANDALONE_WIN;ENABLE_MICROPHONE;ENABLE_IMAGEEFFECTS;ENABLE_WEBCAM;ENABLE_AUDIO_FMOD;UNITY_STANDALONE;ENABLE_NETWORK;ENABLE_MONO;ENABLE_PHYSICS;ENABLE_TERRAIN;ENABLE_CACHING;ENABLE_SUBSTANCE;ENABLE_GENERICS;ENABLE_CLOTH;ENABLE_MOVIES;ENABLE_AUDIO;ENABLE_WWW;ENABLE_SHADOWS;ENABLE_DUCK_TYPING;UNITY_4_1_2;UNITY_4_1;UNITY_64;ENABLE_PROFILER;UNITY_EDITOR;UNITY_TEAM_LICENSE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
 	<NoWarn>0169</NoWarn>
@@ -54,6 +54,7 @@
      <Compile Include="Assets\Shared\ChatMember.cs" />
      <Compile Include="Assets\Shared\GameDB.cs" />
      <Compile Include="Assets\Shared\GenericSerializer.cs" />
+     <Compile Include="Assets\Shared\Guild.cs" />
      <Compile Include="Assets\Shared\InputControl.cs" />
      <Compile Include="Assets\Shared\InputManager.cs" />
      <Compile Include="Assets\Shared\InputSettings.cs" />
@@ -63,7 +64,9 @@
      <Compile Include="Assets\Shared\RankEntry.cs" />
      <Compile Include="Assets\Shared\TimeStamp.cs" />
      <Compile Include="Assets\Shared\Version.cs" />
+     <Compile Include="Assets\Shared\XDebug.cs" />
      <None Include="Assets\Jboy\Library\Jboy.xml" />
+     <None Include="Assets\Plugins\uLobby\Extras\ClientDLL\ReadMe.txt" />
      <None Include="Assets\Plugins\uLink\Assembly\uLink.xml" />
      <None Include="Assets\Plugins\uZone\Assembly\uZone.xml" />
      <None Include="Assets\Resources\uLinkPrefs.txt" />

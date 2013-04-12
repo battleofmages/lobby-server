@@ -16,6 +16,8 @@ public class LobbyPlayer {
 	public ChatMember chatMember;
 	public PlayerStats stats;
 	public CharacterStats charStats;
+	public Guild[] guildList;
+	public string[] guildIdList;
 	
 	public List<LobbyChatChannel> channels;
 	
@@ -99,7 +101,7 @@ public class LobbyPlayer {
 	
 	// Connects the player to a game server instance
 	public void ConnectToGameServer(uZone.GameInstance instance) {
-		Debug.Log("Connecting account '" + account.name + "' to game server " + instance.ip + ":" + instance.port);
+		XDebug.Log("Connecting account '" + account.name + "' to game server " + instance.ip + ":" + instance.port);
 		Lobby.RPC("ConnectToGameServer", peer, instance.ip, instance.port);
 	}
 }

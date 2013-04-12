@@ -1,5 +1,3 @@
-<!-- This file can be used if you are having problems with stripping. It should be put directly in the Assets folder within the Unity project (and possibly merged with any existing link.xml file). -->
-
 <linker>
 	<!-- Assembly Dlls that should have some types ignored by stripping. -->
 	<assembly fullname="System">
@@ -11,6 +9,9 @@
 	</assembly>
 	<assembly fullname="System.Configuration">
 		<type fullname="System.Configuration.ExeConfigurationHost" preserve="all"/>
+	</assembly>
+	<assembly fullname="mscorlib">
+		<namespace fullname="System.Security.Cryptography" preserve="all"/>
 	</assembly>
 	<assembly fullname="uLobby">
 		<type fullname="uLobby.Lobby" preserve="all"/>

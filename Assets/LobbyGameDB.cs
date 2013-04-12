@@ -116,9 +116,9 @@ public class LobbyGameDB : MonoBehaviour {
 		lobbyPlayer.account.id.value,
 		data => {
 			if(data == null)
-				Debug.LogWarning("Failed getting registration date of account ID '" + lobbyPlayer.account.id.value + "'");
+				XDebug.LogWarning("Failed getting registration date of account ID '" + lobbyPlayer.account.id.value + "'");
 			else
-				Debug.Log("Got registration date of account ID '" + lobbyPlayer.account.id.value + "' successfully: " + data);
+				XDebug.Log("Got registration date of account ID '" + lobbyPlayer.account.id.value + "' successfully: " + data);
 		}));*/
 		yield break;
 	}
@@ -147,6 +147,59 @@ public class LobbyGameDB : MonoBehaviour {
 		data => {
 			// ...
 		}));
+	}
+	
+	// Set guild
+	public IEnumerator SetGuild(string guildId, Guild guild) {
+		yield return StartCoroutine(GameDB.Set<Guild>(
+		"Guilds",
+		guildId,
+		guild,
+		data => {
+			// ...
+		}));
+	}
+	
+	// Get guild
+	public IEnumerator GetGuild(LobbyPlayer lobbyPlayer, int guildIndex) {
+		string guildId = lobbyPlayer.guildIdList[guildIndex];
+		
+		yield return StartCoroutine(GameDB.Get<Guild>(
+		"Guilds",
+		guildId,
+		data => {
+			if(data == null) {
+				Lobby.RPC("ReceiveGuildInfoError", lobbyPlayer.peer);
+			} else {
+				lobbyPlayer.guildList[guildIndex] = data;
+			}
+		}));
+	}
+	
+	// Get guild list
+	public IEnumerator GetGuildList(LobbyPlayer lobbyPlayer) {
+		yield return StartCoroutine(GameDB.Get<string[]>(
+		"AccountToGuilds",
+		lobbyPlayer.account.id.value,
+		data => {
+			if(data == null) {
+				lobbyPlayer.guildIdList = new string[0];
+			} else {
+				lobbyPlayer.guildIdList = data;
+			}
+		}));
+		
+		if(lobbyPlayer.guildIdList == null)
+			yield break;
+		
+		lobbyPlayer.guildList = new Guild[lobbyPlayer.guildIdList.Length];
+		
+		for(int i = 0; i < lobbyPlayer.guildIdList.Length; i++) {
+			yield return StartCoroutine(GetGuild(lobbyPlayer, i));
+		}
+		
+		XDebug.Log("Received guild list: " + lobbyPlayer.guildList);
+		LobbyServer.OnReceiveGuildList(lobbyPlayer);
 	}
 	
 	// Get top ranks
@@ -197,10 +250,10 @@ public class LobbyGameDB : MonoBehaviour {
 				}
 			}
 			
-			//Debug.Log("Sending the ranking list " + GameDB.rankingEntries + " with " + rankingEntries.Length + " entries");
+			//XDebug.Log("Sending the ranking list " + GameDB.rankingEntries + " with " + rankingEntries.Length + " entries");
 			Lobby.RPC("ReceiveRankingList", peer, GameDB.rankingEntries, false);
 		} else {
-			Debug.Log("Failed getting the ranking list: " + getHighscoresRequest.GetErrorString());
+			XDebug.Log("Failed getting the ranking list: " + getHighscoresRequest.GetErrorString());
 			Lobby.RPC("ReceiveRankingList", peer, null, false);
 		}
 	}
@@ -213,7 +266,7 @@ public class LobbyGameDB : MonoBehaviour {
 	@"
 	function(value, keydata, arg) {
 		var scoreEntry = JSON.parse(value.values[0].data);
-		return [[0, value.key, '', scoreEntry.bestRanking]];
+		return [[0, value.key, '', scoreEntry.bestRanking, scoreEntry.total.damage]];
 	}
 	";
 	
@@ -225,7 +278,14 @@ public class LobbyGameDB : MonoBehaviour {
 	private const string highscoresReduceFunction =
 	@"
 	function(valueList, maxScoreCount) {
-		var descendingOrder = function(a, b) { return b[3] - a[3]; };
+		var descendingOrder = function(a, b) {
+			var diff = b[3] - a[3];
+			
+			if(diff == 0)
+				return b[4] - a[4];
+			
+			return diff;
+		};
 		valueList.sort(descendingOrder);
 		if (valueList.length > maxScoreCount) { valueList.length = maxScoreCount; }
 		return valueList;

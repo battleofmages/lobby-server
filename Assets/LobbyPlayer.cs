@@ -8,7 +8,7 @@ using uLobby;
 }*/
 
 public class LobbyPlayer {
-	public static Dictionary<Account, LobbyPlayer> accountToLobbyPlayer = new Dictionary<Account, LobbyPlayer>();
+	public static Dictionary<string, LobbyPlayer> accountIdToLobbyPlayer = new Dictionary<string, LobbyPlayer>();
 	public static List<LobbyPlayer> list = new List<LobbyPlayer>();
 	
 	public Account account;
@@ -16,8 +16,8 @@ public class LobbyPlayer {
 	public ChatMember chatMember;
 	public PlayerStats stats;
 	public CharacterStats charStats;
-	public Guild[] guildList;
-	public string[] guildIdList;
+	public List<string> guildIdList;
+	public List<string> guildInvitations;
 	
 	public List<LobbyChatChannel> channels;
 	
@@ -33,6 +33,7 @@ public class LobbyPlayer {
 		channels = new List<LobbyChatChannel>();
 		chatMember = new ChatMember(_name, ChatMemberStatus.Online);
 		LobbyPlayer.list.Add(this);
+		LobbyPlayer.accountIdToLobbyPlayer[account.id.value] = this;
 	}
 	
 	// Player name

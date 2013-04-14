@@ -13,9 +13,9 @@ public class GenericSerializer {
 			writer.WriteNumber((double)((long)val));
 		} else if(val is double) {
 			writer.WriteNumber((double)val);
-		} else if(val is PlayerQueueStats) {
-			GenericSerializer.WriteJSONClassInstance<PlayerQueueStats>(writer, (PlayerQueueStats)val);
-		} else if(val is PlayerQueueStats[]) {
+		//} else if(val is PlayerQueueStats) {
+		//	GenericSerializer.WriteJSONClassInstance<PlayerQueueStats>(writer, (PlayerQueueStats)val);
+		/*} else if(val is PlayerQueueStats[]) {
 			writer.WriteArrayStart();
 			
 			PlayerQueueStats[] valArray = (PlayerQueueStats[])val;
@@ -23,14 +23,14 @@ public class GenericSerializer {
 				GenericSerializer.WriteJSONClassInstance<PlayerQueueStats>(writer, valArray[i]);
 			}
 			
-			writer.WriteArrayEnd();
+			writer.WriteArrayEnd();*/
 		} else {
 			Jboy.Json.WriteObject(val, writer);
 		}
 	}
 	
 	// Writes all fields of a class instance
-	public static void WriteJSONClassInstance<T>(Jboy.JsonWriter writer, T instance, HashSet<string> fieldFilter = null) {
+	public static void WriteJSONClassInstance<T>(Jboy.JsonWriter writer, T instance, HashSet<string> fieldFilter = null, HashSet<string> fieldExclude = null) {
 		// Type pointer
 		Type type = typeof(T);
 		
@@ -45,6 +45,9 @@ public class GenericSerializer {
 			string name = field.Name;
 			
 			if(fieldFilter != null && !fieldFilter.Contains(name))
+				continue;
+			
+			if(fieldExclude != null && fieldExclude.Contains(name))
 				continue;
 			
 			object val = field.GetValue(instance);
@@ -67,13 +70,15 @@ public class GenericSerializer {
 			return (int)(reader.ReadNumber());
 		} else if(field.FieldType == typeof(long)) {
 			return (long)(reader.ReadNumber());
+		} else if(field.FieldType == typeof(byte)) {
+			return (byte)(reader.ReadNumber());
 		} else if(field.FieldType == typeof(double)) {
 			return reader.ReadNumber();
 		} else if(field.FieldType == typeof(KeyCode)) {
 			return (KeyCode)(reader.ReadNumber());
 		} else if(field.FieldType == typeof(string)) {
 			return reader.ReadString();
-		}else if(field.FieldType == typeof(PlayerQueueStats)) {
+		} else if(field.FieldType == typeof(PlayerQueueStats)) {
 			return GenericSerializer.ReadJSONClassInstance<PlayerQueueStats>(reader);
 		} else if(field.FieldType == typeof(PlayerQueueStats[])) {
 			reader.ReadArrayStart();
@@ -101,6 +106,16 @@ public class GenericSerializer {
 			reader.ReadArrayEnd();
 			
 			return valList.ToArray();
+		} else if(field.FieldType == typeof(TimeStamp)) {
+			return Jboy.Json.ReadObject<TimeStamp>(reader);
+		} else if(field.FieldType == typeof(Guild)) {
+			return GenericSerializer.ReadJSONClassInstance<Guild>(reader);
+		} else if(field.FieldType == typeof(GuildMember)) {
+			return GenericSerializer.ReadJSONClassInstance<GuildMember>(reader);
+		} else if(field.FieldType == typeof(GuildMember[])) {
+			return Jboy.Json.ReadObject<GuildMember[]>(reader);
+		} else if(field.FieldType == typeof(Texture2D)) {
+			return GenericSerializer.Texture2DJsonDeserializer(reader);
 		} else {
 			Debug.LogError("Unknown field type for GenericSerializer.ReadJSONValue: " + field.FieldType);
 			return (int)(reader.ReadNumber());
@@ -131,5 +146,29 @@ public class GenericSerializer {
 		reader.ReadObjectEnd();
 		
 		return instance;
+	}
+	
+	// Writer
+	public static void Texture2DJsonSerializer(Jboy.JsonWriter writer, object instance) {
+		writer.WriteNull();
+		/*var tex = (Texture2D)instance;
+		writer.WriteObjectStart();
+		
+		writer.WritePropertyName("width");
+		writer.WriteNumber(tex.width);
+		
+		writer.WritePropertyName("height");
+		writer.WriteNumber(tex.height);
+		
+		writer.WritePropertyName("data");
+		Jboy.Json.WriteObject(tex.EncodeToPNG(), writer);
+		
+		writer.WriteObjectEnd();*/
+	}
+	
+	// Reader
+	public static object Texture2DJsonDeserializer(Jboy.JsonReader reader) {
+		reader.ReadNull();
+		return null; //new Texture2D(64, 64);
 	}
 }

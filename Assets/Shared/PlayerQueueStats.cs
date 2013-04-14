@@ -119,4 +119,14 @@ public class PlayerQueueStats {
 		
 		return (float)assists / matchesPlayed;
 	}}
+	
+	// Writer
+	public static void JsonSerializer(Jboy.JsonWriter writer, object instance) {
+		GenericSerializer.WriteJSONClassInstance<PlayerQueueStats>(writer, (PlayerQueueStats)instance);
+	}
+	
+	// Reader
+	public static object JsonDeserializer(Jboy.JsonReader reader) {
+		return GenericSerializer.ReadJSONClassInstance<PlayerQueueStats>(reader);
+	}
 }

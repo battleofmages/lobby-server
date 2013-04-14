@@ -50,6 +50,7 @@
      <Compile Include="Assets\LobbyQueue.cs" />
      <Compile Include="Assets\LobbyServer.cs" />
      <Compile Include="Assets\Match.cs" />
+     <Compile Include="Assets\Shared\AccountIdToNameEntry.cs" />
      <Compile Include="Assets\Shared\CharacterStats.cs" />
      <Compile Include="Assets\Shared\ChatMember.cs" />
      <Compile Include="Assets\Shared\GameDB.cs" />

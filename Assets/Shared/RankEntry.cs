@@ -11,26 +11,27 @@ public class RankEntry {
 	public int bestRanking;
 	public long totalDamage;
 	
+	// BitStream Writer
 	public static void WriteToBitStream(uLink.BitStream stream, object val, params object[] args) {
-		//XDebug.Log("WriteRankEntry");
 		RankEntry myObj = (RankEntry)val;
+		
 		stream.WriteInt32(myObj.rankIndex);
 		stream.WriteString(myObj.accountId);
 		stream.WriteString(myObj.name);
 		stream.WriteInt32(myObj.bestRanking);
 		stream.WriteInt64(myObj.totalDamage);
-		//XDebug.Log("WriteRankEntry: " + myObj.accountId + ", " + myObj.bestRanking);
 	}
 	
+	// BitStream Reader
 	public static object ReadFromBitStream(uLink.BitStream stream, params object[] args) {
-		//XDebug.Log("ReadRankEntry");
 		RankEntry myObj = new RankEntry();
+		
 		myObj.rankIndex = stream.ReadInt32();
 		myObj.accountId = stream.ReadString();
 		myObj.name = stream.ReadString();
 		myObj.bestRanking = stream.ReadInt32();
 		myObj.totalDamage = stream.ReadInt64();
-		//XDebug.Log("ReadRankEntry: " + myObj.accountId + ", " + myObj.bestRanking);
+		
 		return myObj;
 	}
 	

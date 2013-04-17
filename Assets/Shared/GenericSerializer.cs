@@ -114,6 +114,8 @@ public class GenericSerializer {
 			return GenericSerializer.ReadJSONClassInstance<GuildMember>(reader);
 		} else if(field.FieldType == typeof(GuildMember[])) {
 			return Jboy.Json.ReadObject<GuildMember[]>(reader);
+		} else if(field.FieldType == typeof(List<string>)) {
+			return Jboy.Json.ReadObject<List<string>>(reader);
 		} else if(field.FieldType == typeof(Texture2D)) {
 			return GenericSerializer.Texture2DJsonDeserializer(reader);
 		} else {

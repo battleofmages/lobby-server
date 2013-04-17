@@ -37,10 +37,10 @@
     <Reference Include="System.XML" />
 	<Reference Include="System.Core" />
 	<Reference Include="UnityEngine">
-	  <HintPath>D:/Apps/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
 	</Reference>
 	<Reference Include="UnityEditor">
-	  <HintPath>D:/Apps/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
 	</Reference>
   </ItemGroup>
   <ItemGroup>
@@ -59,6 +59,7 @@
      <Compile Include="Assets\Shared\InputControl.cs" />
      <Compile Include="Assets\Shared\InputManager.cs" />
      <Compile Include="Assets\Shared\InputSettings.cs" />
+     <Compile Include="Assets\Shared\PaymentsList.cs" />
      <Compile Include="Assets\Shared\PlayerQueueStats.cs" />
      <Compile Include="Assets\Shared\PlayerStats.cs" />
      <Compile Include="Assets\Shared\QueueSettings.cs" />

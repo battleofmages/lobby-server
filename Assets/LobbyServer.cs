@@ -587,6 +587,19 @@ public class LobbyServer : MonoBehaviour {
 	}
 	
 	[RPC]
+	IEnumerator CrystalBalanceRequest(LobbyMessageInfo info) {
+		LobbyPlayer lobbyPlayer = GetLobbyPlayer(info);
+		
+		yield return StartCoroutine(lobbyGameDB.GetPaymentsList(lobbyPlayer.account.id.value, data => {
+			if(data == null) {
+				Lobby.RPC("ReceiveCrystalBalance", lobbyPlayer.peer, 0);
+			} else {
+				Lobby.RPC("ReceiveCrystalBalance", lobbyPlayer.peer, (int)(data.balance * 100));
+			}
+		}));
+	}
+	
+	[RPC]
 	void ClientCharacterStats(CharacterStats charStats, LobbyMessageInfo info) {
 		LobbyPlayer lobbyPlayer = GetLobbyPlayer(info);
 		

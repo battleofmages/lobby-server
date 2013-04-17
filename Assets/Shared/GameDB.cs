@@ -27,6 +27,7 @@ public class GameDB {
 		Json.AddCodec<TimeStamp>(TimeStamp.JsonDeserializer, TimeStamp.JsonSerializer);
 		Json.AddCodec<GuildMember>(GuildMember.JsonDeserializer, GuildMember.JsonSerializer);
 		Json.AddCodec<Guild>(Guild.JsonDeserializer, Guild.JsonSerializer);
+		Json.AddCodec<PaymentsList>(PaymentsList.JsonDeserializer, PaymentsList.JsonSerializer);
 		Json.AddCodec<Texture2D>(GenericSerializer.Texture2DJsonDeserializer, GenericSerializer.Texture2DJsonSerializer);
 		
 		// Register JSON codecs for MapReduce entries

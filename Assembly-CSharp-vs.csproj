@@ -50,7 +50,18 @@
      <Compile Include="Assets\LobbyQueue.cs" />
      <Compile Include="Assets\LobbyServer.cs" />
      <Compile Include="Assets\Match.cs" />
-     <Compile Include="Assets\Shared\AccountIdToNameEntry.cs" />
+     <Compile Include="Assets\Modules\ChatServer.cs" />
+     <Compile Include="Assets\Modules\DonationsDB.cs" />
+     <Compile Include="Assets\Modules\DonationsServer.cs" />
+     <Compile Include="Assets\Modules\GuildsDB.cs" />
+     <Compile Include="Assets\Modules\GuildsServer.cs" />
+     <Compile Include="Assets\Modules\RankingsDB.cs" />
+     <Compile Include="Assets\Modules\RankingsServer.cs" />
+     <Compile Include="Assets\Modules\SettingsDB.cs" />
+     <Compile Include="Assets\Modules\SettingsServer.cs" />
+     <Compile Include="Assets\Modules\TraitsDB.cs" />
+     <Compile Include="Assets\Modules\TraitsServer.cs" />
+     <Compile Include="Assets\Shared\AccountIdToValueEntry.cs" />
      <Compile Include="Assets\Shared\CharacterStats.cs" />
      <Compile Include="Assets\Shared\ChatMember.cs" />
      <Compile Include="Assets\Shared\GameDB.cs" />
@@ -65,6 +76,7 @@
      <Compile Include="Assets\Shared\QueueSettings.cs" />
      <Compile Include="Assets\Shared\RankEntry.cs" />
      <Compile Include="Assets\Shared\TimeStamp.cs" />
+     <Compile Include="Assets\Shared\Validator.cs" />
      <Compile Include="Assets\Shared\Version.cs" />
      <Compile Include="Assets\Shared\XDebug.cs" />
      <None Include="Assets\Jboy\Library\Jboy.xml" />

@@ -1,0 +1,27 @@
+using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+using uLobby;
+
+public class RankingsServer : MonoBehaviour {
+	private RankingsDB rankingsDB;
+	
+	void Start () {
+		rankingsDB = this.GetComponent<RankingsDB>();
+		
+		// Make this class listen to lobby events
+		Lobby.AddListener(this);
+	}
+	
+	// --------------------------------------------------------------------------------
+	// RPCs
+	// --------------------------------------------------------------------------------
+	
+	[RPC]
+	void RankingListRequest(LobbyMessageInfo info) {
+		uint maxPlayerCount = 10;
+		
+		//XDebug.Log("Retrieving top " + maxPlayerCount + " ranks");
+		StartCoroutine(rankingsDB.GetTopRanks(maxPlayerCount, info.sender));
+	}
+}

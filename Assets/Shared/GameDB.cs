@@ -32,7 +32,7 @@ public class GameDB {
 		
 		// Register JSON codecs for MapReduce entries
 		Json.AddCodec<RankEntry>(RankEntry.JsonDeserializer, RankEntry.JsonSerializer);
-		Json.AddCodec<AccountIdToNameEntry>(AccountIdToNameEntry.JsonDeserializer, AccountIdToNameEntry.JsonSerializer);
+		Json.AddCodec<AccountIdToValueEntry>(AccountIdToValueEntry.JsonDeserializer, AccountIdToValueEntry.JsonSerializer);
 		
 		// BitStream codecs
 		uLink.BitStreamCodec.AddAndMakeArray<RankEntry>(RankEntry.ReadFromBitStream, RankEntry.WriteToBitStream);
@@ -66,6 +66,17 @@ public class GameDB {
 	private static ulong Hash(System.DateTime when) {
 	    ulong kind = (ulong) (int) when.Kind;
 	    return (kind << 62) | (ulong) when.Ticks;
+	}
+	
+	// Encrypt a password using SHA1
+	public static byte[] EncryptPassword(string password) {
+		// Make precalculated, generic rainbow tables ineffective by using a salt
+		string salt = "c90e8eca04f64d70baacc9d0a5c4c72e" + password;
+		password += salt;
+		
+		// Encrypt the password
+		System.Security.Cryptography.SHA1 sha1 = System.Security.Cryptography.SHA1.Create();
+		return sha1.ComputeHash(System.Text.Encoding.Unicode.GetBytes(password));
 	}
 	
 	// Get
@@ -125,14 +136,16 @@ public class GameDB {
 	
 	// MapReduce
 	public static IEnumerator MapReduce<T>(string bucketName, string jsMapPhase, string jsReducePhase, object argument, ActionOnResult<T[]> func) {
-		var bucket = new Bucket("AccountToName");
+		XDebug.Log("Preparing MapReduce");
+		var bucket = new Bucket(bucketName);
 		var mapReduceRequest = bucket.MapReduce(
 			new JavaScriptMapPhase(jsMapPhase),
 			new JavaScriptReducePhase(jsReducePhase, argument)
 		);
-		
+		XDebug.Log("MapReduce.Wait");
 		// Wait until the request finishes
 		yield return mapReduceRequest.WaitUntilDone();
+		XDebug.Log("MapReduce.Done");
 		
 		string logInfo = logBucketPrefix + bucketName + logBucketMid + argument.ToString() + logBucketPostfix;
 		

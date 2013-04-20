@@ -5,34 +5,16 @@ using uZone;
 using System.Collections;
 using System.Collections.Generic;
 
-/*
-// Bucket: AccountToName
-
- - Name : string
-
-// Bucket: AccountToRanking
-
- - Ranking : int
-
-// Bucket: AccountToStats
-
- - Level : ushort
- - Kills : int
- - Deaths : int
- - Damage : int64
- - CC : int64
- - Wins : int
- - Losses : int
-
-(// Bucket: NameToAccount
-
- - AccountID : string)
-*/
-
 public class LobbyServer : MonoBehaviour {
+	public static bool uZoneConnected = false;
+	public static int uZoneNodeCount;
 	public static string gameName = "bomWithFlags";
 	public static LobbyChatChannel globalChannel = new LobbyChatChannel("Global");
+	
+	// Database component
 	public static LobbyGameDB lobbyGameDB;
+	public static TraitsDB traitsDB;
+	public static SettingsDB settingsDB;
 	
 	public int maxConnections = 1024;
 	public int listenPort = 1310;
@@ -51,9 +33,9 @@ public class LobbyServer : MonoBehaviour {
 		uLinkTargetFrameRateFix.SetTargetFrameRate(20);
 		
 		// Initialize uZone
+		uZone.InstanceManager.AddListener(this.gameObject);
 		uZone.InstanceManager.Initialise();
 		uZone.InstanceManager.Connect(uZoneHost, uZonePort);
-		uZone.InstanceManager.AddListener(this.gameObject);
 		
 		// Create queues
 		queue = new LobbyQueue[5];
@@ -68,8 +50,10 @@ public class LobbyServer : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		// Get lobby game DB component
+		// Get DB components
 		lobbyGameDB = this.GetComponent<LobbyGameDB>();
+		traitsDB = this.GetComponent<TraitsDB>();
+		settingsDB = this.GetComponent<SettingsDB>();
 		
 		// Version number
 		serverVersionNumber = this.GetComponent<Version>().versionNumber;
@@ -146,7 +130,7 @@ public class LobbyServer : MonoBehaviour {
 	}
 	
 	// Gets the lobby player by the supplied message info
-	LobbyPlayer GetLobbyPlayer(LobbyMessageInfo info) {
+	public static LobbyPlayer GetLobbyPlayer(LobbyMessageInfo info) {
 		Account account = AccountManager.Master.GetLoggedInAccount(info.sender);
 		return LobbyPlayer.accountIdToLobbyPlayer[account.id.value];
 	}
@@ -176,7 +160,7 @@ public class LobbyServer : MonoBehaviour {
 		Lobby.InitializeSecurity(true);
 		
 		// Authoritative
-		//AccountManager.Master.isAuthoritative = true;
+		AccountManager.Master.isAuthoritative = true;
 		
 		// Add ourselves as listeners for when accounts log in or out.
 		AccountManager.OnAccountLoggedIn += OnAccountLoggedIn;
@@ -200,19 +184,6 @@ public class LobbyServer : MonoBehaviour {
 		Lobby.RPC("VersionNumber", peer, serverVersionNumber);
 	}
 	
-	// A new game server has finished starting up
-	void uZone_OnInstanceStarted(uZone.GameInstance instance) {
-		// TODO: Use a dictionary
-		
-		// Pick the match this instance has been started for
-		foreach(Match match in Match.matchesWaitingForServer) {
-			if(match.requestId == instance.requestId) {
-				match.StartPlayingOn(instance);
-				return;
-			}
-		}
-	}
-	
 	// Account login
 	void OnAccountLoggedIn(Account account) {
 		XDebug.Log("Account '<color=yellow>" + account.name + "</color>' logged in.");
@@ -231,8 +202,8 @@ public class LobbyServer : MonoBehaviour {
 			}
 		}));
 		StartCoroutine(lobbyGameDB.GetPlayerStats(lobbyPlayer));
-		StartCoroutine(lobbyGameDB.GetCharacterStats(lobbyPlayer));
-		StartCoroutine(lobbyGameDB.GetInputSettings(lobbyPlayer));
+		StartCoroutine(traitsDB.GetCharacterStats(lobbyPlayer));
+		StartCoroutine(settingsDB.GetInputSettings(lobbyPlayer));
 		
 		//StartCoroutine(LobbyGameDB.GetAccountRegistrationDate(lobbyPlayer));
 		
@@ -253,6 +224,12 @@ public class LobbyServer : MonoBehaviour {
 		StartCoroutine(lobbyGameDB.SetAccountRegistrationDate(account.id.value, System.DateTime.UtcNow));
 	}
 	
+	// Account register failed
+	/*void OnRegisterFailed(string accountName, AccountError error) {
+		// Bug in uLobby: We need to call this explicitly on the client
+		Lobby.RPC("_RPCOnRegisterAccountFailed", info.sender, registerReq.result);
+	}*/
+	
 	// Once we have the player name, let him join the channel
 	public static void OnReceivePlayerName(LobbyPlayer player) {
 		GameDB.accountIdToName[player.account.id.value] = player.name;
@@ -260,10 +237,56 @@ public class LobbyServer : MonoBehaviour {
 		XDebug.Log("<color=yellow><b>" + player.name + "</b></color> is online.");
 	}
 	
-	// Once we have the guild ID list, send it to the player
-	public static void OnReceiveGuildIdList(LobbyPlayer player) {
-		//string guildListString = Jboy.Json.WriteObject(player.guildIdList);
-		Lobby.RPC("ReceiveGuildIdList", player.peer, player.guildIdList.ToArray(), true);
+	// uZone connection established
+	void uZone_OnConnected(string id) {
+		XDebug.Log("Connected to uZone (ID: " + id + ").");
+		
+		LobbyServer.uZoneConnected = true;
+		uZone.InstanceManager.ListAvailableNodes();
+	}
+	
+	// uZone node connection established
+	void uZone_OnNodeConnected(uZone.Node node) {
+		XDebug.Log("Connected to uZone node (" + node.ToString() + ")");
+		
+		// Start matchmaking after downtime of uZone nodes
+		if(queue != null && LobbyServer.uZoneNodeCount == 0) {
+			foreach(var q in queue) {
+				q.MakeMatchesBasedOnRanking();
+			}
+		}
+		
+		LobbyServer.uZoneNodeCount += 1;
+	}
+	
+	// uZone node connection lost
+	void uZone_OnNodeDisconnected(string id) {
+		XDebug.LogError("Lost connection to uZone node (NodeID: " + id + ")");
+		LobbyServer.uZoneNodeCount -= 1;
+	}
+	
+	// uZone node list
+	void uZone_OnNodeListReceived(List<uZone.Node> newNodeList) {
+		XDebug.Log("Received uZone node list (" + newNodeList.Count + " online).");
+		
+		foreach(var node in newNodeList) {
+			XDebug.Log(node.ToString());
+		}
+		
+		LobbyServer.uZoneNodeCount = newNodeList.Count;
+	}
+	
+	// A new game server has finished starting up
+	void uZone_OnInstanceStarted(uZone.GameInstance instance) {
+		// TODO: Use a dictionary
+		
+		// Pick the match this instance has been started for
+		foreach(Match match in Match.matchesWaitingForServer) {
+			if(match.requestId == instance.requestId) {
+				match.StartPlayingOn(instance);
+				return;
+			}
+		}
 	}
 	
 	// uZone errors
@@ -272,14 +295,100 @@ public class LobbyServer : MonoBehaviour {
 	}
 	
 	// --------------------------------------------------------------------------------
+	// Account Management RPCs
+	// --------------------------------------------------------------------------------
+	
+	[RPC]
+	IEnumerator LobbyRegisterAccount(string accountName, byte[] passwordHash, string email, LobbyMessageInfo info) {
+		// Validate data
+		if(!Validator.accountName.IsMatch(accountName))
+			yield break;
+		
+		if(!Validator.email.IsMatch(email))
+			yield break;
+		
+		// Check if email has already been registered
+		bool emailExists = false;
+		
+		yield return StartCoroutine(lobbyGameDB.GetAccountIdByEmail(email, data => {
+			if(data != null) {
+				emailExists = true;
+			}
+		}));
+		
+		if(emailExists) {
+			Lobby.RPC("EmailAlreadyExists", info.sender);
+			yield break;
+		}
+		
+		// Register account in uLobby
+		byte[] customData = new byte[0];
+		uLobby.Request<Account> registerReq = AccountManager.Master.RegisterAccount(accountName, passwordHash, customData);
+		yield return registerReq.WaitUntilDone();
+		
+		// Bug in uLobby: We need to call this explicitly on the client
+		if(!registerReq.isSuccessful) {
+			AccountException exception = (AccountException)registerReq.exception;
+			AccountError error = exception.error;
+			
+			Lobby.RPC("_RPCOnRegisterAccountFailed", info.sender, accountName, error);
+			yield break;
+		}
+		
+		// Set email for the account
+		Account account = registerReq.result;
+		yield return StartCoroutine(lobbyGameDB.SetEmail(account.id.value, email, data => {
+			// ...
+		}));
+		
+		// Bug in uLobby: We need to call this explicitly on the client
+		Lobby.RPC("_RPCOnAccountRegistered", info.sender, account);
+	}
+	
+	[RPC]
+	IEnumerator LobbyAccountLogIn(string accountName, byte[] passwordHash, LobbyMessageInfo info) {
+		uLobby.Request<Account> loginReq = AccountManager.Master.LogIn(info.sender, accountName, passwordHash);
+		yield return loginReq.WaitUntilDone();
+		
+		if(!loginReq.isSuccessful) {
+			AccountException exception = (AccountException)loginReq.exception;
+			AccountError error = exception.error;
+			
+			// Bug in uLobby: We need to call this explicitly on the client
+			Lobby.RPC("_RPCOnLogInFailed", info.sender, accountName, error);
+			yield break;
+		}
+	}
+	
+	[RPC]
+	IEnumerator LobbyAccountLogOut(LobbyMessageInfo info) {
+		uLobby.Request req = AccountManager.Master.LogOut(info.sender);
+		yield return req.WaitUntilDone();
+	}
+	
+	// --------------------------------------------------------------------------------
 	// RPCs
 	// --------------------------------------------------------------------------------
 	
 	[RPC]
-	void PlayerNameChange(string newName, LobbyMessageInfo info) {
-		// Length minimum
-		if(newName.Length < 2)
-			return;
+	IEnumerator PlayerNameChange(string newName, LobbyMessageInfo info) {
+		// Validate data
+		if(!Validator.playerName.IsMatch(newName))
+			yield break;
+		
+		// Check if name exists already
+		bool nameExists = false;
+		
+		yield return StartCoroutine(lobbyGameDB.GetAccountIdByPlayerName(newName, data => {
+			if(data != null) {
+				nameExists = true;
+			}
+		}));
+		
+		if(nameExists) {
+			Lobby.RPC("PlayerNameAlreadyExists", info.sender);
+			yield break;
+		}
 		
 		// Get the account
 		LobbyPlayer lobbyPlayer = GetLobbyPlayer(info);
@@ -292,7 +401,7 @@ public class LobbyServer : MonoBehaviour {
 	[RPC]
 	void EnterQueue(byte playersPerTeam, LobbyMessageInfo info) {
 		// Check for correct team size
-		if(playersPerTeam > 5)
+		if(playersPerTeam == 0 || playersPerTeam > 5)
 			return;
 		
 		LobbyPlayer lobbyPlayer = GetLobbyPlayer(info);
@@ -336,315 +445,5 @@ public class LobbyServer : MonoBehaviour {
 		foreach(var channel in lobbyPlayer.channels) {
 			channel.SendMemberListToPlayer(lobbyPlayer);
 		}
-	}
-	
-	[RPC]
-	void RankingListRequest(LobbyMessageInfo info) {
-		uint maxPlayerCount = 10;
-		
-		//XDebug.Log("Retrieving top " + maxPlayerCount + " ranks");
-		StartCoroutine(lobbyGameDB.GetTopRanks(maxPlayerCount, info.sender));
-	}
-	
-	[RPC]
-	void GuildIdListRequest(LobbyMessageInfo info) {
-		LobbyPlayer lobbyPlayer = GetLobbyPlayer(info);
-		
-		if(lobbyPlayer.guildIdList == null) {
-			StartCoroutine(lobbyGameDB.GetGuildIdList(lobbyPlayer));
-		} else {
-			OnReceiveGuildIdList(lobbyPlayer);
-		}
-	}
-	
-	[RPC]
-	IEnumerator GuildInfoRequest(string guildId, LobbyMessageInfo info) {
-		// Get guild info from database
-		if(!GameDB.guildIdToGuild.ContainsKey(guildId)) {
-			yield return StartCoroutine(lobbyGameDB.GetGuild(guildId));
-		}
-		
-		// Send guild info to player
-		if(GameDB.guildIdToGuild.ContainsKey(guildId)) {
-			string guildInfoString = Jboy.Json.WriteObject(GameDB.guildIdToGuild[guildId]);
-			Lobby.RPC("ReceiveGuildInfo", info.sender, guildId, guildInfoString);
-		} else {
-			Lobby.RPC("ReceiveGuildInfoError", info.sender, guildId);
-		}
-	}
-	
-	[RPC]
-	IEnumerator GuildMembersRequest(string guildId, LobbyMessageInfo info) {
-		// Get guild members from database
-		if(!GameDB.guildIdToGuildMembers.ContainsKey(guildId)) {
-			yield return StartCoroutine(lobbyGameDB.GetGuildMembers(guildId));
-		}
-		
-		// Send guild info to player
-		if(GameDB.guildIdToGuildMembers.ContainsKey(guildId)) {
-			var guildMembers = GameDB.guildIdToGuildMembers[guildId];
-			
-			// Member names
-			foreach(var member in guildMembers) {
-				if(GameDB.accountIdToName.ContainsKey(member.accountId)) {
-					member.name = GameDB.accountIdToName[member.accountId];
-				} else {
-					yield return StartCoroutine(lobbyGameDB.GetPlayerName(member.accountId, data => {
-						if(data != null) {
-							member.name = data;
-							GameDB.accountIdToName[member.accountId] = data;
-						}
-					}));
-				}
-			}
-			
-			Lobby.RPC("ReceiveGuildMembers", info.sender, guildId, guildMembers.ToArray(), true);
-		} else {
-			Lobby.RPC("ReceiveGuildMembersError", info.sender, guildId);
-		}
-	}
-	
-	[RPC]
-	IEnumerator GuildInvitationRequest(string guildId, string playerName, LobbyMessageInfo info) {
-		//LobbyPlayer lobbyPlayer = GetLobbyPlayer(info);
-		
-		// TODO: Check if the player has guild invitation rights
-		
-		List<string> guildInvitations = null;
-		string accountIdToInvite = null;
-		
-		// Get account ID
-		yield return StartCoroutine(lobbyGameDB.GetAccountIdByPlayerName(playerName, data => {
-			accountIdToInvite = data;
-		}));
-		
-		if(accountIdToInvite == null) {
-			Lobby.RPC("GuildInvitationError", info.sender, playerName);
-			yield break;
-		}
-		
-		// Get guild members
-		if(!GameDB.guildIdToGuildMembers.ContainsKey(guildId)) {
-			yield return StartCoroutine(lobbyGameDB.GetGuildMembers(guildId));
-		}
-		
-		// Already a member?
-		var guildMembers = GameDB.guildIdToGuildMembers[guildId];
-		if(guildMembers.Find(m => m.accountId == accountIdToInvite) != null) {
-			Lobby.RPC("GuildInvitationAlreadyMember", info.sender, playerName);
-			yield break;
-		}
-		
-		// Get guild invitations
-		if(LobbyPlayer.accountIdToLobbyPlayer.ContainsKey(accountIdToInvite)) {
-			guildInvitations = LobbyPlayer.accountIdToLobbyPlayer[accountIdToInvite].guildInvitations;
-		}
-		
-		if(guildInvitations == null) {
-			yield return StartCoroutine(lobbyGameDB.GetGuildInvitations(accountIdToInvite, data => {
-				if(data == null) {
-					guildInvitations = new List<string>();
-				} else {
-					guildInvitations = data;
-				}
-			}));
-		}
-		
-		if(guildInvitations == null) {
-			Lobby.RPC("GuildInvitationError", info.sender, playerName);
-			yield break;
-		}
-		
-		// Guild invitation already sent?
-		if(guildInvitations.Contains(guildId)) {
-			Lobby.RPC("GuildInvitationAlreadySent", info.sender, playerName);
-			yield break;
-		}
-		
-		// Add guild to invitation list
-		guildInvitations.Add(guildId);
-		
-		// Set guild invitations
-		yield return StartCoroutine(lobbyGameDB.SetGuildInvitations(accountIdToInvite, guildInvitations, data => {
-			if(data == null) {
-				Lobby.RPC("GuildInvitationError", info.sender, playerName);
-			} else {
-				if(LobbyPlayer.accountIdToLobbyPlayer.ContainsKey(accountIdToInvite)) {
-					LobbyPlayer.accountIdToLobbyPlayer[accountIdToInvite].guildInvitations = data;
-				}
-				
-				Lobby.RPC("GuildInvitationSuccess", info.sender, playerName);
-			}
-		}));
-	}
-	
-	[RPC]
-	IEnumerator GuildInvitationsListRequest(LobbyMessageInfo info) {
-		LobbyPlayer lobbyPlayer = GetLobbyPlayer(info);
-		
-		// Get guild invitations
-		if(lobbyPlayer.guildInvitations == null) {
-			yield return StartCoroutine(lobbyGameDB.GetGuildInvitations(lobbyPlayer.account.id.value, data => {
-				if(data == null) {
-					lobbyPlayer.guildInvitations = new List<string>();
-				} else {
-					lobbyPlayer.guildInvitations = data;
-				}
-			}));
-		}
-		
-		Lobby.RPC("ReceiveGuildInvitationsList", lobbyPlayer.peer, lobbyPlayer.guildInvitations.ToArray(), true);
-	}
-	
-	[RPC]
-	IEnumerator GuildInvitationResponse(string guildId, bool accepted, LobbyMessageInfo info) {
-		LobbyPlayer lobbyPlayer = GetLobbyPlayer(info);
-		
-		// Get guild invitations
-		if(lobbyPlayer.guildInvitations == null) {
-			yield return StartCoroutine(lobbyGameDB.GetGuildInvitations(lobbyPlayer.account.id.value, data => {
-				if(data == null) {
-					lobbyPlayer.guildInvitations = new List<string>();
-				} else {
-					lobbyPlayer.guildInvitations = data;
-				}
-			}));
-		}
-		
-		if(lobbyPlayer.guildInvitations == null) {
-			Lobby.RPC("GuildInvitationResponseError", info.sender, guildId);
-			yield break;
-		}
-		
-		// Were you invited?
-		if(!lobbyPlayer.guildInvitations.Contains(guildId)) {
-			Lobby.RPC("GuildInvitationResponseError", info.sender, guildId);
-			yield break;
-		}
-		
-		// Did the player accept the invitation?
-		if(accepted) {
-			// Get guild members from database
-			if(!GameDB.guildIdToGuildMembers.ContainsKey(guildId)) {
-				yield return StartCoroutine(lobbyGameDB.GetGuildMembers(guildId));
-			}
-			
-			var guildMembers = GameDB.guildIdToGuildMembers[guildId];
-			guildMembers.Add(new GuildMember(lobbyPlayer.account.id.value, (byte)GuildMember.Rank.Default));
-			
-			// Set guild members
-			yield return StartCoroutine(lobbyGameDB.SetGuildMembers(guildId, guildMembers));
-			
-			// Get guild ID list
-			if(lobbyPlayer.guildIdList == null) {
-				yield return StartCoroutine(lobbyGameDB.GetGuildIdList(lobbyPlayer));
-			}
-			
-			// Add to guild ID list
-			lobbyPlayer.guildIdList.Add(guildId);
-			
-			// Set guild ID list
-			yield return StartCoroutine(lobbyGameDB.SetGuildIdList(lobbyPlayer));
-		}
-		
-		// Remove guild from invitation list
-		lobbyPlayer.guildInvitations.Remove(guildId);
-		
-		// Set guild invitations
-		yield return StartCoroutine(lobbyGameDB.SetGuildInvitations(lobbyPlayer.account.id.value, lobbyPlayer.guildInvitations, data => {
-			if(data == null) {
-				Lobby.RPC("GuildInvitationResponseError", info.sender, guildId);
-			} else {
-				lobbyPlayer.guildInvitations = data;
-				Lobby.RPC("GuildInvitationResponseSuccess", info.sender, guildId, accepted);
-			}
-		}));
-	}
-	
-	[RPC]
-	IEnumerator GuildCreationRequest(string name, string tag, LobbyMessageInfo info) {
-		LobbyPlayer lobbyPlayer = GetLobbyPlayer(info);
-		
-		if(name.Length > GameDB.maxGuildNameLength) {
-			Lobby.RPC("GuildNameLengthError", info.sender);
-			yield break;
-		}
-		
-		if(tag.Length > GameDB.maxGuildTagLength) {
-			Lobby.RPC("GuildTagLengthError", info.sender);
-			yield break;
-		}
-		
-		// Store new guild in database
-		yield return StartCoroutine(lobbyGameDB.PutGuild(new Guild(name, tag, lobbyPlayer.account.id.value), lobbyPlayer));
-		
-		// Store new guild membership in database
-		yield return StartCoroutine(lobbyGameDB.SetGuildIdList(lobbyPlayer));
-		
-		// Let the player know that it worked
-		Lobby.RPC("GuildCreationSuccess", info.sender);
-		OnReceiveGuildIdList(lobbyPlayer);
-	}
-	
-	[RPC]
-	IEnumerator CrystalBalanceRequest(LobbyMessageInfo info) {
-		LobbyPlayer lobbyPlayer = GetLobbyPlayer(info);
-		
-		yield return StartCoroutine(lobbyGameDB.GetPaymentsList(lobbyPlayer.account.id.value, data => {
-			if(data == null) {
-				Lobby.RPC("ReceiveCrystalBalance", lobbyPlayer.peer, 0);
-			} else {
-				Lobby.RPC("ReceiveCrystalBalance", lobbyPlayer.peer, (int)(data.balance * 100));
-			}
-		}));
-	}
-	
-	[RPC]
-	void ClientCharacterStats(CharacterStats charStats, LobbyMessageInfo info) {
-		LobbyPlayer lobbyPlayer = GetLobbyPlayer(info);
-		
-		if(charStats.totalStatPointsUsed > charStats.maxStatPoints) {
-			XDebug.LogWarning("Detected character stat points hack on player '" +lobbyPlayer.name  + "'");
-			return;
-		}
-		
-		XDebug.Log("Player '" + lobbyPlayer.name + "' sent new character stats " + charStats.ToString());
-		StartCoroutine(lobbyGameDB.SetCharacterStats(lobbyPlayer, charStats));
-	}
-	
-	[RPC]
-	void ClientInputSettings(string inputSettingsString, LobbyMessageInfo info) {
-		LobbyPlayer lobbyPlayer = GetLobbyPlayer(info);
-		
-		XDebug.Log("Player '" + lobbyPlayer.name + "' sent new input settings");
-		InputSettings inputSettings = Jboy.Json.ReadObject<InputSettings>(inputSettingsString);
-		StartCoroutine(lobbyGameDB.SetInputSettings(lobbyPlayer, inputSettings));
-	}
-	
-	[RPC]
-	void ClientChat(string channelName, string msg, LobbyMessageInfo info) {
-		LobbyPlayer lobbyPlayer = GetLobbyPlayer(info);
-		XDebug.Log("[" + channelName + "][" + lobbyPlayer.name + "] '" + msg + "'");
-		
-		if(LobbyChatChannel.channels.ContainsKey(channelName)) {
-			var channel = LobbyChatChannel.channels[channelName];
-			
-			// Channel member?
-			if(channel.members.Contains(lobbyPlayer)) {
-				if(!ProcessLobbyChatCommands(lobbyPlayer, msg))
-					channel.BroadcastMessage(lobbyPlayer.name, msg);
-			}
-		}
-	}
-	
-	bool ProcessLobbyChatCommands(LobbyPlayer lobbyPlayer, string msg) {
-		if(msg.StartsWith("//ginvite ")) {
-			/*StartCoroutine(lobbyGameDB.GetAccountIdByPlayerName(msg.Split(' ')[1], data => {
-				XDebug.Log ("ginvite: " + data);
-			}));*/
-			return true;
-		}
-		
-		return false;
 	}
 }

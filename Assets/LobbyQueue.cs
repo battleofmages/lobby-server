@@ -43,7 +43,9 @@ public class LobbyQueue {
 		player.queue = this;
 		
 		// Make matches since new players joined
-		MakeMatchesBasedOnRanking();
+		if(LobbyServer.uZoneNodeCount > 0) {
+			MakeMatchesBasedOnRanking();
+		}
 	}
 	
 	// With ranking in mind

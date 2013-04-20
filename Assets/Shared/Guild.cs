@@ -68,6 +68,7 @@ public class Guild {
 	public string name;
 	public string tag;
 	public double level;
+	public string introduction;
 	public TimeStamp creationDate;
 	public string founderAccountId;
 	public Texture2D icon;

@@ -2,27 +2,27 @@ using UnityEngine;
 using System.Collections;
 
 [System.Serializable]
-public class AccountIdToNameEntry {
+public class AccountIdToValueEntry {
 	public string accountId;
-	public string name;
+	public string val;
 	
 	// Writer
 	public static void JsonSerializer(Jboy.JsonWriter writer, object instance) {
-		var entry = (AccountIdToNameEntry)instance;
+		var entry = (AccountIdToValueEntry)instance;
 		
 		writer.WriteArrayStart();
 		writer.WriteString(entry.accountId);
-		writer.WriteString(entry.name);
+		writer.WriteString(entry.val);
 		writer.WriteArrayEnd();
 	}
 	
 	// Reader
 	public static object JsonDeserializer(Jboy.JsonReader reader) {
-		var entry = new AccountIdToNameEntry();
+		var entry = new AccountIdToValueEntry();
 		
 		reader.ReadArrayStart();
 		entry.accountId = reader.ReadString();
-		entry.name = reader.ReadString();
+		entry.val = reader.ReadString();
 		reader.ReadArrayEnd();
 		
 		return entry;

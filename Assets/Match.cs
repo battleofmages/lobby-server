@@ -33,7 +33,7 @@ public class Match {
 			args.Add("-party" + i);
 			
 			foreach(LobbyPlayer player in teams[i]) {
-				args.Add(player.account.id.value);
+				args.Add(player.accountId);
 			}
 		}
 		

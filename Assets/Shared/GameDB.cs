@@ -14,7 +14,7 @@ public class GameDB {
 	public static string logBucketPrefix = "<color=#ffcc00>";
 	public static string logBucketMid = "</color>[<color=#00ffff>";
 	public static string logBucketPostfix = "</color>]";
-	public static int maxGuildNameLength = 50;
+	public static int maxGuildNameLength = 30;
 	public static int maxGuildTagLength = 4;
 	
 	public static void InitCodecs() {
@@ -27,12 +27,13 @@ public class GameDB {
 		Json.AddCodec<TimeStamp>(TimeStamp.JsonDeserializer, TimeStamp.JsonSerializer);
 		Json.AddCodec<GuildMember>(GuildMember.JsonDeserializer, GuildMember.JsonSerializer);
 		Json.AddCodec<Guild>(Guild.JsonDeserializer, Guild.JsonSerializer);
+		Json.AddCodec<GuildList>(GuildList.JsonDeserializer, GuildList.JsonSerializer);
 		Json.AddCodec<PaymentsList>(PaymentsList.JsonDeserializer, PaymentsList.JsonSerializer);
 		Json.AddCodec<Texture2D>(GenericSerializer.Texture2DJsonDeserializer, GenericSerializer.Texture2DJsonSerializer);
 		
 		// Register JSON codecs for MapReduce entries
 		Json.AddCodec<RankEntry>(RankEntry.JsonDeserializer, RankEntry.JsonSerializer);
-		Json.AddCodec<AccountIdToValueEntry>(AccountIdToValueEntry.JsonDeserializer, AccountIdToValueEntry.JsonSerializer);
+		Json.AddCodec<KeyToValueEntry>(KeyToValueEntry.JsonDeserializer, KeyToValueEntry.JsonSerializer);
 		
 		// BitStream codecs
 		uLink.BitStreamCodec.AddAndMakeArray<RankEntry>(RankEntry.ReadFromBitStream, RankEntry.WriteToBitStream);
@@ -47,11 +48,11 @@ public class GameDB {
 	// Resolve
 	public static string Resolve(string key) {
 		if(GameDB.accountIdToName.ContainsKey(key)) {
-			return GameDB.accountIdToName[key] + " (" + key + ")";
+			return GameDB.accountIdToName[key]; //+ " (" + key + ")";
 		}
 		
 		if(GameDB.guildIdToGuild.ContainsKey(key)) {
-			return GameDB.guildIdToGuild[key].name + " (" + key + ")";
+			return GameDB.guildIdToGuild[key].name; //+ " (" + key + ")";
 		}
 		
 		return key;
@@ -79,20 +80,38 @@ public class GameDB {
 		return sha1.ComputeHash(System.Text.Encoding.Unicode.GetBytes(password));
 	}
 	
+	static string FormatBucketName(string bucketName) {
+		var toIndex = bucketName.IndexOf("To");
+		if(toIndex != -1) {
+			return bucketName.Substring(toIndex + 2);
+		}
+		
+		return bucketName;
+	}
+	
+	static string FormatSuccess(string key, string operation, string bucketName, object val) {
+		if(operation != "get")
+			return Resolve(key) + "." + operation + FormatBucketName(bucketName) + "(<color=#808080>" + val.ToString() + "</color>)";
+		
+		return Resolve(key) + "." + operation + FormatBucketName(bucketName) + "() <color=#808080>-> " + val.ToString() + "</color>";
+	}
+	
+	static string FormatFail(string key, string operation, string bucketName) {
+		return Resolve(key) + "." + operation + FormatBucketName(bucketName) + "() <color=#808080>FAIL</color>";
+	}
+	
 	// Get
 	public static IEnumerator Get<T>(string bucketName, string key, ActionOnResult<T> func) {
 		var bucket = new Bucket(bucketName);
 		var request = bucket.Get(key);
 		yield return request.WaitUntilDone();
 		
-		string logInfo = logBucketPrefix + bucketName + logBucketMid + Resolve(key) + logBucketPostfix;
-		
 		if(request.isSuccessful) {
 			T val = request.GetValue<T>();
-			XDebug.Log("GET successful: " + logInfo + " -> " + val.ToString());
+			XDebug.Log(FormatSuccess(key, "get", bucketName, val));
 			func(val);
 		} else {
-			XDebug.LogWarning("GET failed: " + logInfo);
+			XDebug.LogWarning(FormatFail(key, "get", bucketName));
 			func(default(T));
 		}
 	}
@@ -103,14 +122,14 @@ public class GameDB {
 		var request = bucket.Set(key, val, Encoding.Json);
 		yield return request.WaitUntilDone();
 		
-		string logInfo = logBucketPrefix + bucketName + logBucketMid + Resolve(key) + logBucketPostfix;
-		
 		if(request.isSuccessful) {
-			XDebug.Log("SET successful: " + logInfo + " <- " + val.ToString());
-			func(val);
+			XDebug.Log(FormatSuccess(key, "set", bucketName, val));
+			if(func != null)
+				func(val);
 		} else {
-			XDebug.LogWarning("SET failed: " + logInfo + " <- " + val.ToString());
-			func(default(T));
+			XDebug.LogWarning(FormatFail(key, "set", bucketName));
+			if(func != null)
+				func(default(T));
 		}
 	}
 	
@@ -122,30 +141,25 @@ public class GameDB {
 		
 		if(request.isSuccessful) {
 			string generatedKey = request.GetGeneratedKey();
-			string logInfo = logBucketPrefix + bucketName + logBucketMid + generatedKey + logBucketPostfix;
 			
-			XDebug.Log("PUT successful: " + logInfo + " <- " + val.ToString());
+			XDebug.Log(FormatSuccess(generatedKey, "put", bucketName, val));
 			func(generatedKey, val);
 		} else {
-			string logInfo = logBucketPrefix + bucketName + logBucketMid + logBucketPostfix;
-			
-			XDebug.LogWarning("PUT failed: " + logInfo + " <- " + val.ToString());
-			func("", default(T));
+			XDebug.LogWarning(FormatFail("", "put", bucketName));
+			func(default(string), default(T));
 		}
 	}
 	
 	// MapReduce
 	public static IEnumerator MapReduce<T>(string bucketName, string jsMapPhase, string jsReducePhase, object argument, ActionOnResult<T[]> func) {
-		XDebug.Log("Preparing MapReduce");
 		var bucket = new Bucket(bucketName);
 		var mapReduceRequest = bucket.MapReduce(
 			new JavaScriptMapPhase(jsMapPhase),
 			new JavaScriptReducePhase(jsReducePhase, argument)
 		);
-		XDebug.Log("MapReduce.Wait");
+		
 		// Wait until the request finishes
 		yield return mapReduceRequest.WaitUntilDone();
-		XDebug.Log("MapReduce.Done");
 		
 		string logInfo = logBucketPrefix + bucketName + logBucketMid + argument.ToString() + logBucketPostfix;
 		
@@ -158,5 +172,38 @@ public class GameDB {
 			XDebug.LogWarning("MapReduce failed: " + logInfo + " -> " + mapReduceRequest.GetErrorString());
 			func(default(T[]));
 		}
+	}
+	
+	// --------------------------------------------------------------------------------
+	// Generic MapReduce
+	// --------------------------------------------------------------------------------
+	
+	// Map
+	public static string GetSearchMapFunction(string property) {
+		return @"
+			function(value, keydata, arg) {
+				var nameEntry = JSON.parse(value.values[0].data);
+				return [[value.key, nameEntry." + property + @"]];
+			}
+		";
+	}
+	
+	// Reduce
+	public static string GetSearchReduceFunction() {
+		return @"
+			function(valueList, nameToFind) {
+				var length = valueList.length;
+				var element = null;
+				
+				for(var i = 0; i < length; i++) {
+					element = valueList[i];
+					if(element[1] == nameToFind) {
+						return [element];
+					}
+				}
+				
+				return [];
+			}
+		";
 	}
 }

@@ -16,7 +16,7 @@ public class LobbyPlayer {
 	public ChatMember chatMember;
 	public PlayerStats stats;
 	public CharacterStats charStats;
-	public List<string> guildIdList;
+	public GuildList guildList;
 	public List<string> guildInvitations;
 	
 	public List<LobbyChatChannel> channels;
@@ -85,6 +85,13 @@ public class LobbyPlayer {
 		}
 	}
 	
+	// Account ID
+	public string accountId {
+		get {
+			return account.id.value;
+		}
+	}
+	
 	// Update the status
 	void BroadcastStatus() {
 		foreach(var channel in this.channels) {
@@ -104,5 +111,10 @@ public class LobbyPlayer {
 	public void ConnectToGameServer(uZone.GameInstance instance) {
 		XDebug.Log("Connecting account '" + account.name + "' to game server " + instance.ip + ":" + instance.port);
 		Lobby.RPC("ConnectToGameServer", peer, instance.ip, instance.port);
+	}
+	
+	// Account is online
+	public static bool AccountIsOnline(string checkAccountId) {
+		return accountIdToLobbyPlayer.ContainsKey(checkAccountId);
 	}
 }

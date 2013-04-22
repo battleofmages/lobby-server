@@ -76,7 +76,7 @@ public class LobbyServer : MonoBehaviour {
 			player.queue.RemovePlayer(player);
 		
 		// Remove the reference from the dictionary
-		LobbyPlayer.accountIdToLobbyPlayer.Remove(player.account.id.value);
+		LobbyPlayer.accountIdToLobbyPlayer.Remove(player.accountId);
 		
 		// Remove the player from the global list
 		LobbyPlayer.list.Remove(player);
@@ -192,12 +192,12 @@ public class LobbyServer : MonoBehaviour {
 		LobbyPlayer lobbyPlayer = new LobbyPlayer(account);
 		
 		// Async: Retrieve the player information
-		StartCoroutine(lobbyGameDB.GetPlayerName(lobbyPlayer.account.id.value, data => {
+		StartCoroutine(lobbyGameDB.GetPlayerName(lobbyPlayer.accountId, data => {
 			if(data == null) {
 				Lobby.RPC("AskPlayerName", lobbyPlayer.peer);
 			} else {
 				lobbyPlayer.name = data;
-				Lobby.RPC("ReceivePlayerInfo", lobbyPlayer.peer, lobbyPlayer.account.id.value, lobbyPlayer.name);
+				Lobby.RPC("ReceivePlayerInfo", lobbyPlayer.peer, lobbyPlayer.accountId, lobbyPlayer.name);
 				LobbyServer.OnReceivePlayerName(lobbyPlayer);
 			}
 		}));
@@ -232,7 +232,7 @@ public class LobbyServer : MonoBehaviour {
 	
 	// Once we have the player name, let him join the channel
 	public static void OnReceivePlayerName(LobbyPlayer player) {
-		GameDB.accountIdToName[player.account.id.value] = player.name;
+		GameDB.accountIdToName[player.accountId] = player.name;
 		LobbyServer.globalChannel.AddPlayer(player);
 		XDebug.Log("<color=yellow><b>" + player.name + "</b></color> is online.");
 	}
@@ -394,7 +394,7 @@ public class LobbyServer : MonoBehaviour {
 		LobbyPlayer lobbyPlayer = GetLobbyPlayer(info);
 		
 		// Change name
-		XDebug.Log("Account " + lobbyPlayer.account.id.value + " has requested to change his player name to '" + newName + "'");
+		XDebug.Log("Account " + lobbyPlayer.accountId + " has requested to change his player name to '" + newName + "'");
 		StartCoroutine(lobbyGameDB.SetPlayerName(lobbyPlayer, newName));
 	}
 	

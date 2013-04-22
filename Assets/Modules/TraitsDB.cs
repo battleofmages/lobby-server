@@ -12,7 +12,7 @@ public class TraitsDB : MonoBehaviour {
 	public IEnumerator GetCharacterStats(LobbyPlayer lobbyPlayer) {
 		yield return StartCoroutine(GameDB.Get<CharacterStats>(
 			"AccountToCharacterStats",
-			lobbyPlayer.account.id.value,
+			lobbyPlayer.accountId,
 			data => {
 				if(data == null)
 					lobbyPlayer.charStats = new CharacterStats();
@@ -28,7 +28,7 @@ public class TraitsDB : MonoBehaviour {
 	public IEnumerator SetCharacterStats(LobbyPlayer lobbyPlayer, CharacterStats charStats) {
 		yield return StartCoroutine(GameDB.Set<CharacterStats>(
 			"AccountToCharacterStats",
-			lobbyPlayer.account.id.value,
+			lobbyPlayer.accountId,
 			charStats,
 			data => {
 				if(data == null)

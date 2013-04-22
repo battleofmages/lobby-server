@@ -12,7 +12,7 @@ public class SettingsDB : MonoBehaviour {
 	public IEnumerator GetInputSettings(LobbyPlayer lobbyPlayer) {
 		yield return StartCoroutine(GameDB.Get<InputSettings>(
 			"AccountToInputSettings",
-			lobbyPlayer.account.id.value,
+			lobbyPlayer.accountId,
 			data => {
 				if(data == null) {
 					Lobby.RPC("ReceiveInputSettingsError", lobbyPlayer.peer);
@@ -28,7 +28,7 @@ public class SettingsDB : MonoBehaviour {
 	public IEnumerator SetInputSettings(LobbyPlayer lobbyPlayer, InputSettings inputMgr) {
 		yield return StartCoroutine(GameDB.Set<InputSettings>(
 			"AccountToInputSettings",
-			lobbyPlayer.account.id.value,
+			lobbyPlayer.accountId,
 			inputMgr,
 			data => {
 				// ...

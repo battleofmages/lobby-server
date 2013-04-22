@@ -23,14 +23,14 @@ public class LobbyGameDB : MonoBehaviour {
 	public IEnumerator SetPlayerName(LobbyPlayer lobbyPlayer, string playerName) {
 		yield return StartCoroutine(GameDB.Set<string>(
 			"AccountToName",
-			lobbyPlayer.account.id.value,
+			lobbyPlayer.accountId,
 			playerName,
 			data => {
 				if(data == null) {
 					Lobby.RPC("PlayerNameChangeError", lobbyPlayer.peer);
 				} else {
 					lobbyPlayer.name = data;
-					Lobby.RPC("ReceivePlayerInfo", lobbyPlayer.peer, lobbyPlayer.account.id.value, lobbyPlayer.name);
+					Lobby.RPC("ReceivePlayerInfo", lobbyPlayer.peer, lobbyPlayer.accountId, lobbyPlayer.name);
 					LobbyServer.OnReceivePlayerName(lobbyPlayer);
 				}
 			}
@@ -41,7 +41,7 @@ public class LobbyGameDB : MonoBehaviour {
 	public IEnumerator GetPlayerStats(LobbyPlayer lobbyPlayer) {
 		yield return StartCoroutine(GameDB.Get<PlayerStats>(
 			"AccountToStats",
-			lobbyPlayer.account.id.value,
+			lobbyPlayer.accountId,
 			data => {
 				if(data == null)
 					data = new PlayerStats();
@@ -61,7 +61,7 @@ public class LobbyGameDB : MonoBehaviour {
 	public IEnumerator SetLastLoginDate(LobbyPlayer lobbyPlayer, System.DateTime timestamp) {
 		yield return StartCoroutine(GameDB.Set<TimeStamp>(
 			"AccountToLastLoginDate",
-			lobbyPlayer.account.id.value,
+			lobbyPlayer.accountId,
 			new TimeStamp(timestamp),
 			data => {
 				// ...
@@ -85,12 +85,12 @@ public class LobbyGameDB : MonoBehaviour {
 	public IEnumerator GetAccountRegistrationDate(LobbyPlayer lobbyPlayer) {
 		/*yield return StartCoroutine(GameDB.Get<TimeStamp>(
 		"AccountToRegistrationDate",
-		lobbyPlayer.account.id.value,
+		lobbyPlayer.accountId,
 		data => {
 			if(data == null)
-				XDebug.LogWarning("Failed getting registration date of account ID '" + lobbyPlayer.account.id.value + "'");
+				XDebug.LogWarning("Failed getting registration date of account ID '" + lobbyPlayer.accountId + "'");
 			else
-				XDebug.Log("Got registration date of account ID '" + lobbyPlayer.account.id.value + "' successfully: " + data);
+				XDebug.Log("Got registration date of account ID '" + lobbyPlayer.accountId + "' successfully: " + data);
 		}));*/
 		yield break;
 	}
@@ -124,14 +124,14 @@ public class LobbyGameDB : MonoBehaviour {
 	
 	// Get account ID by player name
 	public IEnumerator GetAccountIdByPlayerName(string playerName, GameDB.ActionOnResult<string> func) {
-		yield return StartCoroutine(GameDB.MapReduce<AccountIdToValueEntry>(
+		yield return StartCoroutine(GameDB.MapReduce<KeyToValueEntry>(
 			"AccountToName",
-			valueToAccountMapFunction,
-			valueToAccountReduceFunction,
+			GameDB.GetSearchMapFunction("v"),
+			GameDB.GetSearchReduceFunction(),
 			playerName,
 			data => {
 				if(data != null && data.Length == 1) {
-					func(data[0].accountId);
+					func(data[0].key);
 				} else {
 					func(default(string));
 				}
@@ -141,46 +141,18 @@ public class LobbyGameDB : MonoBehaviour {
 	
 	// Get account ID by Email
 	public IEnumerator GetAccountIdByEmail(string email, GameDB.ActionOnResult<string> func) {
-		yield return StartCoroutine(GameDB.MapReduce<AccountIdToValueEntry>(
+		yield return StartCoroutine(GameDB.MapReduce<KeyToValueEntry>(
 			"AccountToEmail",
-			valueToAccountMapFunction,
-			valueToAccountReduceFunction,
+			GameDB.GetSearchMapFunction("v"),
+			GameDB.GetSearchReduceFunction(),
 			email,
 			data => {
 				if(data != null && data.Length == 1) {
-					func(data[0].accountId);
+					func(data[0].key);
 				} else {
 					func(default(string));
 				}
 			}
 		));
 	}
-	
-	// --------------------------------------------------------------------------------
-	// MapReduce: NameToAccount
-	// --------------------------------------------------------------------------------
-	private const string valueToAccountMapFunction =
-	@"
-	function(value, keydata, arg) {
-		var nameEntry = JSON.parse(value.values[0].data);
-		return [[value.key, nameEntry.v]];
-	}
-	";
-	
-	private const string valueToAccountReduceFunction =
-	@"
-	function(valueList, nameToFind) {
-		var length = valueList.length;
-		var element = null;
-		
-		for(var i = 0; i < length; i++) {
-			element = valueList[i];
-			if(element[1] == nameToFind) {
-				return [element];
-			}
-		}
-		
-		return [];
-	}
-	";
 }

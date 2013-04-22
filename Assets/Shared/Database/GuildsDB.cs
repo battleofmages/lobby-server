@@ -9,26 +9,12 @@ public class GuildsDB : MonoBehaviour {
 	// --------------------------------------------------------------------------------
 	
 	// Put guild
-	public IEnumerator PutGuild(Guild guild, LobbyPlayer founder) {
-		string guildId = "";
-		
+	public IEnumerator PutGuild(Guild guild, GameDB.PutActionOnResult<Guild> func) {
 		yield return StartCoroutine(GameDB.Put<Guild>(
 			"Guilds",
 			guild,
-			(key, data) => {
-				if(founder.guildIdList == null)
-					founder.guildIdList = new List<string>();
-				
-				guildId = key;
-			}
+			func
 		));
-		
-		// Founder joins the guild automatically
-		var memberList = new List<GuildMember>(); //GameDB.guildIdToGuildMembers[guildId];
-		memberList.Add(new GuildMember(founder.account.id.value, (byte)GuildMember.Rank.Leader));
-		yield return StartCoroutine(SetGuildMembers(guildId, memberList));
-		
-		founder.guildIdList.Add(guildId);
 	}
 	
 	// Set guild
@@ -62,33 +48,22 @@ public class GuildsDB : MonoBehaviour {
 	// AccountToGuilds
 	// --------------------------------------------------------------------------------
 	
-	// Get guild ID list
-	public IEnumerator GetGuildIdList(LobbyPlayer lobbyPlayer) {
-		yield return StartCoroutine(GameDB.Get<List<string>>(
+	// Get guild list
+	public IEnumerator GetGuildList(string accountId, GameDB.ActionOnResult<GuildList> func) {
+		yield return StartCoroutine(GameDB.Get<GuildList>(
 			"AccountToGuilds",
-			lobbyPlayer.account.id.value,
-			data => {
-				if(data == null) {
-					lobbyPlayer.guildIdList = new List<string>();
-				} else {
-					lobbyPlayer.guildIdList = data;
-				}
-			}
+			accountId,
+			func
 		));
-		
-		//XDebug.Log("Received guild ID list: " + lobbyPlayer.guildIdList);
-		GuildsServer.OnReceiveGuildIdList(lobbyPlayer);
 	}
 	
-	// Set guild ID list
-	public IEnumerator SetGuildIdList(LobbyPlayer lobbyPlayer) {
-		yield return StartCoroutine(GameDB.Set<List<string>>(
+	// Set guild list
+	public IEnumerator SetGuildList(string accountId, GuildList guildIdList, GameDB.ActionOnResult<GuildList> func = null) {
+		yield return StartCoroutine(GameDB.Set<GuildList>(
 			"AccountToGuilds",
-			lobbyPlayer.account.id.value,
-			lobbyPlayer.guildIdList,
-			data => {
-				// ...
-			}
+			accountId,
+			guildIdList,
+			func
 		));
 	}
 	
@@ -143,6 +118,27 @@ public class GuildsDB : MonoBehaviour {
 			"AccountToGuildInvitations",
 			accountId,
 			func
+		));
+	}
+	
+	// --------------------------------------------------------------------------------
+	// MapReduce
+	// --------------------------------------------------------------------------------
+	
+	// Get guild ID by guild name
+	public IEnumerator GetGuildIdByGuildName(string guildName, GameDB.ActionOnResult<string> func) {
+		yield return StartCoroutine(GameDB.MapReduce<KeyToValueEntry>(
+			"Guilds",
+			GameDB.GetSearchMapFunction("name"),
+			GameDB.GetSearchReduceFunction(),
+			guildName,
+			data => {
+				if(data != null && data.Length == 1) {
+					func(data[0].key);
+				} else {
+					func(default(string));
+				}
+			}
 		));
 	}
 }

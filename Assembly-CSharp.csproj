@@ -53,7 +53,6 @@
      <Compile Include="Assets\Modules\ChatServer.cs" />
      <Compile Include="Assets\Modules\DonationsDB.cs" />
      <Compile Include="Assets\Modules\DonationsServer.cs" />
-     <Compile Include="Assets\Modules\GuildsDB.cs" />
      <Compile Include="Assets\Modules\GuildsServer.cs" />
      <Compile Include="Assets\Modules\RankingsDB.cs" />
      <Compile Include="Assets\Modules\RankingsServer.cs" />
@@ -61,15 +60,18 @@
      <Compile Include="Assets\Modules\SettingsServer.cs" />
      <Compile Include="Assets\Modules\TraitsDB.cs" />
      <Compile Include="Assets\Modules\TraitsServer.cs" />
-     <Compile Include="Assets\Shared\AccountIdToValueEntry.cs" />
      <Compile Include="Assets\Shared\CharacterStats.cs" />
      <Compile Include="Assets\Shared\ChatMember.cs" />
+     <Compile Include="Assets\Shared\Database\GuildsDB.cs" />
      <Compile Include="Assets\Shared\GameDB.cs" />
      <Compile Include="Assets\Shared\GenericSerializer.cs" />
      <Compile Include="Assets\Shared\Guild.cs" />
+     <Compile Include="Assets\Shared\GuildList.cs" />
+     <Compile Include="Assets\Shared\GuildMember.cs" />
      <Compile Include="Assets\Shared\InputControl.cs" />
      <Compile Include="Assets\Shared\InputManager.cs" />
      <Compile Include="Assets\Shared\InputSettings.cs" />
+     <Compile Include="Assets\Shared\KeyToValueEntry.cs" />
      <Compile Include="Assets\Shared\PaymentsList.cs" />
      <Compile Include="Assets\Shared\PlayerQueueStats.cs" />
      <Compile Include="Assets\Shared\PlayerStats.cs" />

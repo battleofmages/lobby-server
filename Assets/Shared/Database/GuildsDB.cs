@@ -44,6 +44,15 @@ public class GuildsDB : MonoBehaviour {
 		));
 	}
 	
+	// Get guild
+	public IEnumerator GetGuild(string guildId, GameDB.ActionOnResult<Guild> func) {
+		yield return StartCoroutine(GameDB.Get<Guild>(
+			"Guilds",
+			guildId,
+			func
+		));
+	}
+	
 	// --------------------------------------------------------------------------------
 	// AccountToGuilds
 	// --------------------------------------------------------------------------------

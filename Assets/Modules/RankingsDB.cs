@@ -24,14 +24,16 @@ public class RankingsDB : MonoBehaviour {
 		
 		if(getHighscoresRequest.isSuccessful) {
 			IEnumerable<RankEntry> rankingEntriesTmp = getHighscoresRequest.GetResult<RankEntry>();
-			GameDB.rankingEntries = rankingEntriesTmp.ToArray();
+			
+			var rankingEntries = rankingEntriesTmp.ToArray();
+			GameDB.rankingLists[0][0] = rankingEntries;
 			
 			// Get player names
 			// TODO: Send X requests at once, then wait for all of them
 			var nameBucket = new Bucket("AccountToName");
-			var nameRequests = new GetRequest[GameDB.rankingEntries.Length];
-			for(int i = 0; i < GameDB.rankingEntries.Length; i++) {
-				var entry = GameDB.rankingEntries[i];
+			var nameRequests = new GetRequest[rankingEntries.Length];
+			for(int i = 0; i < rankingEntries.Length; i++) {
+				var entry = rankingEntries[i];
 				entry.rankIndex = i;
 				
 				if(GameDB.accountIdToName.ContainsKey(entry.accountId)) {
@@ -50,14 +52,14 @@ public class RankingsDB : MonoBehaviour {
 				yield return nameRequest.WaitUntilDone();
 				
 				if(nameRequest.isSuccessful) {
-					var entry = GameDB.rankingEntries[i];
+					var entry = rankingEntries[i];
 					entry.name = nameRequest.GetValue<string>();
 					GameDB.accountIdToName[entry.accountId] = entry.name;
 				}
 			}
 			
 			//XDebug.Log("Sending the ranking list " + GameDB.rankingEntries + " with " + rankingEntries.Length + " entries");
-			Lobby.RPC("ReceiveRankingList", peer, GameDB.rankingEntries, false);
+			Lobby.RPC("ReceiveRankingList", peer, rankingEntries, false);
 		} else {
 			XDebug.Log("Failed getting the ranking list: " + getHighscoresRequest.GetErrorString());
 			Lobby.RPC("ReceiveRankingList", peer, null, false);

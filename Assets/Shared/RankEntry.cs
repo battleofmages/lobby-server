@@ -15,22 +15,22 @@ public class RankEntry {
 	public static void WriteToBitStream(uLink.BitStream stream, object val, params object[] args) {
 		RankEntry myObj = (RankEntry)val;
 		
-		stream.WriteInt32(myObj.rankIndex);
-		stream.WriteString(myObj.accountId);
+		//stream.WriteInt32(myObj.rankIndex);
+		//stream.WriteString(myObj.accountId);
 		stream.WriteString(myObj.name);
 		stream.WriteInt32(myObj.bestRanking);
-		stream.WriteInt64(myObj.totalDamage);
+		//stream.WriteInt64(myObj.totalDamage);
 	}
 	
 	// BitStream Reader
 	public static object ReadFromBitStream(uLink.BitStream stream, params object[] args) {
 		RankEntry myObj = new RankEntry();
 		
-		myObj.rankIndex = stream.ReadInt32();
-		myObj.accountId = stream.ReadString();
+		//myObj.rankIndex = stream.ReadInt32();
+		//myObj.accountId = stream.ReadString();
 		myObj.name = stream.ReadString();
 		myObj.bestRanking = stream.ReadInt32();
-		myObj.totalDamage = stream.ReadInt64();
+		//myObj.totalDamage = stream.ReadInt64();
 		
 		return myObj;
 	}

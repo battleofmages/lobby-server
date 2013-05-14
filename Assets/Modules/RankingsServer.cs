@@ -9,6 +9,9 @@ public class RankingsServer : MonoBehaviour {
 	void Start () {
 		rankingsDB = this.GetComponent<RankingsDB>();
 		
+		// Init ranking lists
+		GameDB.InitRankingLists();
+		
 		// Make this class listen to lobby events
 		Lobby.AddListener(this);
 	}

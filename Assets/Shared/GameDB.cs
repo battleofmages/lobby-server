@@ -10,7 +10,7 @@ public class GameDB {
 	public static Dictionary<string, string> accountIdToName = new Dictionary<string, string>();
 	public static Dictionary<string, Guild> guildIdToGuild = new Dictionary<string, Guild>();
 	public static Dictionary<string, List<GuildMember>> guildIdToGuildMembers = new Dictionary<string, List<GuildMember>>();
-	public static RankEntry[] rankingEntries;
+	public static List<List<RankEntry[]>> rankingLists;
 	public static string logBucketPrefix = "<color=#ffcc00>";
 	public static string logBucketMid = "</color>[<color=#00ffff>";
 	public static string logBucketPostfix = "</color>]";
@@ -39,6 +39,27 @@ public class GameDB {
 		uLink.BitStreamCodec.AddAndMakeArray<RankEntry>(RankEntry.ReadFromBitStream, RankEntry.WriteToBitStream);
 		uLink.BitStreamCodec.AddAndMakeArray<ChatMember>(ChatMember.ReadFromBitStream, ChatMember.WriteToBitStream);
 		uLink.BitStreamCodec.AddAndMakeArray<GuildMember>(GuildMember.ReadFromBitStream, GuildMember.WriteToBitStream);
+	}
+	
+	public static void InitRankingLists() {
+		// Subject -> Queue -> RankEntry
+		rankingLists = new List<List<RankEntry[]>>();
+		
+		// Player
+		rankingLists.Add(new List<RankEntry[]>());
+		
+		// Team
+		rankingLists.Add(new List<RankEntry[]>());
+		
+		// Guild
+		rankingLists.Add(new List<RankEntry[]>());
+		
+		// Fill with null
+		foreach(var list in rankingLists) {
+			for(int i = 0; i < 7; i++) {
+				list.Add(null);
+			}
+		}
 	}
 	
 	// Delegate type
@@ -149,6 +170,22 @@ public class GameDB {
 			func(default(string), default(T));
 		}
 	}
+	
+	// Remove
+	/*public static IEnumerator Remove<T>(string bucketName, string key, ActionOnResult<T> func) {
+		var bucket = new Bucket(bucketName);
+		var request = bucket.Remove(key);
+		yield return request.WaitUntilDone();
+		
+		if(request.isSuccessful) {
+			T val = request.GetValue<T>();
+			XDebug.Log(FormatSuccess(key, "remove", bucketName, val));
+			func(val);
+		} else {
+			XDebug.LogWarning(FormatFail(key, "remove", bucketName));
+			func(default(T));
+		}
+	}*/
 	
 	// MapReduce
 	public static IEnumerator MapReduce<T>(string bucketName, string jsMapPhase, string jsReducePhase, object argument, ActionOnResult<T[]> func) {

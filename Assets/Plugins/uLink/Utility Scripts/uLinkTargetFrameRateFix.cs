@@ -1,16 +1,19 @@
 #if UNITY_STANDALONE_WIN
-#define FIX_APPLICAION_TARGETFRAMERATE
+//#define FIX_APPLICAION_TARGETFRAMERATE
 #endif
 
 using System;
 using UnityEngine;
 using System.Runtime.InteropServices;
 
-#if UNITY_STANDALONE_WIN
 [AddComponentMenu("")]
+[ExecuteInEditMode]
 public class uLinkTargetFrameRateFix : MonoBehaviour
 {
-	const float BONUS_TICKS = 2.5f; // give exta ticks to more accurately balance frame time
+#if UNITY_STANDALONE_WIN
+	const float BONUS_TICKS = 2.5f; // give extra ticks to more accurately balance frame time
+
+	const uint QS_ALLEVENTS = 0x04BF;
 
 	static uint prevTicksSinceStartup;
 	static int prevSleepTicks;
@@ -40,22 +43,51 @@ public class uLinkTargetFrameRateFix : MonoBehaviour
 	
 	void LateUpdate()
 	{
-		uint curTicksSinceStartup = timeGetTime();
-		int prevFrameTicks = (int)unchecked(curTicksSinceStartup - prevTicksSinceStartup);
-		prevTicksSinceStartup = curTicksSinceStartup;
+		if (Application.isPlaying)
+		{
+			uint curTicksSinceStartup = timeGetTime();
+			int prevFrameTicks = (int)unchecked(curTicksSinceStartup - prevTicksSinceStartup);
+			prevTicksSinceStartup = curTicksSinceStartup;
 
-		int workTicks = prevFrameTicks - prevSleepTicks;
-		int sleepTicks = targetDeltaTicks - workTicks;
+			int workTicks = prevFrameTicks - prevSleepTicks;
+			int sleepTicks = targetDeltaTicks - workTicks;
 
-		if (sleepTicks < 0 && prevSleepTicks < 0) sleepTicks = 0;
-		prevSleepTicks = sleepTicks;
+			if (sleepTicks < 0 && prevSleepTicks < 0) sleepTicks = 0;
+			prevSleepTicks = sleepTicks;
 
-		if (sleepTicks > 0) MsgWaitForMultipleObjectsEx(0, null, (uint)sleepTicks, 0, 0);
+			if (sleepTicks > 0) MsgWaitForMultipleObjectsEx(0, null, (uint)sleepTicks, QS_ALLEVENTS, 0);
+		}
+		else if (Application.isEditor)
+		{
+			gameObject.hideFlags = 0;
+			DestroyImmediate(gameObject);
+		}
 	}
 	
 	public static void SetTargetFrameRate(int frameRate)
 	{
-		if (frameRate == 0)
+		if (QualitySettings.vSyncCount != 0) return;
+
+		UnityEngine.Application.targetFrameRate = -1;
+
+		if (UnityEngine.Application.platform != RuntimePlatform.WindowsPlayer)
+		{
+			UnityEngine.Application.targetFrameRate = frameRate;
+			return;
+		}
+
+		try // make sure there is no issues calling these two native Win32 APIs
+		{
+			timeGetTime();
+			MsgWaitForMultipleObjectsEx(0, null, 0, 0, 0);
+		}
+		catch (Exception)
+		{
+			UnityEngine.Application.targetFrameRate = frameRate;
+			return;
+		}
+
+		if (frameRate == 0 || frameRate == -1)
 		{
 			if (singleton != null)
 			{
@@ -71,12 +103,18 @@ public class uLinkTargetFrameRateFix : MonoBehaviour
 		
 		if (singleton != null) return;
 
-		var go = new GameObject("uLinkTargetFrameRateFix");
-		go.AddComponent<uLinkTargetFrameRateFix>();
-		go.hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInInspector | HideFlags.NotEditable;
+		var go = new GameObject("uLinkTargetFrameRateFix", typeof(uLinkTargetFrameRateFix));
+		go.hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInInspector | HideFlags.NotEditable | HideFlags.DontSave;
 	}
-}
+#else
+	public static void SetTargetFrameRate(int frameRate)
+	{
+		if (QualitySettings.vSyncCount != 0) return;
+
+		UnityEngine.Application.targetFrameRate = frameRate;
+	}
 #endif
+}
 
 #if FIX_APPLICAION_TARGETFRAMERATE
 public static class Application
@@ -91,8 +129,17 @@ public static class Application
 		}
 		set
 		{
-			Debug.Log("Override Application.targetFrameRate = " + value + " with uLink's low CPU usage fix.");
-			uLinkTargetFrameRateFix.SetTargetFrameRate(_targetFrameRate = value);
+			_targetFrameRate = value;
+
+			if (uLinkTargetFrameRateFix.SetTargetFrameRate(_targetFrameRate))
+			{
+				Debug.Log("Overridden Application.targetFrameRate = " + _targetFrameRate + " with uLink's low CPU usage fix.");
+			}
+			else
+			{
+				UnityEngine.Application.targetFrameRate = _targetFrameRate;
+			}
+			
 		} 
 	}
 

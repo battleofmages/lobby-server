@@ -42,7 +42,7 @@ public class uLinkInstantiatePool : uLink.MonoBehaviour
 	private readonly Stack<uLink.NetworkView> pool = new Stack<uLink.NetworkView>();
 
 	private Transform parent;
-	
+
 	void Awake()
 	{
 		if (enabled) CreatePool();
@@ -72,11 +72,7 @@ public class uLinkInstantiatePool : uLink.MonoBehaviour
 		{
 			uLink.NetworkView instance = (uLink.NetworkView)Instantiate(prefab);
 
-#if UNITY_4_1
-			instance.gameObject.SetActive(false);
-#else
-			instance.gameObject.SetActiveRecursively(false);
-#endif
+			SetActive(instance, false);
 
 			instance.transform.parent = parent;
 
@@ -90,7 +86,7 @@ public class uLinkInstantiatePool : uLink.MonoBehaviour
 	{
 		uLink.NetworkInstantiator.Remove(prefab.name);
 		pool.Clear();
-	  
+
 		// This is being done due to a race condition. Switching rooms might result the parent object being destroyed earlier.
 		if (parent != null)
 		{
@@ -102,18 +98,14 @@ public class uLinkInstantiatePool : uLink.MonoBehaviour
 	private uLink.NetworkView Creator(string prefabName, uLink.NetworkInstantiateArgs args, uLink.NetworkMessageInfo info)
 	{
 		uLink.NetworkView instance;
-		
+
 		if (pool.Count > 0)
 		{
 			instance = pool.Pop();
 
 			args.SetupNetworkView(instance);
 
-#if UNITY_4_1
-			instance.gameObject.SetActive(true);
-#else
-			instance.gameObject.SetActiveRecursively(true);
-#endif
+			SetActive(instance, true);
 		}
 		else
 		{
@@ -127,12 +119,17 @@ public class uLinkInstantiatePool : uLink.MonoBehaviour
 
 	private void Destroyer(uLink.NetworkView instance)
 	{
-#if UNITY_4_1
-		instance.gameObject.SetActive(false);
-#else
-		instance.gameObject.SetActiveRecursively(false);
-#endif
+		SetActive(instance, false);
 
 		pool.Push(instance);
+	}
+
+	private static void SetActive(uLink.NetworkView instance, bool value)
+	{
+#if UNITY_3_5 || UNITY_3_4 || UNITY_3_3 || UNITY_3_2 || UNITY_3_1 || UNITY_3_0 || UNITY_2_6
+		instance.gameObject.SetActiveRecursively(value); // Unity 3.x or older
+#else
+		instance.gameObject.SetActive(value); // Unity 4.x or later
+#endif
 	}
 }

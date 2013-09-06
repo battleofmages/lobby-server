@@ -887,7 +887,7 @@
     </member>
     <member name="F:uLink.NetworkView.observed">
       <summary>
-            The Component that this networkView should serialize when statesync is beeing sent or is received.
+            The Component that this networkView should serialize when statesync is being sent or is received.
             </summary>
       <remarks>
             Note that <see cref="F:uLink.NetworkView.rpcReceiver" /> can be 
@@ -2083,7 +2083,7 @@
       <summary>
             Closes the network connection.
             </summary>
-      <param name="timeout">Indicates how long this network connection will wait for an ack message and during that wait time it will continue to receive RPCs and statesyncs.</param>
+      <param name="timeout">Indicates how long (in milliseconds) this network connection will wait for an ack message and during that wait time it will continue to receive RPCs and statesyncs.</param>
       <remarks>If this is a client, it will try to send 
             a disconnect message to the server before this timeout. During the timeout, incoming statesync and RPCs will be handled as normal.
             If the timeout passes and the ack has not been received, the client will disconnect and clean up anyway.
@@ -3738,7 +3738,12 @@
     </member>
     <member name="M:uLink.NetworkP2PBase.GetStatus(uLink.NetworkPeer)">
       <summary>
-            Gets the status of a remote node connected to this peer.
+            Gets the <see cref="T:uLink.NetworkStatus" /> of a remote node connected to this peer.
+            </summary>
+    </member>
+    <member name="M:uLink.NetworkP2PBase.GetStatistics(uLink.NetworkPeer)">
+      <summary>
+            Gets the <see cref="T:uLink.NetworkStatistics" /> for a remote node connected to this peer, which can be used to get connection statistics, bandwidth, packet counts etc.
             </summary>
     </member>
     <member name="M:uLink.NetworkP2PBase.CloseConnection(uLink.NetworkPeer,System.Boolean)">
@@ -4342,7 +4347,7 @@
             </code></example>
       <remarks>Please note that it is important to NOT use string concatenation with + to compose the log message. 
             Instead send the objects individually just like the example code provided here. 
-            Otherwise you will lose performace. The concatenation would be executed even if the log level for the flags are 
+            Otherwise you will lose performance. The concatenation would be executed even if the log level for the flags are 
             turned off, and that is a waste of CPU resources.</remarks>
     </member>
     <member name="M:uLink.NetworkLog.Info(uLink.NetworkLogFlags,System.Object[])">
@@ -4357,7 +4362,7 @@
             </code></example>
       <remarks>Please note that it is important NOT to use string concatenation with + to compose a nice log message. 
             Instead send the arguments individually just like the example code provided here. 
-            Otherwise you will lose performace. The concatenation would be executed even if the logging 
+            Otherwise you will lose performance. The concatenation would be executed even if the logging 
             is turned off, and that is a waste of CPU resources.</remarks>
     </member>
     <member name="M:uLink.NetworkLog.Warning(uLink.NetworkLogFlags,System.Object[])">
@@ -4372,7 +4377,7 @@
             </code></example>
       <remarks>Please note that it is important NOT to use string concatenation with + to compose a nice log message. 
             Instead send the arguments individually just like the example code provided here. 
-            Otherwise you will lose performace. The concatenation would be executed even if the logging 
+            Otherwise you will lose performance. The concatenation would be executed even if the logging 
             is turned off, and that is a waste of CPU resources.</remarks>
     </member>
     <member name="M:uLink.NetworkLog.Error(uLink.NetworkLogFlags,System.Object[])">
@@ -4387,7 +4392,7 @@
             </code></example>
       <remarks>Please note that it is important NOT to use string concatenation with + to compose a nice log message. 
             Instead send the arguments individually just like the example code provided here. 
-            Otherwise you will lose performace. The concatenation would be executed even if the logging 
+            Otherwise you will lose performance. The concatenation would be executed even if the logging 
             is turned off, and that is a waste of CPU resources.</remarks>
     </member>
     <member name="M:uLink.NetworkLog.HasLevel(uLink.NetworkLogFlags,uLink.NetworkLogLevel)">
@@ -4947,6 +4952,62 @@
             things like original spawn point, login time, cached data from the database, and whatever you like.
             The alternative is to set up one or several Dictionaries on the server for 
             storing data per player.
+            </remarks>
+    </member>
+    <member name="T:uLink.NetworkP2PConfig">
+      <summary>
+            Enables configuration of low-level network parameters, like connection timeouts, inactivity timeouts, ping frequency
+            and MTU (Maximum Transmission Unit). See <see cref="P:uLink.Network.config" />. 
+            </summary>
+    </member>
+    <member name="P:uLink.NetworkP2PConfig.maximumTransmissionUnit">
+      <summary>
+            Gets or sets how many data bytes that can maximally be sent using a single UDP packet.
+            This can be set independently for the client and the server.
+            Only modify this if you know what you are doing. 
+            The default value 1400 has been carefully chosen for optimal speed and 
+            throughput in most link layers in IP networks. 
+            The value 1400 will ensure that UDP packets with uLink traffic (data and all headders) fit into one single 
+            ethernet frame (1500 max) and thus the packet loss risk will be minimal for every UDP packet.
+            Ethernet is a very common link layer in modern IP networks.
+            </summary>
+    </member>
+    <member name="P:uLink.NetworkP2PConfig.timeBetweenPings">
+      <summary>
+            Gets or sets the number of seconds between pings.
+            This can be set independently for the client and the server.
+            Default value is 3 seconds.
+            </summary>
+    </member>
+    <member name="P:uLink.NetworkP2PConfig.timeoutDelay">
+      <summary>
+            Gets or sets the time in seconds before a connection times out when no network packets are received from remote host.
+            This can be set independently for the client and the server. Default value is 30 seconds.
+            </summary>
+    </member>
+    <member name="P:uLink.NetworkP2PConfig.handshakeRetriesMaxCount">
+      <summary>
+            Gets or sets the maximum number of re-attempts to connect to the remote host before giving up.
+            This only has meaning for the client, or the connecting peer. Default value is 5 attempts.
+            </summary>
+    </member>
+    <member name="P:uLink.NetworkP2PConfig.handshakeRetryDelay">
+      <summary>
+            Gets or sets the number of seconds between handshake attempts.
+            This only has meaning for the client, or the connecting peer.
+            Default value is 2.5 seconds.
+            </summary>
+    </member>
+    <member name="P:uLink.NetworkP2PConfig.batchSendAtEndOfFrame">
+      <summary>
+            Determines whether uLink should queue all outgoing messages until the end of frame.
+            </summary>
+      <remarks>
+            Batching lets uLink do more optimizations such as fitting multiple messages in a single packet,
+            if they are not too big. There will be a slight CPU and bandwidth cost for turning off batching,
+            how much depends on the amount and type of messages.
+            But one benefit of disabling it, is that you then know the message has been sent after <see cref="M:uLink.NetworkView.RPC(System.String,uLink.RPCMode,System.Object[])" />
+            has returned and CPU profiling of RPCs is more accurate, in Unity's Profiler. 
             </remarks>
     </member>
     <member name="T:uLinkExtensions">

@@ -1,44 +1,83 @@
 // (c)2011 MuchDifferent. All Rights Reserved.
 
+#if UNITY_STANDALONE || UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX || UNITY_STANDALONE_LINUX
+#define SAVE_ENABLED
+#endif
+
+using System;
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
+#if SAVE_ENABLED
+using System.IO;
+using System.Text;
+#endif
 
 [AddComponentMenu("uLink Utilities/Console GUI")]
 internal class uLinkConsoleGUI : MonoBehaviour
 {
+	[Serializable]
+	public class LogMask
+	{
+		public bool message;
+		public bool warning;
+		public bool error;
+
+		public LogMask() { }
+
+		public LogMask(bool message, bool warning, bool error)
+		{
+			this.message = message;
+			this.warning = warning;
+			this.error = error;
+		}
+
+		public bool Filter(LogType type)
+		{
+			switch (type)
+			{
+				case LogType.Log: return message;
+				case LogType.Warning: return warning;
+				case LogType.Assert:
+				case LogType.Exception:
+				case LogType.Error: return error;
+			}
+
+			return true;
+		}
+	}
+
+	private class CollapsedEntries : KeyedCollection<string, Entry>
+	{
+		protected override string GetKeyForItem(Entry entry)
+		{
+			return entry.key;
+		}
+	}
+
+	private class Entry
+	{
+		public string key;
+		public string log;
+		public string logSpaced;
+		public string stacktrace;
+		public string stacktraceTabed;
+		public LogType type;
+		public bool expanded;
+	}
+
 	public enum Position
 	{
 		Bottom,
 		Top,
 	}
 
-	public enum LogLevel
-	{
-		None,
-		ErrorOnly,
-		ErrorAndWarning,
-		All,
-	}
-
-	private static readonly Color[] levelColors =
-	{
-		Color.red,
-		Color.yellow,
-		Color.white,
-	};
-
-	private static readonly string[] levelNames =
-	{
-		"Errors Only",
-		"Errors And Warnings",
-		"All"
-	};
-
 	public Position position = Position.Bottom;
 
-	public LogLevel captureLogLevel = LogLevel.All;
-	public LogLevel filterLogLevel = LogLevel.All;
-	public LogLevel autoShowOnLogLevel = LogLevel.ErrorAndWarning;
+	public LogMask captureLogMask = new LogMask { message = true, warning = true, error = true };
+	public LogMask filterLogMask = new LogMask { message = true, warning = true, error = true };
+	public LogMask autoShowOnLogMask = new LogMask { message = false, warning = true, error = true };
 
 	public int maxEntries = 1000;
 
@@ -54,21 +93,16 @@ internal class uLinkConsoleGUI : MonoBehaviour
 	public GUISkin guiSkin = null;
 	public int guiDepth = 0;
 
+	public string saveFilename = "console_{0:yyyy-MM-dd_HH.mm.ss}{1}.log";
+
+	public bool collapse = false;
 	public bool autoScroll = true;
 	public bool unlockCursorWhenVisible = true;
 
-	private class Entry
-	{
-		public string log;
-		public string stacktrace;
-		public LogType type;
-		public LogLevel level;
-		public bool expanded;
-	}
-
 	private List<Entry> entries;
-	private int errorCount;
+	private int messageCount;
 	private int warningCount;
+	private int errorCount;
 	private Vector2 scrollPosition;
 	private bool oldLockCursor;
 
@@ -136,85 +170,121 @@ internal class uLinkConsoleGUI : MonoBehaviour
 
 	void DrawGUI()
 	{
+		var stackTraceLabelStyle = new GUIStyle(GUI.skin.box);
+		stackTraceLabelStyle.alignment = TextAnchor.UpperLeft;
+		stackTraceLabelStyle.fontSize = 10;
+
 		GUILayout.BeginVertical();
 
 		GUILayout.BeginHorizontal();
+
+		if (entries.Count == 0) GUI.enabled = false;
+
 		if (GUILayout.Button("Clear", GUILayout.Width(50)))
 		{
 			Clear();
 		}
 
-		GUILayout.Space(15);
-
-		GUILayout.Label("Filter: ", GUILayout.ExpandWidth(false));
 		GUILayout.Space(5);
 
-		GUI.color = levelColors[filterLogLevel - LogLevel.ErrorOnly];
-
-		if (GUILayout.Button(levelNames[filterLogLevel - LogLevel.ErrorOnly], GUILayout.Width(150)))
+#if SAVE_ENABLED
+		if (GUILayout.Button("Save", GUILayout.Width(50)))
 		{
-			filterLogLevel = filterLogLevel == LogLevel.All ? LogLevel.ErrorOnly : filterLogLevel + 1;
+			Save();
 		}
 
+		GUILayout.Space(5);
+#endif
+
+		if (entries.Count == 0) GUI.enabled = true;
+
+		collapse = GUILayout.Toggle(collapse, " Collapse", GUILayout.ExpandWidth(false));
+
+		GUILayout.Space(5);
+
+		autoScroll = GUILayout.Toggle(autoScroll, " Auto Scroll", GUILayout.ExpandWidth(false));
+
+		GUILayout.FlexibleSpace();
+
+		IEnumerable<Entry> drawEntries;
+		int drawMessageCount;
+		int drawWarningCount;
+		int drawErrorCount;
+		
+		if (collapse)
+		{
+			var collapsedEntries = new CollapsedEntries();
+			drawMessageCount = 0;
+			drawWarningCount = 0;
+			drawErrorCount = 0;
+
+			for (int i = 0; i < entries.Count; i++)
+			{
+				var entry = entries[i];
+
+				if (!collapsedEntries.Contains(entry.key))
+				{
+					collapsedEntries.Add(entry);
+
+					switch (entry.type)
+					{
+						case LogType.Log: drawMessageCount++; break;
+						case LogType.Warning: drawWarningCount++; break;
+						case LogType.Assert:
+						case LogType.Exception:
+						case LogType.Error: drawErrorCount++; break;
+					}
+				}
+			}
+
+			drawEntries = collapsedEntries;
+		}
+		else
+		{
+			drawEntries = entries;
+			drawMessageCount = messageCount;
+			drawWarningCount = warningCount;
+			drawErrorCount = errorCount;
+		}
+
+		GUI.color = typeColors[(int)LogType.Log];
+		filterLogMask.message = GUILayout.Toggle(filterLogMask.message, " " + drawMessageCount + " Message(s)", GUILayout.ExpandWidth(false));
 		GUI.color = Color.white;
 
-		GUILayout.Space(15);
+		GUILayout.Space(5);
 
-		autoScroll = GUILayout.Toggle(autoScroll, "Auto Scroll");
-
-		GUILayout.Space(15);
-
-		if (warningCount != 0)
-		{
-			GUI.color = typeColors[(int)LogType.Warning];
-			GUILayout.Label(warningCount + " Warning(s)", GUILayout.ExpandWidth(false));
-			GUI.color = Color.white;
-		}
-		else
-		{
-			GUILayout.Label("0 Warning(s)", GUILayout.ExpandWidth(false));
-		}
+		GUI.color = typeColors[(int)LogType.Warning];
+		filterLogMask.warning = GUILayout.Toggle(filterLogMask.warning, " " + drawWarningCount + " Warning(s)", GUILayout.ExpandWidth(false));
+		GUI.color = Color.white;
 
 		GUILayout.Space(5);
 
-		if (errorCount != 0)
-		{
-			GUI.color = typeColors[(int)LogType.Error];
-			GUILayout.Label(errorCount + " Error(s)", GUILayout.ExpandWidth(false));
-			GUI.color = Color.white;
-		}
-		else
-		{
-			GUILayout.Label("0 Error(s)", GUILayout.ExpandWidth(false));
-		}
-		GUILayout.Space(5);
+		GUI.color = typeColors[(int)LogType.Error];
+		filterLogMask.error = GUILayout.Toggle(filterLogMask.error, " " + drawErrorCount + " Error(s)", GUILayout.ExpandWidth(false));
+		GUI.color = Color.white;
+
 		GUILayout.EndHorizontal();
 
+		GUI.changed = false;
 		scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUI.skin.box);
+		if (GUI.changed) autoScroll = false;
 
-		for (int i = 0; i < entries.Count; i++)
+		foreach (var entry in drawEntries)
 		{
-			var entry = entries[i];
-
-			if (entry.level <= filterLogLevel)
+			if (filterLogMask.Filter(entry.type))
 			{
-				GUI.color = typeColors[(int)entry.type];
+				int typeIndex = (int)entry.type;
+				GUI.color = (typeIndex < typeColors.Length) ? typeColors[typeIndex] : Color.white;
 
-				GUILayout.BeginHorizontal();
-
-				if (GUILayout.Button((!entry.expanded) ? ">" : "<", GUILayout.Width(20f)))
-				{
-					entry.expanded = !entry.expanded;
-				}
-
-				GUILayout.Label(entry.log);
-				GUILayout.EndHorizontal();
+				GUI.changed = false;
+				entry.expanded = GUILayout.Toggle(entry.expanded, entry.logSpaced, GUILayout.ExpandWidth(false));
+				if (GUI.changed) autoScroll = false;
 
 				if (entry.expanded)
 				{
 					GUILayout.BeginHorizontal();
-					GUILayout.Space(30f);
-					GUILayout.Label(entry.stacktrace);
+					GUILayout.Space(20);
+					GUILayout.Label(entry.stacktrace, stackTraceLabelStyle);
 					GUILayout.EndHorizontal();
 				}
 			}
@@ -245,36 +315,97 @@ internal class uLinkConsoleGUI : MonoBehaviour
 	public void Clear()
 	{
 		entries.Clear();
+		messageCount = 0;
 		warningCount = 0;
 		errorCount = 0;
 	}
+	
+#if SAVE_ENABLED
+	public void Save()
+	{
+		int index = 0;
+		DateTime now = DateTime.Now;
+		string filename = String.Empty;
+
+		do
+		{
+			filename = String.Format(saveFilename, now, index > 0 ? "_" + index : "");
+
+			index++;
+			if (index == 1000)
+			{
+				Debug.LogError("Failed to save console log, because too many log files with the same filename");
+				return;
+			}
+
+		} while (File.Exists(filename));
+
+		var sb = new StringBuilder();
+
+		for (int i = 0; i < entries.Count; i++)
+		{
+			var entry = entries[i];
+			sb.AppendLine(entry.log);
+			sb.AppendLine(entry.stacktraceTabed);
+			sb.AppendLine();
+		}
+
+		Debug.Log("Saving console log to " + filename);
+
+		File.WriteAllText(filename, sb.ToString());
+	}
+#endif
 
 	void CaptureLog(string log, string stacktrace, LogType type)
 	{
-		var level =
-			(type <= LogType.Assert || type == LogType.Exception) ? LogLevel.ErrorOnly :
-			(type == LogType.Warning) ? LogLevel.ErrorAndWarning : LogLevel.All;
+		if (!captureLogMask.Filter(type)) return;
 
-		if (level > captureLogLevel) return;
-
-		if (level <= autoShowOnLogLevel)
+		if (autoShowOnLogMask.Filter(type))
 		{
 			isVisible = true;
 		}
 
 		if (entries.Count == maxEntries)
 		{
-			var lastLevel = entries[0].level;
+			var lastType = entries[0].type;
 			entries.RemoveAt(0);
 
-			if (lastLevel == LogLevel.ErrorAndWarning) warningCount--;
-			else if (lastLevel == LogLevel.ErrorOnly) errorCount--;
+			switch (lastType)
+			{
+				case LogType.Log: messageCount--; break;
+				case LogType.Warning: warningCount--; break;
+				case LogType.Assert:
+				case LogType.Exception:
+				case LogType.Error: errorCount--; break;
+			}
 		}
 
-		entries.Add(new Entry { log = log, stacktrace = stacktrace, type = type, level = level, expanded = false });
+		stacktrace = stacktrace.Trim('\n');
+		var key = String.Format("{0}:{1}\n{2}", (int)type, log, stacktrace);
+		var logSpaced = ' ' + log.Replace("\n", "\n ");
+		var stacktraceTabed = '\t' + stacktrace.Replace("\n", "\n\t");
 
-		if (level == LogLevel.ErrorAndWarning) warningCount++;
-		else if (level == LogLevel.ErrorOnly) errorCount++;
+		var entry = new Entry
+		{
+			key = key,
+			log = log,
+			logSpaced = logSpaced,
+			stacktrace = stacktrace,
+			stacktraceTabed = stacktraceTabed,
+			type = type,
+			expanded = false
+		};
+
+		entries.Add(entry);
+
+		switch (type)
+		{
+			case LogType.Log: messageCount++; break;
+			case LogType.Warning: warningCount++; break;
+			case LogType.Assert:
+			case LogType.Exception:
+			case LogType.Error: errorCount++; break;
+		}
 
 		if (autoScroll) scrollPosition.y = float.MaxValue;
 	}

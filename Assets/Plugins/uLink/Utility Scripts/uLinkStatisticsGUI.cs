@@ -242,20 +242,6 @@ public class uLinkStatisticsGUI : uLink.MonoBehaviour
 				GUILayout.Label("Msg sequences rejected:", GUILayout.Width(COLUMN_WIDTH));
 				GUILayout.Label(stats.messageSequencesRejected.ToString(CultureInfo.InvariantCulture));
 				GUILayout.EndHorizontal();
-
-				/*
-				var reliable = player.GetReliableReceived();
-					
-				GUILayout.BeginHorizontal();
-				GUILayout.Label("ReliableReceived:", GUILayout.Width(COLUMN_WIDTH));
-				GUILayout.Label(reliable.Length.ToString());
-				GUILayout.EndHorizontal();
-
-				var tex = GetOrAdd(_table, player, delegate { return new Texture2D(256, 256, TextureFormat.ARGB32, false); });
-
-				Utility.SetBoolsToTexture(reliable, tex);
-				Utility.DrawTexture(tex);
-				*/
 			}
 
 			GUILayout.BeginHorizontal();

@@ -3,6 +3,22 @@ using System.Collections;
 using System.Collections.Generic;
 using Jboy;
 
+enum RankingPage {
+	Best,
+	Global,
+	V1,
+	V2,
+	V3,
+	V4,
+	V5,
+}
+
+enum RankingSubject {
+	Player,
+	Team,
+	Guild,
+}
+
 [System.Serializable]
 public class RankEntry {
 	public int rankIndex;

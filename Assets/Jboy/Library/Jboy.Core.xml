@@ -4,28 +4,65 @@
         <name>Jboy.Core</name>
     </assembly>
     <members>
-        <member name="T:Jboy.JsonException">
+        <member name="T:Jboy.JsonToken">
             <summary>
-            Signals that something went wrong while reading or writing JSON data.
+            Represents a token in the JSON text stream.
             </summary>
         </member>
-        <member name="M:Jboy.JsonException.#ctor">
+        <member name="F:Jboy.JsonToken.None">
             <summary>
-            Creates a new JsonException instance.
+            Represents no token at all.
             </summary>
         </member>
-        <member name="M:Jboy.JsonException.#ctor(System.String)">
+        <member name="F:Jboy.JsonToken.ObjectStart">
             <summary>
-            Creates a new JsonException instance.
+            Represents the start of a JSON object.
             </summary>
-            <param name="message">The message to present to the user.</param>
         </member>
-        <member name="M:Jboy.JsonException.#ctor(System.String,System.Exception)">
+        <member name="F:Jboy.JsonToken.PropertyName">
             <summary>
-            Creates a new JsonException instance.
+            Represents a property name within a JSON object.
             </summary>
-            <param name="message">The message to present to the user.</param>
-            <param name="innerException">An inner exception that is contained in this JsonException instance.</param>
+        </member>
+        <member name="F:Jboy.JsonToken.ObjectEnd">
+            <summary>
+            Represents the end of a JSON object.
+            </summary>
+        </member>
+        <member name="F:Jboy.JsonToken.ArrayStart">
+            <summary>
+            Represents the start of a JSON array.
+            </summary>
+        </member>
+        <member name="F:Jboy.JsonToken.ArrayEnd">
+            <summary>
+            Represents the end of a JSON array.
+            </summary>
+        </member>
+        <member name="F:Jboy.JsonToken.String">
+            <summary>
+            Represents a JSON string value.
+            </summary>
+        </member>
+        <member name="F:Jboy.JsonToken.Number">
+            <summary>
+            Represents a JSON number value.
+            </summary>
+        </member>
+        <member name="F:Jboy.JsonToken.Boolean">
+            <summary>
+            Represents a JSON boolean value.
+            </summary>
+        </member>
+        <member name="F:Jboy.JsonToken.Null">
+            <summary>
+            Represents a JSON null value.
+            </summary>
+        </member>
+        <member name="F:Jboy.JsonToken.End">
+            <summary>
+            Represents the end of the input JSON stream.
+            </summary>
         </member>
         <member name="T:Jboy.JsonWriter">
             <summary>
@@ -381,65 +418,28 @@
             Signals whether the reader has reached the end of the input stream.
             </summary>
         </member>
-        <member name="T:Jboy.JsonToken">
+        <member name="T:Jboy.JsonException">
             <summary>
-            Represents a token in the JSON text stream.
+            Signals that something went wrong while reading or writing JSON data.
             </summary>
         </member>
-        <member name="F:Jboy.JsonToken.None">
+        <member name="M:Jboy.JsonException.#ctor">
             <summary>
-            Represents no token at all.
+            Creates a new JsonException instance.
             </summary>
         </member>
-        <member name="F:Jboy.JsonToken.ObjectStart">
+        <member name="M:Jboy.JsonException.#ctor(System.String)">
             <summary>
-            Represents the start of a JSON object.
+            Creates a new JsonException instance.
             </summary>
+            <param name="message">The message to present to the user.</param>
         </member>
-        <member name="F:Jboy.JsonToken.PropertyName">
+        <member name="M:Jboy.JsonException.#ctor(System.String,System.Exception)">
             <summary>
-            Represents a property name within a JSON object.
+            Creates a new JsonException instance.
             </summary>
-        </member>
-        <member name="F:Jboy.JsonToken.ObjectEnd">
-            <summary>
-            Represents the end of a JSON object.
-            </summary>
-        </member>
-        <member name="F:Jboy.JsonToken.ArrayStart">
-            <summary>
-            Represents the start of a JSON array.
-            </summary>
-        </member>
-        <member name="F:Jboy.JsonToken.ArrayEnd">
-            <summary>
-            Represents the end of a JSON array.
-            </summary>
-        </member>
-        <member name="F:Jboy.JsonToken.String">
-            <summary>
-            Represents a JSON string value.
-            </summary>
-        </member>
-        <member name="F:Jboy.JsonToken.Number">
-            <summary>
-            Represents a JSON number value.
-            </summary>
-        </member>
-        <member name="F:Jboy.JsonToken.Boolean">
-            <summary>
-            Represents a JSON boolean value.
-            </summary>
-        </member>
-        <member name="F:Jboy.JsonToken.Null">
-            <summary>
-            Represents a JSON null value.
-            </summary>
-        </member>
-        <member name="F:Jboy.JsonToken.End">
-            <summary>
-            Represents the end of the input JSON stream.
-            </summary>
+            <param name="message">The message to present to the user.</param>
+            <param name="innerException">An inner exception that is contained in this JsonException instance.</param>
         </member>
     </members>
 </doc>

@@ -21,10 +21,10 @@ public class RankingsServer : MonoBehaviour {
 	// --------------------------------------------------------------------------------
 	
 	[RPC]
-	void RankingListRequest(LobbyMessageInfo info) {
+	void RankingListRequest(byte subject, byte page, LobbyMessageInfo info) {
 		uint maxPlayerCount = 10;
 		
 		//XDebug.Log("Retrieving top " + maxPlayerCount + " ranks");
-		StartCoroutine(rankingsDB.GetTopRanks(maxPlayerCount, info.sender));
+		StartCoroutine(rankingsDB.GetTopRanks(subject, page, maxPlayerCount, info.sender));
 	}
 }

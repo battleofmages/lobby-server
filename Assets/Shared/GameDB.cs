@@ -56,7 +56,7 @@ public class GameDB {
 		
 		// Fill with null
 		foreach(var list in rankingLists) {
-			for(int i = 0; i < 7; i++) {
+			for(byte i = 0; i < 7; i++) {
 				list.Add(null);
 			}
 		}

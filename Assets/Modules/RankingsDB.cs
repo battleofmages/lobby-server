@@ -6,8 +6,18 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class RankingsDB : MonoBehaviour {
+	public static string[] pageToPropertyName = {
+		"bestRanking",
+		"total.ranking",
+		"queue[0].ranking",
+		"queue[1].ranking",
+		"queue[2].ranking",
+		"queue[3].ranking",
+		"queue[4].ranking",
+	};
+	
 	// Get top ranks
-	public IEnumerator GetTopRanks(uint maxPlayerCount, uLobby.LobbyPeer peer) {
+	public IEnumerator GetTopRanks(byte subject, byte page, uint maxPlayerCount, uLobby.LobbyPeer peer) {
 		// TODO: Use GameDB.MapReduce
 		
 		// Retrieve the highscore list from the database by using MapReduce. The MapReduce request consists of a
@@ -15,7 +25,7 @@ public class RankingsDB : MonoBehaviour {
 		// phase also gets the maximum number of scores to fetch as an argument.
 		var bucket = new Bucket("AccountToStats");
 		var getHighscoresRequest = bucket.MapReduce(
-			new JavaScriptMapPhase(highscoresMapFunction),
+			new JavaScriptMapPhase(GetHighscoresMapFunction(page)),
 			new JavaScriptReducePhase(highscoresReduceFunction, maxPlayerCount)
 		);
 		
@@ -26,7 +36,7 @@ public class RankingsDB : MonoBehaviour {
 			IEnumerable<RankEntry> rankingEntriesTmp = getHighscoresRequest.GetResult<RankEntry>();
 			
 			var rankingEntries = rankingEntriesTmp.ToArray();
-			GameDB.rankingLists[0][0] = rankingEntries;
+			GameDB.rankingLists[subject][page] = rankingEntries;
 			
 			// Get player names
 			// TODO: Send X requests at once, then wait for all of them
@@ -59,10 +69,10 @@ public class RankingsDB : MonoBehaviour {
 			}
 			
 			//XDebug.Log("Sending the ranking list " + GameDB.rankingEntries + " with " + rankingEntries.Length + " entries");
-			Lobby.RPC("ReceiveRankingList", peer, rankingEntries, false);
+			Lobby.RPC("ReceiveRankingList", peer, subject, page, rankingEntries, false);
 		} else {
 			XDebug.Log("Failed getting the ranking list: " + getHighscoresRequest.GetErrorString());
-			Lobby.RPC("ReceiveRankingList", peer, null, false);
+			Lobby.RPC("ReceiveRankingList", peer, subject, page, null, false);
 		}
 	}
 	
@@ -74,13 +84,20 @@ public class RankingsDB : MonoBehaviour {
 	// and should produce a list of any length. The list is then concatenated with the output of other map
 	// operations and fed into the reduce phase. This map phase just parses the text value to a JSON object and
 	// returns it as a one-element list.
-	private const string highscoresMapFunction =
-	@"
-	function(value, keydata, arg) {
-		var scoreEntry = JSON.parse(value.values[0].data);
-		return [[0, value.key, '', scoreEntry.bestRanking, scoreEntry.total.damage]];
+	public static string GetHighscoresMapFunction(byte page) {
+		return @"
+			function(value, keydata, arg) {
+				var scoreEntry = JSON.parse(value.values[0].data);
+				return [[
+					0,
+					value.key,
+					'',
+					scoreEntry." + RankingsDB.pageToPropertyName[page] + @",
+					scoreEntry.total.damage
+				]];
+			}
+		";
 	}
-	";
 	
 	// This is the JavaScript code for the reduce phase. The reduce phase operates on a combined list of the results
 	// from any number of map phases, and should produce a new list. The resulting list can then be combined with
@@ -98,8 +115,24 @@ public class RankingsDB : MonoBehaviour {
 			
 			return diff;
 		};
+		
+		// Sort
 		valueList.sort(descendingOrder);
-		if (valueList.length > maxScoreCount) { valueList.length = maxScoreCount; }
+		
+		// Shorten
+		if(valueList.length > maxScoreCount) {
+			valueList.length = maxScoreCount;
+		}
+		
+		// Remove entries with 0 ranking
+		for(var i = valueList.length - 1; i >= 0; i--) {
+			if(valueList[i][3] === 0) {
+				valueList.splice(i, 1);
+			} else {
+				break;
+			}
+		}
+		
 		return valueList;
 	}
 	";

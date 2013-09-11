@@ -92,11 +92,19 @@ public class LobbyQueue {
 	// Creates a match for players in the list starting at the given index
 	Match CreateMatchInRange(int start, int length) {
 		Match match = new Match();
+		LobbyPlayer player;
 		
 		// TODO: Atm we take the first X players from the queue
 		int end = start + length;
 		for(int i = start; i < end; i++) {
-			LobbyPlayer player = playerList[i];
+			// TODO: Optimize algorithm
+			while(true) {
+				player = playerList[Random.Range(start, end)];
+				
+				if(player.inMatch == false) {
+					break;
+				}
+			}
 			
 			// Set player queue to null, WE REMOVE THEM LATER, all at once
 			player.queue = null;

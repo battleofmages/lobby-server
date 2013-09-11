@@ -38,7 +38,7 @@ public class Match {
 		}
 		
 		// Map
-		args.Add("-mapHill");
+		args.Add("-mapRuins");
 		
 		// Async: Start game server instance for this match
 		requestId = uZone.InstanceManager.StartGameInstance(LobbyServer.gameName, args);

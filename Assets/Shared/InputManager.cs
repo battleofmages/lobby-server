@@ -4,6 +4,7 @@ using System.Collections;
 public class InputManager : MonoBehaviour {
 	private static bool created = false;
 	
+	public float mouseSensitivity = 0.5f;
 	public InputControl[] controls;
 	
 	void Awake() {

@@ -2,13 +2,16 @@ using UnityEngine;
 using System.Collections;
 
 public class InputSettings {
+	public float mouseSensitivity;
 	public InputControl[] controls;
 	
 	public InputSettings() {
+		mouseSensitivity = 0.5f;
 		controls = new InputControl[0];
 	}
 	
 	public InputSettings(InputManager inputMgr) {
+		mouseSensitivity = inputMgr.mouseSensitivity;
 		controls = inputMgr.controls;
 	}
 	

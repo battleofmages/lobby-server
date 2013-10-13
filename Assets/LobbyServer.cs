@@ -130,7 +130,7 @@ public class LobbyServer : MonoBehaviour {
 		int playerCount = LobbyPlayer.list.Count;
 		
 		if(loggedPlayerCount != playerCount) {
-			LogManager.General.Log("SendQueueStats [" + playerCount + " players] started.");
+			LogManager.Spam.Log("SendQueueStats [" + playerCount + " players] started.");
 		}
 		
 		// TODO: Players need to request queue stats (to not send data to AFK players)
@@ -167,7 +167,7 @@ public class LobbyServer : MonoBehaviour {
 		}
 		
 		if(loggedPlayerCount != playerCount) {
-			LogManager.General.Log("SendQueueStats [" + playerCount + " players] finished.");
+			LogManager.Spam.Log("SendQueueStats [" + playerCount + " players] finished.");
 			loggedPlayerCount = playerCount;
 		}
 	}
@@ -284,6 +284,25 @@ public class LobbyServer : MonoBehaviour {
 		foreach(var townInstance in LobbyTown.running) {
 			uZone.InstanceManager.StopInstance(townInstance.instance.id);
 		}
+	}
+	
+	// Returns a player to his town
+	void ReturnPlayerToTown(LobbyPlayer player) {
+		// Map name
+		string playerMap = "Nubek";
+		
+		// Start new town server if needed
+		LobbyTown townInstance = null;
+		if(!LobbyTown.mapNameToInstances.ContainsKey(playerMap) || LobbyTown.mapNameToInstances[playerMap].Count == 0) {
+			townInstance = new LobbyTown(playerMap);
+			townInstance.Register();
+		} else {
+			var lobbyGameInstance = LobbyTown.mapNameToInstances[playerMap][0];
+			townInstance = (LobbyTown)lobbyGameInstance;
+		}
+		
+		// Connect the player once the instance is ready
+		StartCoroutine(player.ConnectToGameInstanceDelayed(townInstance));
 	}
 	
 	// Gets the lobby player by the supplied message info
@@ -418,6 +437,7 @@ public class LobbyServer : MonoBehaviour {
 		
 		// Lobby connect
 		Lobby.OnPeerConnected += OnPeerConnected;
+		Lobby.OnPeerDisconnected += OnPeerDisconnected;
 		
 		// Send queue stats
 		InvokeRepeating("SendQueueStats", 1.0f, 1.0f);
@@ -740,24 +760,6 @@ public class LobbyServer : MonoBehaviour {
 		SendSystemMsg(player, "Type //practice if you'd like to practice.");
 	}
 	
-	void ReturnPlayerToTown(LobbyPlayer player) {
-		// Connect to town
-		LogManager.General.Log("Towns: " + LobbyTown.mapNameToInstances.Keys.ToString());
-		string playerMap = "Nubek";
-		
-		// Start new town server if needed
-		LobbyTown townInstance = null;
-		if(!LobbyTown.mapNameToInstances.ContainsKey(playerMap) || LobbyTown.mapNameToInstances[playerMap].Count == 0) {
-			townInstance = new LobbyTown(playerMap);
-			townInstance.Register();
-		} else {
-			var lobbyGameInstance = LobbyTown.mapNameToInstances[playerMap][0];
-			townInstance = (LobbyTown)lobbyGameInstance;
-		}
-		
-		StartCoroutine(player.ConnectToGameInstanceDelayed(townInstance));
-	}
-	
 	[RPC]
 	void LeaveMatch(LobbyMessageInfo info) {
 		LobbyPlayer player = GetLobbyPlayer(info);
@@ -793,6 +795,12 @@ public class LobbyServer : MonoBehaviour {
 		
 		// Send him his new artifact inventory
 		StartCoroutine(artifactsDB.GetArtifactInventory(player));
+		
+		// Update ranking list cache
+		if(!player.match.updatedRankingList) {
+			RankingsServer.instance.StartRankingListCacheUpdate();
+			player.match.updatedRankingList = true;
+		}
 		
 		LeaveMatch(info);
 	}

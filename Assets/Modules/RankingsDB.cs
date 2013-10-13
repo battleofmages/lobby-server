@@ -17,7 +17,7 @@ public class RankingsDB : MonoBehaviour {
 	};
 	
 	// Get top ranks
-	public IEnumerator GetTopRanks(byte subject, byte page, uint maxPlayerCount, uLobby.LobbyPeer peer) {
+	public IEnumerator GetTopRanks(byte subject, byte page, uint maxPlayerCount, GameDB.ActionOnResult<RankEntry[]> func = null) {
 		// TODO: Use GameDB.MapReduce
 		
 		// Retrieve the highscore list from the database by using MapReduce. The MapReduce request consists of a
@@ -36,7 +36,6 @@ public class RankingsDB : MonoBehaviour {
 			IEnumerable<RankEntry> rankingEntriesTmp = getHighscoresRequest.GetResult<RankEntry>();
 			
 			var rankingEntries = rankingEntriesTmp.ToArray();
-			GameDB.rankingLists[subject][page] = rankingEntries;
 			
 			// Get player names
 			// TODO: Send X requests at once, then wait for all of them
@@ -97,11 +96,17 @@ public class RankingsDB : MonoBehaviour {
 				}
 			}
 			
+			// Save in cache
+			GameDB.rankingLists[subject][page] = rankingEntries;
+			
 			//LogManager.General.Log("Sending the ranking list " + rankingEntries + " with " + rankingEntries.Length + " / " + maxPlayerCount + " entries (" + subject + ", " + page + ")");
-			Lobby.RPC("ReceiveRankingList", peer, subject, page, rankingEntries, false);
+			if(func != null)
+				func(rankingEntries);
 		} else {
-			LogManager.General.Log("Failed getting the ranking list: " + getHighscoresRequest.GetErrorString());
-			Lobby.RPC("ReceiveRankingList", peer, subject, page, null, false);
+			LogManager.General.LogError("Failed getting the ranking list: " + getHighscoresRequest.GetErrorString());
+			
+			if(func != null)
+				func(null);
 		}
 	}
 	

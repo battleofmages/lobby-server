@@ -17,6 +17,7 @@ public class GameDB {
 	public static int maxPlayerNameLength = 25;
 	public static int maxGuildNameLength = 30;
 	public static int maxGuildTagLength = 4;
+	public static int numRankingPages = 7;
 	
 	public static void InitCodecs() {
 		// Register JSON codec for player statistics

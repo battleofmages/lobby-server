@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 public class LobbyMatch : LobbyGameInstance<LobbyMatch> {
 	public List<LobbyPlayer>[] teams;
+	public bool updatedRankingList = false;
 	
 	// Constructor
 	public LobbyMatch() {

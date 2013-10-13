@@ -6,6 +6,7 @@ public class LogManager {
 	public static LogCategory Online = null;
 	public static LogCategory Chat = null;
 	public static LogCategory DB = null;
+	public static LogCategory Spam = null;
 #if !LOBBY_SERVER
 	// Reserved
 #endif
@@ -25,6 +26,7 @@ public class LogManager {
 		LogManager.Online = new LogCategory("Online");
 		LogManager.Chat = new LogCategory("Chat");
 		LogManager.DB = new LogCategory("DB");
+		LogManager.Spam = new LogCategory("Spam", false);
 #if !LOBBY_SERVER
 		// Reserved
 #endif

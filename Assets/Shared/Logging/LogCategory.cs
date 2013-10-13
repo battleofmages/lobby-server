@@ -13,6 +13,7 @@ public class LogCategory {
 #if !UNITY_WEBPLAYER
 	public string filePath;
 	private StreamWriter writer;
+	private bool useUnityDebugLog;
 #endif
 	
 	public static void Init(string newLogPath) {
@@ -24,11 +25,12 @@ public class LogCategory {
 #endif
 	}
 	
-	public LogCategory(string categoryName) {
+	public LogCategory(string categoryName, bool nUseUnityDebugLog = true) {
 #if !UNITY_WEBPLAYER
 		filePath = logPath + categoryName + ".log";
 		writer = File.AppendText(filePath);
 		writer.AutoFlush = true;
+		useUnityDebugLog = nUseUnityDebugLog;
 #endif
 	}
 	
@@ -37,7 +39,8 @@ public class LogCategory {
 		writer.WriteLine(System.DateTime.UtcNow.ToString(timeFormat) + ": " + msg);
 #endif
 #if UNITY_EDITOR || UNITY_WEBPLAYER
-		Debug.Log(msg);
+		if(useUnityDebugLog)
+			Debug.Log(msg);
 #endif
 	}
 	
@@ -46,7 +49,8 @@ public class LogCategory {
 		writer.WriteLine(System.DateTime.UtcNow.ToString(timeFormat) + ": [WARNING] " + msg);
 #endif
 #if UNITY_EDITOR || UNITY_WEBPLAYER
-		Debug.LogWarning(msg);
+		if(useUnityDebugLog)
+			Debug.LogWarning(msg);
 #endif
 	}
 	
@@ -55,7 +59,8 @@ public class LogCategory {
 		writer.WriteLine(System.DateTime.UtcNow.ToString(timeFormat) + ": [WARNING] " + msg);
 #endif
 #if UNITY_EDITOR || UNITY_WEBPLAYER
-		Debug.LogError(msg);
+		if(useUnityDebugLog)
+			Debug.LogError(msg);
 #endif
 	}
 	

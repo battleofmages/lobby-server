@@ -66,6 +66,8 @@ public abstract class LobbyGameInstance<T> {
 	public virtual void Unregister() {
 		LogManager.General.Log("Unregistering instance '" + instance.id + "'...");
 		
+		//this.OnUnregister();
+		
 		mapChannel.Unregister();
 		mapChannel = null;
 		
@@ -84,5 +86,6 @@ public abstract class LobbyGameInstance<T> {
 	}
 	
 	protected virtual void OnRegister() {}
+	//protected virtual void OnUnregister() {}
 	protected virtual void OnInstanceAvailable() {}
 }

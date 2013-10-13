@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+	<ProductVersion>10.0.20506</ProductVersion>
+	<SchemaVersion>2.0</SchemaVersion>
+	<ProjectGuid>{0C950277-EC46-55B9-84AB-6AC1B1443DC2}</ProjectGuid>
+	<OutputType>Library</OutputType>
+	<AppDesignerFolder>Properties</AppDesignerFolder>
+	<RootNamespace></RootNamespace>
+	<AssemblyName>Assembly-UnityScript-firstpass</AssemblyName>
+	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+	<FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+	<DebugSymbols>true</DebugSymbols>
+	<DebugType>full</DebugType>
+	<Optimize>false</Optimize>
+	<OutputPath>Temp\bin\Debug\</OutputPath>
+	<DefineConstants>DEBUG;TRACE;UNITY_STANDALONE_LINUX;ENABLE_MICROPHONE;ENABLE_TEXTUREID_MAP;ENABLE_AUDIO_FMOD;UNITY_STANDALONE;ENABLE_MONO;ENABLE_TERRAIN;ENABLE_SUBSTANCE;ENABLE_GENERICS;ENABLE_MOVIES;ENABLE_WWW;ENABLE_IMAGEEFFECTS;ENABLE_WEBCAM;RENDER_SOFTWARE_CURSOR;ENABLE_NETWORK;ENABLE_PHYSICS;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_SHADOWS;ENABLE_AUDIO;ENABLE_DUCK_TYPING;ENABLE_SINGLE_INSTANCE_BUILD_SETTING;UNITY_4_2_0;UNITY_4_2;UNITY_64;ENABLE_PROFILER;UNITY_EDITOR;UNITY_EDITOR_WIN;UNITY_TEAM_LICENSE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+	<NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+	<DebugType>pdbonly</DebugType>
+	<Optimize>true</Optimize>
+	<OutputPath>Temp\bin\Release\</OutputPath>
+	<DefineConstants>TRACE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+	<NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+	<Reference Include="System" />
+    <Reference Include="System.XML" />
+	<Reference Include="System.Core" />
+	<Reference Include="UnityEngine">
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
+	</Reference>
+	<Reference Include="UnityEditor">
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
+	</Reference>
+  </ItemGroup>
+  <ItemGroup>
+     <Compile Include="Assets\Plugins\log4net\AssemblyVersionInfo.js" />
+     <None Include="Assets\Jboy\Library\Jboy.xml" />
+     <None Include="Assets\Plugins\log4net\site\xdoc\release\config-examples.xml" />
+     <None Include="Assets\Plugins\log4net\site\xdoc\history.xml" />
+     <None Include="Assets\Plugins\log4net\site\xdoc\release\manual\plugins.xml" />
+     <None Include="Assets\Plugins\log4net\site\xdoc\release\faq.xml" />
+     <None Include="Assets\Plugins\log4net\site\xdoc\index.xml" />
+     <None Include="Assets\Plugins\uLobby\Extras\ClientDLL\ReadMe.txt" />
+     <None Include="Assets\Plugins\uLink\Assembly\uLink.xml" />
+     <None Include="Assets\Plugins\uZone\Assembly\uZone.xml" />
+     <None Include="Assets\Resources\uLinkPrefs.txt" />
+     <None Include="Assets\Plugins\log4net\site\xdoc\release\manual\repositories.xml" />
+     <None Include="Assets\Plugins\log4net\site\xdoc\download_log4net.xml" />
+     <None Include="Assets\Plugins\log4net\site\xdoc\release\manual\configuration.xml" />
+     <None Include="Assets\Plugins\uGameDB\Assembly\uGameDB.xml" />
+     <None Include="Assets\Plugins\log4net\site\xdoc\release\manual\internals.xml" />
+     <None Include="Assets\Plugins\log4net\site\xdoc\release\example-apps.xml" />
+     <None Include="Assets\Plugins\log4net\site\xdoc\release\features.xml" />
+     <None Include="Assets\Plugins\log4net\site\xdoc\release\release-notes.xml" />
+     <None Include="Assets\Plugins\log4net\site\xdoc\release\building.xml" />
+     <None Include="Assets\Plugins\log4net\site\xdoc\release\howto\index.xml" />
+     <None Include="Assets\Plugins\log4net\site\site.xml" />
+     <None Include="Assets\Plugins\uLobby\uLobby License.txt" />
+     <None Include="Assets\Plugins\log4net\site\xdoc\release\manual\contexts.xml" />
+     <None Include="Assets\Jboy\Library\Jboy.Core.xml" />
+     <None Include="Assets\Plugins\log4net\site\xdoc\release\howto\chainsaw.xml" />
+     <None Include="Assets\Plugins\uLobby\Extras\link.xml" />
+     <None Include="Assets\Plugins\log4net\changes\changes.xml" />
+     <None Include="Assets\Plugins\uGameDB\uGameDB License.txt" />
+     <None Include="Assets\Plugins\log4net\assembly\bin.xml" />
+     <None Include="Assets\Plugins\uLink\uLink License.txt" />
+     <None Include="Assets\Plugins\log4net\site\xdoc\release\framework-support.xml" />
+     <None Include="Assets\Plugins\log4net\site\xdoc\release\manual\introduction.xml" />
+ <Reference Include="Jboy.Core">
+ <HintPath>Assets\Jboy\Library\Jboy.Core.dll</HintPath>
+ </Reference>
+ <Reference Include="Jboy">
+ <HintPath>Assets\Jboy\Library\Jboy.dll</HintPath>
+ </Reference>
+ <Reference Include="uGameDB">
+ <HintPath>Assets\Plugins\uGameDB\Assembly\uGameDB.dll</HintPath>
+ </Reference>
+ <Reference Include="uLink">
+ <HintPath>Assets\Plugins\uLink\Assembly\uLink.dll</HintPath>
+ </Reference>
+ <Reference Include="uLobby">
+ <HintPath>Assets\Plugins\uLobby\Assembly\uLobby.dll</HintPath>
+ </Reference>
+ <Reference Include="uZone">
+ <HintPath>Assets\Plugins\uZone\Assembly\uZone.dll</HintPath>
+ </Reference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+	   Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  
+</Project>

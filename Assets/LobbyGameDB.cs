@@ -20,37 +20,47 @@ public class LobbyGameDB : MonoBehaviour {
 	}
 	
 	// Sets the player name
-	public IEnumerator SetPlayerName(LobbyPlayer lobbyPlayer, string playerName) {
+	public IEnumerator SetPlayerName(LobbyPlayer player, string playerName) {
 		yield return StartCoroutine(GameDB.Set<string>(
 			"AccountToName",
-			lobbyPlayer.accountId,
+			player.accountId,
 			playerName,
 			data => {
 				if(data == null) {
-					Lobby.RPC("PlayerNameChangeError", lobbyPlayer.peer);
+					Lobby.RPC("PlayerNameChangeError", player.peer);
 				} else {
-					lobbyPlayer.name = data;
-					Lobby.RPC("ReceivePlayerInfo", lobbyPlayer.peer, lobbyPlayer.accountId, lobbyPlayer.name);
-					LobbyServer.OnReceivePlayerName(lobbyPlayer);
+					player.name = data;
+					Lobby.RPC("ReceivePlayerInfo", player.peer, player.accountId, player.name);
+					LobbyServer.OnReceivePlayerName(player);
 				}
 			}
 		));
 	}
 	
 	// Get stats for a single player
-	public IEnumerator GetPlayerStats(LobbyPlayer lobbyPlayer) {
+	public IEnumerator GetPlayerStats(string accountId, GameDB.ActionOnResult<PlayerStats> func) {
 		yield return StartCoroutine(GameDB.Get<PlayerStats>(
 			"AccountToStats",
-			lobbyPlayer.accountId,
+			accountId,
+			func
+		));
+	}
+	
+	// Get stats for a single player
+	public IEnumerator GetPlayerStats(LobbyPlayer player) {
+		yield return StartCoroutine(GameDB.Get<PlayerStats>(
+			"AccountToStats",
+			player.accountId,
 			data => {
 				if(data == null)
 					data = new PlayerStats();
 				
 				// Assign stats
-				lobbyPlayer.stats = data;
+				player.stats = data;
 				
 				// Send the stats to the player
-				Lobby.RPC("ReceivePlayerStats", lobbyPlayer.peer,
+				Lobby.RPC("ReceivePlayerStats", player.peer,
+					player.accountId,
 					Jboy.Json.WriteObject(data)
 				);
 			}
@@ -58,10 +68,10 @@ public class LobbyGameDB : MonoBehaviour {
 	}
 	
 	// Sets last login date
-	public IEnumerator SetLastLoginDate(LobbyPlayer lobbyPlayer, System.DateTime timestamp) {
+	public IEnumerator SetLastLoginDate(LobbyPlayer player, System.DateTime timestamp) {
 		yield return StartCoroutine(GameDB.Set<TimeStamp>(
 			"AccountToLastLoginDate",
-			lobbyPlayer.accountId,
+			player.accountId,
 			new TimeStamp(timestamp),
 			data => {
 				// ...
@@ -82,15 +92,15 @@ public class LobbyGameDB : MonoBehaviour {
 	}
 	
 	// Gets account registration date
-	public IEnumerator GetAccountRegistrationDate(LobbyPlayer lobbyPlayer) {
+	public IEnumerator GetAccountRegistrationDate(LobbyPlayer player) {
 		/*yield return StartCoroutine(GameDB.Get<TimeStamp>(
 		"AccountToRegistrationDate",
-		lobbyPlayer.accountId,
+		player.accountId,
 		data => {
 			if(data == null)
-				XDebug.LogWarning("Failed getting registration date of account ID '" + lobbyPlayer.accountId + "'");
+				LogManager.General.LogWarning("Failed getting registration date of account ID '" + player.accountId + "'");
 			else
-				XDebug.Log("Got registration date of account ID '" + lobbyPlayer.accountId + "' successfully: " + data);
+				LogManager.General.Log("Got registration date of account ID '" + player.accountId + "' successfully: " + data);
 		}));*/
 		yield break;
 	}
@@ -116,6 +126,17 @@ public class LobbyGameDB : MonoBehaviour {
 			accountId,
 			func
 		));
+	}
+	
+	// --------------------------------------------------------------------------------
+	// Password
+	// --------------------------------------------------------------------------------
+	
+	// Set password hash
+	public IEnumerator SetPasswordHash(LobbyPlayer player, byte[] passwordHash) {
+		yield return AccountManager.Master.UpdateAccount(player.account, new AccountUpdate() {
+			password = passwordHash.ToString()
+		});
 	}
 	
 	// --------------------------------------------------------------------------------

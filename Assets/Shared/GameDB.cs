@@ -11,9 +11,10 @@ public class GameDB {
 	public static Dictionary<string, Guild> guildIdToGuild = new Dictionary<string, Guild>();
 	public static Dictionary<string, List<GuildMember>> guildIdToGuildMembers = new Dictionary<string, List<GuildMember>>();
 	public static List<List<RankEntry[]>> rankingLists;
-	public static string logBucketPrefix = "<color=#ffcc00>";
-	public static string logBucketMid = "</color>[<color=#00ffff>";
-	public static string logBucketPostfix = "</color>]";
+	public static string logBucketPrefix = ""; //"<color=#ffcc00>";
+	public static string logBucketMid = "["; //"</color>[<color=#00ffff>";
+	public static string logBucketPostfix = "]"; //"</color>]";
+	public static int maxPlayerNameLength = 25;
 	public static int maxGuildNameLength = 30;
 	public static int maxGuildTagLength = 4;
 	
@@ -28,8 +29,27 @@ public class GameDB {
 		Json.AddCodec<GuildMember>(GuildMember.JsonDeserializer, GuildMember.JsonSerializer);
 		Json.AddCodec<Guild>(Guild.JsonDeserializer, Guild.JsonSerializer);
 		Json.AddCodec<GuildList>(GuildList.JsonDeserializer, GuildList.JsonSerializer);
+		Json.AddCodec<CharacterCustomization>(CharacterCustomization.JsonDeserializer, CharacterCustomization.JsonSerializer);
 		Json.AddCodec<PaymentsList>(PaymentsList.JsonDeserializer, PaymentsList.JsonSerializer);
+		
+		// Register JSON codecs for integrated types
+		Json.AddCodec<Color>(GenericSerializer.ColorJsonDeserializer, GenericSerializer.ColorJsonSerializer);
 		Json.AddCodec<Texture2D>(GenericSerializer.Texture2DJsonDeserializer, GenericSerializer.Texture2DJsonSerializer);
+		
+		// Register JSON codecs for Artifacts
+		Json.AddCodec<Artifact>(Artifact.JsonDeserializer, Artifact.JsonSerializer);
+		Json.AddCodec<ArtifactSlot>(ArtifactSlot.JsonDeserializer, ArtifactSlot.JsonSerializer);
+		Json.AddCodec<ArtifactTree>(ArtifactTree.JsonDeserializer, ArtifactTree.JsonSerializer);
+		Json.AddCodec<ArtifactInventory>(ArtifactInventory.JsonDeserializer, ArtifactInventory.JsonSerializer);
+		
+		// Register JSON codecs for Inventory
+		Json.AddCodec<Inventory>(Inventory.JsonDeserializer, Inventory.JsonSerializer);
+		Json.AddCodec<ItemSlot>(ItemSlot.JsonDeserializer, ItemSlot.JsonSerializer);
+		
+		// Register JSON codecs for SkillBuilds
+		Json.AddCodec<SkillBuild>(SkillBuild.JsonDeserializer, SkillBuild.JsonSerializer);
+		Json.AddCodec<WeaponBuild>(WeaponBuild.JsonDeserializer, WeaponBuild.JsonSerializer);
+		Json.AddCodec<AttunementBuild>(AttunementBuild.JsonDeserializer, AttunementBuild.JsonSerializer);
 		
 		// Register JSON codecs for MapReduce entries
 		Json.AddCodec<RankEntry>(RankEntry.JsonDeserializer, RankEntry.JsonSerializer);
@@ -39,6 +59,10 @@ public class GameDB {
 		uLink.BitStreamCodec.AddAndMakeArray<RankEntry>(RankEntry.ReadFromBitStream, RankEntry.WriteToBitStream);
 		uLink.BitStreamCodec.AddAndMakeArray<ChatMember>(ChatMember.ReadFromBitStream, ChatMember.WriteToBitStream);
 		uLink.BitStreamCodec.AddAndMakeArray<GuildMember>(GuildMember.ReadFromBitStream, GuildMember.WriteToBitStream);
+		uLink.BitStreamCodec.AddAndMakeArray<SkillBuild>(SkillBuild.ReadFromBitStream, SkillBuild.WriteToBitStream);
+		uLink.BitStreamCodec.AddAndMakeArray<WeaponBuild>(WeaponBuild.ReadFromBitStream, WeaponBuild.WriteToBitStream);
+		uLink.BitStreamCodec.AddAndMakeArray<AttunementBuild>(AttunementBuild.ReadFromBitStream, AttunementBuild.WriteToBitStream);
+		uLink.BitStreamCodec.AddAndMakeArray<CharacterCustomization>(CharacterCustomization.ReadFromBitStream, CharacterCustomization.WriteToBitStream);
 	}
 	
 	public static void InitRankingLists() {
@@ -112,13 +136,13 @@ public class GameDB {
 	
 	static string FormatSuccess(string key, string operation, string bucketName, object val) {
 		if(operation != "get")
-			return Resolve(key) + "." + operation + FormatBucketName(bucketName) + "(<color=#808080>" + val.ToString() + "</color>)";
+			return Resolve(key) + "." + operation + FormatBucketName(bucketName) + "(" + val.ToString() + ")";
 		
-		return Resolve(key) + "." + operation + FormatBucketName(bucketName) + "() <color=#808080>-> " + val.ToString() + "</color>";
+		return Resolve(key) + "." + operation + FormatBucketName(bucketName) + "() -> " + val.ToString();
 	}
 	
 	static string FormatFail(string key, string operation, string bucketName) {
-		return Resolve(key) + "." + operation + FormatBucketName(bucketName) + "() <color=#808080>FAIL</color>";
+		return Resolve(key) + "." + operation + FormatBucketName(bucketName) + "() FAIL";
 	}
 	
 	// Get
@@ -129,10 +153,10 @@ public class GameDB {
 		
 		if(request.isSuccessful) {
 			T val = request.GetValue<T>();
-			XDebug.Log(FormatSuccess(key, "get", bucketName, val));
+			LogManager.DB.Log(FormatSuccess(key, "get", bucketName, val));
 			func(val);
 		} else {
-			XDebug.LogWarning(FormatFail(key, "get", bucketName));
+			LogManager.DB.LogWarning(FormatFail(key, "get", bucketName));
 			func(default(T));
 		}
 	}
@@ -144,11 +168,11 @@ public class GameDB {
 		yield return request.WaitUntilDone();
 		
 		if(request.isSuccessful) {
-			XDebug.Log(FormatSuccess(key, "set", bucketName, val));
+			LogManager.DB.Log(FormatSuccess(key, "set", bucketName, val));
 			if(func != null)
 				func(val);
 		} else {
-			XDebug.LogWarning(FormatFail(key, "set", bucketName));
+			LogManager.DB.LogWarning(FormatFail(key, "set", bucketName));
 			if(func != null)
 				func(default(T));
 		}
@@ -163,29 +187,27 @@ public class GameDB {
 		if(request.isSuccessful) {
 			string generatedKey = request.GetGeneratedKey();
 			
-			XDebug.Log(FormatSuccess(generatedKey, "put", bucketName, val));
+			LogManager.DB.Log(FormatSuccess(generatedKey, "put", bucketName, val));
 			func(generatedKey, val);
 		} else {
-			XDebug.LogWarning(FormatFail("", "put", bucketName));
+			LogManager.DB.LogWarning(FormatFail("", "put", bucketName));
 			func(default(string), default(T));
 		}
 	}
 	
 	// Remove
-	/*public static IEnumerator Remove<T>(string bucketName, string key, ActionOnResult<T> func) {
+	public static IEnumerator Remove(string bucketName, string key, ActionOnResult<bool> func) {
 		var bucket = new Bucket(bucketName);
 		var request = bucket.Remove(key);
 		yield return request.WaitUntilDone();
 		
 		if(request.isSuccessful) {
-			T val = request.GetValue<T>();
-			XDebug.Log(FormatSuccess(key, "remove", bucketName, val));
-			func(val);
+			func(true);
 		} else {
-			XDebug.LogWarning(FormatFail(key, "remove", bucketName));
-			func(default(T));
+			LogManager.DB.LogWarning(FormatFail(key, "remove", bucketName));
+			func(false);
 		}
-	}*/
+	}
 	
 	// MapReduce
 	public static IEnumerator MapReduce<T>(string bucketName, string jsMapPhase, string jsReducePhase, object argument, ActionOnResult<T[]> func) {
@@ -203,10 +225,10 @@ public class GameDB {
 		if(mapReduceRequest.isSuccessful) {
 			var results = mapReduceRequest.GetResult<T>().ToArray();
 			
-			XDebug.Log("MapReduce successful: " + logInfo + " -> " + typeof(T).ToString() + "[" + results.Length + "]");
+			LogManager.DB.Log("MapReduce successful: " + logInfo + " -> " + typeof(T).ToString() + "[" + results.Length + "]");
 			func(results);
 		} else {
-			XDebug.LogWarning("MapReduce failed: " + logInfo + " -> " + mapReduceRequest.GetErrorString());
+			LogManager.DB.LogWarning("MapReduce failed: " + logInfo + " -> " + mapReduceRequest.GetErrorString());
 			func(default(T[]));
 		}
 	}

@@ -9,26 +9,26 @@ public class SettingsDB : MonoBehaviour {
 	// --------------------------------------------------------------------------------
 	
 	// Get input settings
-	public IEnumerator GetInputSettings(LobbyPlayer lobbyPlayer) {
+	public IEnumerator GetInputSettings(LobbyPlayer player) {
 		yield return StartCoroutine(GameDB.Get<InputSettings>(
 			"AccountToInputSettings",
-			lobbyPlayer.accountId,
+			player.accountId,
 			data => {
 				if(data == null) {
-					Lobby.RPC("ReceiveInputSettingsError", lobbyPlayer.peer);
+					Lobby.RPC("ReceiveInputSettingsError", player.peer);
 				} else {
 					// Send the controls to the player
-					Lobby.RPC("ReceiveInputSettings", lobbyPlayer.peer, Jboy.Json.WriteObject(data));
+					Lobby.RPC("ReceiveInputSettings", player.peer, Jboy.Json.WriteObject(data));
 				}
 			}
 		));
 	}
 	
 	// Set input settings
-	public IEnumerator SetInputSettings(LobbyPlayer lobbyPlayer, InputSettings inputMgr) {
+	public IEnumerator SetInputSettings(LobbyPlayer player, InputSettings inputMgr) {
 		yield return StartCoroutine(GameDB.Set<InputSettings>(
 			"AccountToInputSettings",
-			lobbyPlayer.accountId,
+			player.accountId,
 			inputMgr,
 			data => {
 				// ...

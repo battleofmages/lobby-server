@@ -31,10 +31,14 @@ public class LobbyQueue {
 		get { return playerList.Count; }
 	}
 	
-	public void AddPlayer(LobbyPlayer player) {
+	public bool AddPlayer(LobbyPlayer player) {
 		// Remove player from his old queue if he is still in
-		if(player.queue != null)
+		if(player.queue != null) {
+			if(player.queue == this)
+				return false;
+			
 			player.queue.RemovePlayer(player);
+		}
 		
 		// Add him to this queue
 		playerList.Add(player);
@@ -46,6 +50,8 @@ public class LobbyQueue {
 		if(LobbyServer.uZoneNodeCount > 0) {
 			MakeMatchesBasedOnRanking();
 		}
+		
+		return true;
 	}
 	
 	// With ranking in mind
@@ -90,8 +96,8 @@ public class LobbyQueue {
 	}
 	
 	// Creates a match for players in the list starting at the given index
-	Match CreateMatchInRange(int start, int length) {
-		Match match = new Match();
+	LobbyMatch CreateMatchInRange(int start, int length) {
+		LobbyMatch match = new LobbyMatch();
 		LobbyPlayer player;
 		
 		// TODO: Atm we take the first X players from the queue
@@ -109,7 +115,7 @@ public class LobbyQueue {
 			// Set player queue to null, WE REMOVE THEM LATER, all at once
 			player.queue = null;
 			
-			player.inMatch = true;
+			//player.match = match;
 			Lobby.RPC("MatchFound", player.peer);
 			match.teams[i / _playersPerTeam].Add(player);
 		}
@@ -123,5 +129,17 @@ public class LobbyQueue {
 	public void RemovePlayer(LobbyPlayer player) {
 		playerList.Remove(player);
 		player.queue = null;
+	}
+	
+	public static LobbyMatch CreatePracticeMatch(LobbyPlayer player) {
+		player.LeaveQueue();
+		
+		LobbyMatch match = new LobbyMatch();
+		
+		//player.match = match;
+		Lobby.RPC("MatchFound", player.peer);
+		match.teams[0].Add(player);
+		
+		return match;
 	}
 }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 [System.Serializable]
 public class TimeStamp {
@@ -19,7 +20,10 @@ public class TimeStamp {
 	
 	// Writer
 	public static void JsonSerializer(Jboy.JsonWriter writer, object instance) {
-		GenericSerializer.WriteJSONClassInstance<TimeStamp>(writer, (TimeStamp)instance);
+		var fieldFilter = new HashSet<string>() {
+			"unixTimeStamp",
+		};
+		GenericSerializer.WriteJSONClassInstance<TimeStamp>(writer, (TimeStamp)instance, fieldFilter);
 	}
 	
 	// Reader

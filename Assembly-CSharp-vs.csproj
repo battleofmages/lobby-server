@@ -18,7 +18,7 @@
 	<DebugType>full</DebugType>
 	<Optimize>false</Optimize>
 	<OutputPath>Temp\bin\Debug\</OutputPath>
-	<DefineConstants>DEBUG;TRACE;UNITY_STANDALONE_LINUX;ENABLE_MICROPHONE;ENABLE_TEXTUREID_MAP;ENABLE_AUDIO_FMOD;UNITY_STANDALONE;ENABLE_MONO;ENABLE_TERRAIN;ENABLE_SUBSTANCE;ENABLE_GENERICS;ENABLE_MOVIES;ENABLE_WWW;ENABLE_IMAGEEFFECTS;ENABLE_WEBCAM;RENDER_SOFTWARE_CURSOR;ENABLE_NETWORK;ENABLE_PHYSICS;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_SHADOWS;ENABLE_AUDIO;ENABLE_DUCK_TYPING;ENABLE_SINGLE_INSTANCE_BUILD_SETTING;UNITY_4_2_0;UNITY_4_2;UNITY_64;ENABLE_PROFILER;UNITY_EDITOR;UNITY_EDITOR_WIN;UNITY_TEAM_LICENSE</DefineConstants>
+	<DefineConstants>DEBUG;TRACE;UNITY_STANDALONE_WIN;ENABLE_MICROPHONE;ENABLE_TEXTUREID_MAP;ENABLE_AUDIO_FMOD;UNITY_STANDALONE;ENABLE_MONO;ENABLE_TERRAIN;ENABLE_SUBSTANCE;ENABLE_GENERICS;ENABLE_MOVIES;ENABLE_WWW;ENABLE_IMAGEEFFECTS;ENABLE_WEBCAM;RENDER_SOFTWARE_CURSOR;ENABLE_NETWORK;ENABLE_PHYSICS;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_SHADOWS;ENABLE_AUDIO;ENABLE_DUCK_TYPING;ENABLE_SINGLE_INSTANCE_BUILD_SETTING;UNITY_4_2_0;UNITY_4_2;ENABLE_PROFILER;UNITY_EDITOR;UNITY_EDITOR_WIN;UNITY_TEAM_LICENSE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
 	<NoWarn>0169</NoWarn>
@@ -46,41 +46,76 @@
   <ItemGroup>
      <Compile Include="Assets\LobbyChatChannel.cs" />
      <Compile Include="Assets\LobbyGameDB.cs" />
+     <Compile Include="Assets\LobbyGameInstance.cs" />
+     <Compile Include="Assets\LobbyMatch.cs" />
      <Compile Include="Assets\LobbyPlayer.cs" />
      <Compile Include="Assets\LobbyQueue.cs" />
      <Compile Include="Assets\LobbyServer.cs" />
-     <Compile Include="Assets\Match.cs" />
+     <Compile Include="Assets\LobbyTown.cs" />
+     <Compile Include="Assets\Modules\AccessLevelsDB.cs" />
+     <Compile Include="Assets\Modules\AccessLevelsServer.cs" />
+     <Compile Include="Assets\Modules\ArtifactsServer.cs" />
+     <Compile Include="Assets\Modules\CharacterCustomizationServer.cs" />
      <Compile Include="Assets\Modules\ChatServer.cs" />
      <Compile Include="Assets\Modules\DonationsDB.cs" />
      <Compile Include="Assets\Modules\DonationsServer.cs" />
      <Compile Include="Assets\Modules\GuildsServer.cs" />
+     <Compile Include="Assets\Modules\IPInfoDB.cs" />
+     <Compile Include="Assets\Modules\IPInfoServer.cs" />
      <Compile Include="Assets\Modules\RankingsDB.cs" />
      <Compile Include="Assets\Modules\RankingsServer.cs" />
      <Compile Include="Assets\Modules\SettingsDB.cs" />
      <Compile Include="Assets\Modules\SettingsServer.cs" />
+     <Compile Include="Assets\Modules\SkillBuildsServer.cs" />
      <Compile Include="Assets\Modules\TraitsDB.cs" />
      <Compile Include="Assets\Modules\TraitsServer.cs" />
+     <Compile Include="Assets\Shared\AccessLevel.cs" />
+     <Compile Include="Assets\Shared\Artifacts\Artifact.cs" />
+     <Compile Include="Assets\Shared\Artifacts\ArtifactInventory.cs" />
+     <Compile Include="Assets\Shared\Artifacts\ArtifactSlot.cs" />
+     <Compile Include="Assets\Shared\Artifacts\ArtifactTree.cs" />
+     <Compile Include="Assets\Shared\Artifacts\ArtifactsDB.cs" />
+     <Compile Include="Assets\Shared\Artifacts\SkillArtifact.cs" />
+     <Compile Include="Assets\Shared\CharacterCustomization\CharacterCustomization.cs" />
+     <Compile Include="Assets\Shared\CharacterCustomization\CharacterCustomizationDB.cs" />
      <Compile Include="Assets\Shared\CharacterStats.cs" />
      <Compile Include="Assets\Shared\ChatMember.cs" />
-     <Compile Include="Assets\Shared\Database\GuildsDB.cs" />
+     <Compile Include="Assets\Shared\EditorScripts\EditorLogViewer.cs" />
+     <Compile Include="Assets\Shared\GUIControls\GUIHorizontal.cs" />
+     <Compile Include="Assets\Shared\GUIControls\GUIHorizontalCenter.cs" />
+     <Compile Include="Assets\Shared\GUIControls\GUIScrollView.cs" />
+     <Compile Include="Assets\Shared\GUIControls\GUIVertical.cs" />
+     <Compile Include="Assets\Shared\GUIControls\GUIVerticalCenter.cs" />
      <Compile Include="Assets\Shared\GameDB.cs" />
      <Compile Include="Assets\Shared\GenericSerializer.cs" />
-     <Compile Include="Assets\Shared\Guild.cs" />
-     <Compile Include="Assets\Shared\GuildList.cs" />
-     <Compile Include="Assets\Shared\GuildMember.cs" />
-     <Compile Include="Assets\Shared\InputControl.cs" />
-     <Compile Include="Assets\Shared\InputManager.cs" />
-     <Compile Include="Assets\Shared\InputSettings.cs" />
+     <Compile Include="Assets\Shared\Guilds\Guild.cs" />
+     <Compile Include="Assets\Shared\Guilds\GuildList.cs" />
+     <Compile Include="Assets\Shared\Guilds\GuildMember.cs" />
+     <Compile Include="Assets\Shared\Guilds\GuildsDB.cs" />
+     <Compile Include="Assets\Shared\Input\InputControl.cs" />
+     <Compile Include="Assets\Shared\Input\InputManager.cs" />
+     <Compile Include="Assets\Shared\Input\InputSettings.cs" />
+     <Compile Include="Assets\Shared\Inventory\Inventory.cs" />
+     <Compile Include="Assets\Shared\Inventory\ItemSlot.cs" />
      <Compile Include="Assets\Shared\KeyToValueEntry.cs" />
+     <Compile Include="Assets\Shared\Logging\LogCategory.cs" />
+     <Compile Include="Assets\Shared\Logging\LogManager.cs" />
+     <Compile Include="Assets\Shared\MapManager.cs" />
+     <Compile Include="Assets\Shared\MouseLook.cs" />
      <Compile Include="Assets\Shared\PaymentsList.cs" />
-     <Compile Include="Assets\Shared\PlayerQueueStats.cs" />
-     <Compile Include="Assets\Shared\PlayerStats.cs" />
-     <Compile Include="Assets\Shared\QueueSettings.cs" />
-     <Compile Include="Assets\Shared\RankEntry.cs" />
+     <Compile Include="Assets\Shared\Rankings\PlayerQueueStats.cs" />
+     <Compile Include="Assets\Shared\Rankings\PlayerStats.cs" />
+     <Compile Include="Assets\Shared\Rankings\QueueSettings.cs" />
+     <Compile Include="Assets\Shared\Rankings\RankEntry.cs" />
+     <Compile Include="Assets\Shared\ServerType.cs" />
+     <Compile Include="Assets\Shared\SkillBuild\AttunementBuild.cs" />
+     <Compile Include="Assets\Shared\SkillBuild\SkillBuild.cs" />
+     <Compile Include="Assets\Shared\SkillBuild\SkillBuildsDB.cs" />
+     <Compile Include="Assets\Shared\SkillBuild\WeaponBuild.cs" />
+     <Compile Include="Assets\Shared\StringExtensions.cs" />
      <Compile Include="Assets\Shared\TimeStamp.cs" />
      <Compile Include="Assets\Shared\Validator.cs" />
      <Compile Include="Assets\Shared\Version.cs" />
-     <Compile Include="Assets\Shared\XDebug.cs" />
      <None Include="Assets\Jboy\Library\Jboy.xml" />
      <None Include="Assets\Plugins\uLobby\Extras\ClientDLL\ReadMe.txt" />
      <None Include="Assets\Plugins\uLink\Assembly\uLink.xml" />

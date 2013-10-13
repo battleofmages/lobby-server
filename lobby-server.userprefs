@@ -1,29 +1,6 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Shared\XDebug.cs">
-    <Files>
-      <File FileName="Assets\Modules\RankingsServer.cs" Line="1" Column="1" />
-      <File FileName="Assets\Modules\RankingsDB.cs" Line="1" Column="1" />
-      <File FileName="Assets\LobbyServer.cs" Line="397" Column="5" />
-      <File FileName="Assets\LobbyPlayer.cs" Line="1" Column="1" />
-      <File FileName="Assets\LobbyQueue.cs" Line="1" Column="1" />
-      <File FileName="Assets\Match.cs" Line="41" Column="25" />
-      <File FileName="Assets\Shared\XDebug.cs" Line="9" Column="5" />
-    </Files>
-    <Pads>
-      <Pad Id="ProjectPad">
-        <State expanded="True">
-          <Node name="Assembly-CSharp" expanded="True">
-            <Node name="Assets" expanded="True">
-              <Node name="Shared" expanded="True">
-                <Node name="ChatMember.cs" selected="True" />
-              </Node>
-            </Node>
-          </Node>
-        </State>
-      </Pad>
-    </Pads>
-  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace />
+  <MonoDevelop.Ide.Workbench />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

@@ -19,10 +19,10 @@ public class SettingsServer : MonoBehaviour {
 	
 	[RPC]
 	void ClientInputSettings(string inputSettingsString, LobbyMessageInfo info) {
-		LobbyPlayer lobbyPlayer = LobbyServer.GetLobbyPlayer(info);
+		LobbyPlayer player = LobbyServer.GetLobbyPlayer(info);
 		
-		//XDebug.Log("Player '" + lobbyPlayer.name + "' sent new input settings");
+		//LogManager.General.Log("Player '" + player.name + "' sent new input settings");
 		InputSettings inputSettings = Jboy.Json.ReadObject<InputSettings>(inputSettingsString);
-		StartCoroutine(settingsDB.SetInputSettings(lobbyPlayer, inputSettings));
+		StartCoroutine(settingsDB.SetInputSettings(player, inputSettings));
 	}
 }

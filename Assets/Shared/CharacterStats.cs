@@ -20,6 +20,16 @@ public class CharacterStats {
 		moveSpeed = 50;
 	}
 	
+	// Default value - needs to be separate from empty constructor
+	public CharacterStats(int defaultValue) {
+		attack = defaultValue;
+		defense = defaultValue;
+		block = defaultValue;
+		cooldownReduction = defaultValue;
+		attackSpeed = defaultValue;
+		moveSpeed = defaultValue;
+	}
+	
 	// Copy constructor
 	public CharacterStats(CharacterStats other) {
 		attack = other.attack;
@@ -49,6 +59,15 @@ public class CharacterStats {
 		moveSpeed += val;
 	}
 	
+	public void ApplyOffset(CharacterStats stats) {
+		attack += stats.attack;
+		defense += stats.defense;
+		block += stats.block;
+		cooldownReduction += stats.cooldownReduction;
+		attackSpeed += stats.attackSpeed;
+		moveSpeed += stats.moveSpeed;
+	}
+	
 	// Writer
 	public static void JsonSerializer(Jboy.JsonWriter writer, object instance) {
 		GenericSerializer.WriteJSONClassInstance<CharacterStats>(writer, (CharacterStats)instance);
@@ -57,6 +76,20 @@ public class CharacterStats {
 	// Reader
 	public static object JsonDeserializer(Jboy.JsonReader reader) {
 		return GenericSerializer.ReadJSONClassInstance<CharacterStats>(reader);
+	}
+	
+	public string multiLineString {
+		get {
+			var s = "\n";
+			return string.Concat(
+				"Attack +", attack, s,
+				"Defense +", defense, s,
+				"Energy +", block, s,
+				"CD reduction +", cooldownReduction, s,
+				"Attack speed +", attackSpeed, s,
+				"Move speed +", moveSpeed
+			);
+		}
 	}
 	
 	public override string ToString() {
@@ -93,7 +126,9 @@ public class CharacterStats {
 	}
 	
 	public float blockMaxCapacityMultiplier {
-		get { return 1.0f + ((block - 50) * 0.005f); }
+		get {
+			return 1.0f + ((block - 50) * 0.0075f);
+		}
 	}
 	
 	public float cooldownMultiplier {

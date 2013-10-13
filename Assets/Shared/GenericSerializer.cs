@@ -31,6 +31,11 @@ public class GenericSerializer {
 	
 	// Writes all fields of a class instance
 	public static void WriteJSONClassInstance<T>(Jboy.JsonWriter writer, T instance, HashSet<string> fieldFilter = null, HashSet<string> fieldExclude = null) {
+		if(instance == null) {
+			writer.WriteNull();
+			return;
+		}
+		
 		// Type pointer
 		Type type = typeof(T);
 		
@@ -52,9 +57,9 @@ public class GenericSerializer {
 			
 			object val = field.GetValue(instance);
 			
-			//XDebug.Log("Writing '" + name + "'"); // with value '" + ((double)val).ToString() + "'");
-			//XDebug.Log("ValueType " + val.GetType().ToString());
-			//XDebug.Log("Value " + val.ToString());
+			//LogManager.General.Log("Writing '" + name + "'"); // with value '" + ((double)val).ToString() + "'");
+			//LogManager.General.Log("ValueType " + val.GetType().ToString());
+			//LogManager.General.Log("Value " + val.ToString());
 			
 			// Write them to the JSON stream
 			writer.WritePropertyName(name);
@@ -66,6 +71,7 @@ public class GenericSerializer {
 	
 	// Read a single value from JSON
 	public static object ReadJSONValue(Jboy.JsonReader reader, FieldInfo field) {
+		// TODO: Make a switch/case out of it?
 		if(field.FieldType == typeof(int)) {
 			return (int)(reader.ReadNumber());
 		} else if(field.FieldType == typeof(long)) {
@@ -78,6 +84,8 @@ public class GenericSerializer {
 			return (KeyCode)(reader.ReadNumber());
 		} else if(field.FieldType == typeof(string)) {
 			return reader.ReadString();
+		} else if(field.FieldType == typeof(int[])) {
+			return Jboy.Json.ReadObject<int[]>(reader);
 		} else if(field.FieldType == typeof(PlayerQueueStats)) {
 			return GenericSerializer.ReadJSONClassInstance<PlayerQueueStats>(reader);
 		} else if(field.FieldType == typeof(PlayerQueueStats[])) {
@@ -106,8 +114,28 @@ public class GenericSerializer {
 			reader.ReadArrayEnd();
 			
 			return valList.ToArray();
+		} else if(field.FieldType == typeof(Artifact)) {
+			return Jboy.Json.ReadObject<Artifact>(reader);
+		} else if(field.FieldType == typeof(ArtifactSlot)) {
+			return Jboy.Json.ReadObject<ArtifactSlot>(reader);
+		} else if(field.FieldType == typeof(ArtifactTree)) {
+			return Jboy.Json.ReadObject<ArtifactTree>(reader);
+		} else if(field.FieldType == typeof(ArtifactInventory)) {
+			return Jboy.Json.ReadObject<ArtifactInventory>(reader);
+		} else if(field.FieldType == typeof(List<ItemSlot>)) {
+			return Jboy.Json.ReadObject<List<ItemSlot>>(reader);
 		} else if(field.FieldType == typeof(TimeStamp)) {
 			return Jboy.Json.ReadObject<TimeStamp>(reader);
+		} else if(field.FieldType == typeof(SkillBuild)) {
+			return Jboy.Json.ReadObject<SkillBuild>(reader);
+		/*} else if(field.FieldType == typeof(WeaponBuild)) {
+			return Jboy.Json.ReadObject<WeaponBuild>(reader);
+		} else if(field.FieldType == typeof(AttunementBuild)) {
+			return Jboy.Json.ReadObject<AttunementBuild>(reader);*/
+		} else if(field.FieldType == typeof(WeaponBuild[])) {
+			return Jboy.Json.ReadObject<WeaponBuild[]>(reader);
+		} else if(field.FieldType == typeof(AttunementBuild[])) {
+			return Jboy.Json.ReadObject<AttunementBuild[]>(reader);
 		} else if(field.FieldType == typeof(Guild)) {
 			return GenericSerializer.ReadJSONClassInstance<Guild>(reader);
 		} else if(field.FieldType == typeof(GuildMember)) {
@@ -118,8 +146,10 @@ public class GenericSerializer {
 			return Jboy.Json.ReadObject<List<string>>(reader);
 		} else if(field.FieldType == typeof(Texture2D)) {
 			return GenericSerializer.Texture2DJsonDeserializer(reader);
+		} else if(field.FieldType == typeof(Color)) {
+			return GenericSerializer.ColorJsonDeserializer(reader);
 		} else {
-			Debug.LogError("Unknown field type for GenericSerializer.ReadJSONValue: " + field.FieldType);
+			LogManager.General.LogError("Unknown field type for GenericSerializer.ReadJSONValue: " + field.FieldType);
 			return (int)(reader.ReadNumber());
 		}
 	}
@@ -148,6 +178,38 @@ public class GenericSerializer {
 		reader.ReadObjectEnd();
 		
 		return instance;
+	}
+	
+	// Writer
+	public static void ColorJsonSerializer(Jboy.JsonWriter writer, object instance) {
+		Color col = (Color)instance;
+		
+		writer.WriteObjectStart();
+		writer.WritePropertyName("r");
+		writer.WriteNumber(col.r);
+		writer.WritePropertyName("g");
+		writer.WriteNumber(col.g);
+		writer.WritePropertyName("b");
+		writer.WriteNumber(col.b);
+		writer.WritePropertyName("a");
+		writer.WriteNumber(col.a);
+		writer.WriteObjectEnd();
+	}
+	
+	// Reader
+	public static object ColorJsonDeserializer(Jboy.JsonReader reader) {
+		reader.ReadObjectStart();
+		reader.ReadPropertyName("r");
+		var r = (float)reader.ReadNumber();
+		reader.ReadPropertyName("g");
+		var g = (float)reader.ReadNumber();
+		reader.ReadPropertyName("b");
+		var b = (float)reader.ReadNumber();
+		reader.ReadPropertyName("a");
+		var a = (float)reader.ReadNumber();
+		reader.ReadObjectEnd();
+		
+		return new Color(r, g, b, a);
 	}
 	
 	// Writer

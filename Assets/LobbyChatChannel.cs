@@ -13,7 +13,16 @@ public class LobbyChatChannel {
 	public LobbyChatChannel(string channelName) {
 		members = new List<LobbyPlayer>();
 		name = channelName;
-		channels.Add(channelName, this);
+		channels[channelName] = this;
+	}
+	
+	public void Unregister() {
+		if(channels.ContainsKey(name))
+			channels.Remove(name);
+	}
+	
+	public bool isGameChannel {
+		get { return name.IndexOf('@') != -1; }
 	}
 	
 	public void BroadcastMessage(string msg) {
@@ -30,8 +39,8 @@ public class LobbyChatChannel {
 	// Calls a function on each player in the channel
 	public void Broadcast(ActionPerPlayer func) {
 		foreach(var player in members) {
-			if(player.inMatch)
-				continue;
+			//if(player.inMatch)
+			//	continue;
 			
 			if(!Lobby.IsPeerConnected(player.peer))
 				continue;
@@ -55,11 +64,24 @@ public class LobbyChatChannel {
 		player.channels.Remove(this);
 		
 		this.Broadcast(p => Lobby.RPC("ChatLeave", p.peer, this.name, player.chatMember.name));
+		
+		// TODO: If someone connects first and instantly disconnects, this would be a bug
+		if(isGameChannel && members.Count == 0) {
+			this.Destroy();
+		}
+	}
+	
+	public void Destroy() {
+		foreach(var member in members) {
+			this.RemovePlayer(member);
+		}
+		
+		LobbyChatChannel.channels.Remove(this.name);
 	}
 	
 	public void SendMemberListToPlayer(LobbyPlayer player) {
 		var chatMemberList = this.members.Select(o => o.chatMember).ToArray();
-		//XDebug.Log ("Sending " + chatMemberList + " list with " + chatMemberList.Length + " entries");
+		//Debug.Log ("Sending " + chatMemberList + " list with " + chatMemberList.Length + " entries");
 		
 		// Receive member list
 		Lobby.RPC("ChatMembers", player.peer, this.name, chatMemberList);

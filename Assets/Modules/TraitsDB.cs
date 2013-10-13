@@ -9,32 +9,41 @@ public class TraitsDB : MonoBehaviour {
 	// --------------------------------------------------------------------------------
 	
 	// Get character stats
-	public IEnumerator GetCharacterStats(LobbyPlayer lobbyPlayer) {
+	public IEnumerator GetCharacterStats(LobbyPlayer player) {
 		yield return StartCoroutine(GameDB.Get<CharacterStats>(
 			"AccountToCharacterStats",
-			lobbyPlayer.accountId,
+			player.accountId,
 			data => {
 				if(data == null)
-					lobbyPlayer.charStats = new CharacterStats();
+					player.charStats = new CharacterStats();
 				else
-					lobbyPlayer.charStats = data;
+					player.charStats = data;
+				
+				Lobby.RPC("ReceiveCharacterStats", player.peer, player.accountId, player.charStats);
 			}
 		));
-		
-		Lobby.RPC("ReceiveCharacterStats", lobbyPlayer.peer, lobbyPlayer.charStats);
+	}
+	
+	// Get character stats
+	public IEnumerator GetCharacterStats(string accountId, GameDB.ActionOnResult<CharacterStats> func) {
+		yield return StartCoroutine(GameDB.Get<CharacterStats>(
+			"AccountToCharacterStats",
+			accountId,
+			func
+		));
 	}
 	
 	// Set character stats
-	public IEnumerator SetCharacterStats(LobbyPlayer lobbyPlayer, CharacterStats charStats) {
+	public IEnumerator SetCharacterStats(LobbyPlayer player, CharacterStats charStats) {
 		yield return StartCoroutine(GameDB.Set<CharacterStats>(
 			"AccountToCharacterStats",
-			lobbyPlayer.accountId,
+			player.accountId,
 			charStats,
 			data => {
 				if(data == null)
-					Lobby.RPC("CharacterStatsSaveError", lobbyPlayer.peer);
+					Lobby.RPC("CharacterStatsSaveError", player.peer);
 				else
-					lobbyPlayer.charStats = data;
+					player.charStats = data;
 			}
 		));
 	}

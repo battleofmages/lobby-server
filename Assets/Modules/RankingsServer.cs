@@ -24,7 +24,7 @@ public class RankingsServer : MonoBehaviour {
 	void RankingListRequest(byte subject, byte page, LobbyMessageInfo info) {
 		uint maxPlayerCount = 10;
 		
-		//XDebug.Log("Retrieving top " + maxPlayerCount + " ranks");
+		//LogManager.General.Log("Retrieving top " + maxPlayerCount + " ranks");
 		StartCoroutine(rankingsDB.GetTopRanks(subject, page, maxPlayerCount, info.sender));
 	}
 }

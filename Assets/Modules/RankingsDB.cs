@@ -41,37 +41,66 @@ public class RankingsDB : MonoBehaviour {
 			// Get player names
 			// TODO: Send X requests at once, then wait for all of them
 			var nameBucket = new Bucket("AccountToName");
+			var countryBucket = new Bucket("AccountToCountry");
+			
 			var nameRequests = new GetRequest[rankingEntries.Length];
+			var countryRequests = new GetRequest[rankingEntries.Length];
+			
 			for(int i = 0; i < rankingEntries.Length; i++) {
 				var entry = rankingEntries[i];
 				entry.rankIndex = i;
 				
+				// Name
 				if(GameDB.accountIdToName.ContainsKey(entry.accountId)) {
 					entry.name = GameDB.accountIdToName[entry.accountId];
 					nameRequests[i] = null;
 				} else {
 					nameRequests[i] = nameBucket.Get(entry.accountId);
 				}
-			}
-			
-			for(int i = 0; i < nameRequests.Length; i++) {
-				var nameRequest = nameRequests[i];
-				if(nameRequest == null)
-					continue;
 				
-				yield return nameRequest.WaitUntilDone();
-				
-				if(nameRequest.isSuccessful) {
-					var entry = rankingEntries[i];
-					entry.name = nameRequest.GetValue<string>();
-					GameDB.accountIdToName[entry.accountId] = entry.name;
+				// Country
+				if(IPInfoServer.accountIdToCountry.ContainsKey(entry.accountId)) {
+					entry.country = IPInfoServer.accountIdToCountry[entry.accountId];
+					countryRequests[i] = null;
+				} else {
+					countryRequests[i] = countryBucket.Get(entry.accountId);
 				}
 			}
 			
-			//XDebug.Log("Sending the ranking list " + GameDB.rankingEntries + " with " + rankingEntries.Length + " entries");
+			for(int i = 0; i < rankingEntries.Length; i++) {
+				// Name
+				var nameRequest = nameRequests[i];
+				if(nameRequest != null) {
+					yield return nameRequest.WaitUntilDone();
+					
+					if(nameRequest.isSuccessful) {
+						var entry = rankingEntries[i];
+						entry.name = nameRequest.GetValue<string>();
+						GameDB.accountIdToName[entry.accountId] = entry.name;
+					}
+				}
+				
+				// Country
+				var countryRequest = countryRequests[i];
+				if(countryRequest != null) {
+					yield return countryRequest.WaitUntilDone();
+					
+					var entry = rankingEntries[i];
+					
+					if(countryRequest.isSuccessful) {
+						entry.country = countryRequest.GetValue<string>();
+						IPInfoServer.accountIdToCountry[entry.accountId] = entry.country;
+					} else {
+						entry.country = "";
+						IPInfoServer.accountIdToCountry[entry.accountId] = "";
+					}
+				}
+			}
+			
+			//LogManager.General.Log("Sending the ranking list " + rankingEntries + " with " + rankingEntries.Length + " / " + maxPlayerCount + " entries (" + subject + ", " + page + ")");
 			Lobby.RPC("ReceiveRankingList", peer, subject, page, rankingEntries, false);
 		} else {
-			XDebug.Log("Failed getting the ranking list: " + getHighscoresRequest.GetErrorString());
+			LogManager.General.Log("Failed getting the ranking list: " + getHighscoresRequest.GetErrorString());
 			Lobby.RPC("ReceiveRankingList", peer, subject, page, null, false);
 		}
 	}
@@ -91,7 +120,8 @@ public class RankingsDB : MonoBehaviour {
 				return [[
 					0,
 					value.key,
-					'',
+					'',		// Name
+					'',		// Country
 					scoreEntry." + RankingsDB.pageToPropertyName[page] + @",
 					scoreEntry.total.damage
 				]];
@@ -108,10 +138,10 @@ public class RankingsDB : MonoBehaviour {
 	@"
 	function(valueList, maxScoreCount) {
 		var descendingOrder = function(a, b) {
-			var diff = b[3] - a[3];
+			var diff = b[4] - a[4];
 			
 			if(diff == 0)
-				return b[4] - a[4];
+				return b[5] - a[5];
 			
 			return diff;
 		};
@@ -126,7 +156,7 @@ public class RankingsDB : MonoBehaviour {
 		
 		// Remove entries with 0 ranking
 		for(var i = valueList.length - 1; i >= 0; i--) {
-			if(valueList[i][3] === 0) {
+			if(valueList[i][4] === 0) {
 				valueList.splice(i, 1);
 			} else {
 				break;

@@ -13,16 +13,22 @@ public class LobbyPlayer {
 	
 	public Account account;
 	public LobbyPeer peer;
+	public CharacterCustomization custom;
 	public ChatMember chatMember;
 	public PlayerStats stats;
 	public CharacterStats charStats;
+	public ArtifactTree artifactTree;
+	public ArtifactInventory artifactInventory;
+	public bool artifactsEditingFlag;
 	public GuildList guildList;
 	public List<string> guildInvitations;
+	public AccessLevel accessLevel;
 	
 	public List<LobbyChatChannel> channels;
 	
 	private string _name;
-	private bool _inMatch;
+	private LobbyMatch _match;
+	private LobbyTown _town;
 	private LobbyQueue _queue;
 	
 	// Constructor
@@ -30,8 +36,13 @@ public class LobbyPlayer {
 		account = nAccount;
 		peer = AccountManager.Master.GetLoggedInPeer(account);
 		stats = null;
+		custom = null;
+		_match = null;
+		artifactsEditingFlag = false;
 		channels = new List<LobbyChatChannel>();
 		chatMember = new ChatMember(_name, ChatMemberStatus.Online);
+		//artifactInventories = new Inventory();
+		
 		LobbyPlayer.list.Add(this);
 		LobbyPlayer.accountIdToLobbyPlayer[account.id.value] = this;
 	}
@@ -48,22 +59,62 @@ public class LobbyPlayer {
 		}
 	}
 	
-	
 	// In match
 	public bool inMatch {
 		get {
-			return _inMatch;
+			return _match != null;
+		}
+	}
+	
+	// In town
+	public bool inTown {
+		get {
+			return _town != null;
+		}
+	}
+	
+	public LobbyMatch match {
+		get {
+			return _match;
 		}
 		
 		set {
-			_inMatch = value;
-			
-			if(_inMatch)
+			if(value != null) {
 				this.chatMember.status = ChatMemberStatus.InMatch;
-			else
+			} else {
 				this.chatMember.status = ChatMemberStatus.Online;
+				
+				// Leave game chat channel
+				if(_match != null) {
+					_match.mapChannel.RemovePlayer(this);
+				}
+			}
 			
+			_match = value;
 			this.BroadcastStatus();
+		}
+	}
+	
+	public LobbyTown town {
+		get {
+			return _town;
+		}
+		
+		set {
+			// TODO: ...
+			_town = value;
+		}
+	}
+	
+	public uZone.GameInstance instance {
+		get {
+			if(_match != null)
+				return _match.instance;
+			
+			if(_town != null)
+				return _town.instance;
+			
+			return null;
 		}
 	}
 	
@@ -100,16 +151,45 @@ public class LobbyPlayer {
 	}
 	
 	// Makes the player leave the queue
-	public void LeaveQueue() {
-		if(queue != null) {
-			queue.RemovePlayer(this);
-			queue = null;
+	public bool LeaveQueue() {
+		if(queue == null)
+			return false;
+		
+		queue.RemovePlayer(this);
+		queue = null;
+		return true;
+	}
+	
+	// Connects the player to a game server instance, delayed
+	public IEnumerator ConnectToGameInstanceDelayed<T>(LobbyGameInstance<T> lobbyGameInstance) {
+		// TODO: Add a timeout
+		
+		// Wait for instance to be online
+		while(lobbyGameInstance.instance == null && this.peer.type != LobbyPeerType.Disconnected) {
+			System.Threading.Thread.Sleep(50);
+			yield return null;
 		}
+		
+		// Player disconnected?
+		if(lobbyGameInstance.instance == null)
+			yield break;
+		
+		// Connect player to server
+		this.ConnectToGameInstance(lobbyGameInstance);
 	}
 	
 	// Connects the player to a game server instance
-	public void ConnectToGameServer(uZone.GameInstance instance) {
-		XDebug.Log("Connecting account '" + account.name + "' to game server " + instance.ip + ":" + instance.port);
+	public void ConnectToGameInstance<T>(LobbyGameInstance<T> lobbyGameInstance) {
+		this.match = lobbyGameInstance as LobbyMatch;
+		this.town = lobbyGameInstance as LobbyTown;
+		
+		this.ConnectToGameServer(lobbyGameInstance.instance);
+		lobbyGameInstance.mapChannel.AddPlayer(this);
+	}
+	
+	// Helper function
+	private void ConnectToGameServer(uZone.GameInstance instance) {
+		LogManager.General.Log("Connecting account '" + account.name + "' to " + (this.inTown ? "Town" : "Arena") + " server " + instance.ip + ":" + instance.port);
 		Lobby.RPC("ConnectToGameServer", peer, instance.ip, instance.port);
 	}
 	

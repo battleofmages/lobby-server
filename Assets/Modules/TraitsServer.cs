@@ -19,14 +19,14 @@ public class TraitsServer : MonoBehaviour {
 	
 	[RPC]
 	void ClientCharacterStats(CharacterStats charStats, LobbyMessageInfo info) {
-		LobbyPlayer lobbyPlayer = LobbyServer.GetLobbyPlayer(info);
+		LobbyPlayer player = LobbyServer.GetLobbyPlayer(info);
 		
 		if(charStats.totalStatPointsUsed > charStats.maxStatPoints) {
-			XDebug.LogWarning("Detected character stat points hack on player '" +lobbyPlayer.name  + "'");
+			LogManager.General.LogWarning("Detected character stat points hack on player '" +player.name  + "'");
 			return;
 		}
 		
-		//XDebug.Log("Player '" + lobbyPlayer.name + "' sent new character stats " + charStats.ToString());
-		StartCoroutine(traitsDB.SetCharacterStats(lobbyPlayer, charStats));
+		//LogManager.General.Log("Player '" + player.name + "' sent new character stats " + charStats.ToString());
+		StartCoroutine(traitsDB.SetCharacterStats(player, charStats));
 	}
 }

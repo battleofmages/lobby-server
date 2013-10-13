@@ -19,13 +19,13 @@ public class DonationsServer : MonoBehaviour {
 	
 	[RPC]
 	IEnumerator CrystalBalanceRequest(LobbyMessageInfo info) {
-		LobbyPlayer lobbyPlayer = LobbyServer.GetLobbyPlayer(info);
+		LobbyPlayer player = LobbyServer.GetLobbyPlayer(info);
 		
-		yield return StartCoroutine(donationsDB.GetPaymentsList(lobbyPlayer.accountId, data => {
+		yield return StartCoroutine(donationsDB.GetPaymentsList(player.accountId, data => {
 			if(data == null) {
-				Lobby.RPC("ReceiveCrystalBalance", lobbyPlayer.peer, 0);
+				Lobby.RPC("ReceiveCrystalBalance", player.peer, player.accountId, 0);
 			} else {
-				Lobby.RPC("ReceiveCrystalBalance", lobbyPlayer.peer, (int)(data.balance * 100));
+				Lobby.RPC("ReceiveCrystalBalance", player.peer, player.accountId, (int)(data.balance * 100));
 			}
 		}));
 	}

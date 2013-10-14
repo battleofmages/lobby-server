@@ -40,7 +40,7 @@ public class LobbyServer : MonoBehaviour {
 		LobbyServer.instance = this;
 		
 		// Limit frame rate
-		Application.targetFrameRate = 20;
+		Application.targetFrameRate = 60;
 		//uLinkTargetFrameRateFix.SetTargetFrameRate(20);
 		
 		// Create log view scripts

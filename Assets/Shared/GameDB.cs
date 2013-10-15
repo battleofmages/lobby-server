@@ -14,6 +14,7 @@ public class GameDB {
 	public static string logBucketPrefix = ""; //"<color=#ffcc00>";
 	public static string logBucketMid = "["; //"</color>[<color=#00ffff>";
 	public static string logBucketPostfix = "]"; //"</color>]";
+	public static int maxEmailLength = 50;
 	public static int maxPlayerNameLength = 25;
 	public static int maxGuildNameLength = 30;
 	public static int maxGuildTagLength = 4;
@@ -111,8 +112,13 @@ public class GameDB {
 	
 	// Hash
 	private static ulong Hash(System.DateTime when) {
-	    ulong kind = (ulong) (int) when.Kind;
-	    return (kind << 62) | (ulong) when.Ticks;
+		ulong kind = (ulong) (int) when.Kind;
+		return (kind << 62) | (ulong) when.Ticks;
+	}
+	
+	// IsTestAccount
+	public static bool IsTestAccount(string email) {
+		return email == "a" || email == "b" || email == "c" || email == "d" || email == "e";
 	}
 	
 	// Encrypt a password using SHA1

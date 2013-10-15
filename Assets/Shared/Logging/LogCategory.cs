@@ -13,8 +13,9 @@ public class LogCategory {
 #if !UNITY_WEBPLAYER
 	public string filePath;
 	private StreamWriter writer;
-	private bool useUnityDebugLog;
 #endif
+	
+	private bool useUnityDebugLog;
 	
 	public static void Init(string newLogPath) {
 		logPath = newLogPath;
@@ -30,6 +31,8 @@ public class LogCategory {
 		filePath = logPath + categoryName + ".log";
 		writer = File.AppendText(filePath);
 		writer.AutoFlush = true;
+#endif
+#if UNITY_EDITOR || UNITY_WEBPLAYER
 		useUnityDebugLog = nUseUnityDebugLog;
 #endif
 	}

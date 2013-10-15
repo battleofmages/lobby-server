@@ -133,9 +133,9 @@ public class LobbyGameDB : MonoBehaviour {
 	// --------------------------------------------------------------------------------
 	
 	// Set password hash
-	public IEnumerator SetPasswordHash(LobbyPlayer player, byte[] passwordHash) {
+	public IEnumerator SetPassword(LobbyPlayer player, string newPassword) {
 		yield return AccountManager.Master.UpdateAccount(player.account, new AccountUpdate() {
-			password = passwordHash.ToString()
+			password = newPassword
 		});
 	}
 	

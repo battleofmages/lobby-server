@@ -11,7 +11,7 @@ using System.Collections;
  * of a class is not actually required, and introduces global state
  * into an application."
  * 
- * HOWEVER in Unity we need an actual instance because of MonoBehaviour Coroutines.
+ * HOWEVER in Unity we need an actual instance because of MonoBehaviour methods and coroutines.
  */
 
 // Singleton

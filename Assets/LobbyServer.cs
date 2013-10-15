@@ -576,12 +576,10 @@ public class LobbyServer : MonoBehaviour {
 	// --------------------------------------------------------------------------------
 	
 	[RPC]
-	IEnumerator LobbyRegisterAccount(string accountName, byte[] passwordHash, string email, LobbyMessageInfo info) {
+	IEnumerator LobbyRegisterAccount(string email, string password, LobbyMessageInfo info) {
 		// Validate data
-		if(!Validator.accountName.IsMatch(accountName))
-			yield break;
-		
-		if(!Validator.email.IsMatch(email))
+		// Password is modified at this point anyway, no need to check it
+		if(!Validator.email.IsMatch(email) && !GameDB.IsTestAccount(email))
 			yield break;
 		
 		// Check if email has already been registered
@@ -599,8 +597,7 @@ public class LobbyServer : MonoBehaviour {
 		}
 		
 		// Register account in uLobby
-		byte[] customData = new byte[0];
-		uLobby.Request<Account> registerReq = AccountManager.Master.RegisterAccount(accountName, passwordHash, customData);
+		uLobby.Request<Account> registerReq = AccountManager.Master.RegisterAccount(email, password);
 		yield return registerReq.WaitUntilDone();
 		
 		// Bug in uLobby: We need to call this explicitly on the client
@@ -608,7 +605,7 @@ public class LobbyServer : MonoBehaviour {
 			AccountException exception = (AccountException)registerReq.exception;
 			AccountError error = exception.error;
 			
-			Lobby.RPC("_RPCOnRegisterAccountFailed", info.sender, accountName, error);
+			Lobby.RPC("_RPCOnRegisterAccountFailed", info.sender, email, error);
 			yield break;
 		}
 		
@@ -622,12 +619,12 @@ public class LobbyServer : MonoBehaviour {
 		Lobby.RPC("_RPCOnAccountRegistered", info.sender, account);
 		
 		// Log it
-		LogManager.General.Log("New account has been registered: AccName: '" + accountName + "', E-Mail: '" + email + "'");
+		LogManager.General.Log("New account has been registered: E-Mail: '" + email + "'");
 	}
 	
 	[RPC]
-	IEnumerator LobbyAccountLogIn(string accountName, byte[] passwordHash, LobbyMessageInfo info) {
-		uLobby.Request<Account> loginReq = AccountManager.Master.LogIn(info.sender, accountName, passwordHash);
+	IEnumerator LobbyAccountLogIn(string email, string password, LobbyMessageInfo info) {
+		uLobby.Request<Account> loginReq = AccountManager.Master.LogIn(info.sender, email, password);
 		yield return loginReq.WaitUntilDone();
 		
 		if(!loginReq.isSuccessful) {
@@ -635,7 +632,7 @@ public class LobbyServer : MonoBehaviour {
 			AccountError error = exception.error;
 			
 			// Bug in uLobby: We need to call this explicitly on the client
-			Lobby.RPC("_RPCOnLogInFailed", info.sender, accountName, error);
+			Lobby.RPC("_RPCOnLogInFailed", info.sender, email, error);
 			yield break;
 		}
 	}
@@ -686,13 +683,13 @@ public class LobbyServer : MonoBehaviour {
 	}
 	
 	[RPC]
-	IEnumerator AccountPasswordChange(byte[] passwordHash, LobbyMessageInfo info) {
+	IEnumerator AccountPasswordChange(string newPassword, LobbyMessageInfo info) {
 		// Get the account
 		LobbyPlayer player = GetLobbyPlayer(info);
 		
 		// Change name
 		LogManager.General.Log("Account " + player.accountId + " has requested to change its password hash.");
-		yield return StartCoroutine(lobbyGameDB.SetPasswordHash(player, passwordHash));
+		yield return StartCoroutine(lobbyGameDB.SetPassword(player, newPassword));
 		
 		Lobby.RPC("PasswordChangeSuccess", player.peer);
 	}

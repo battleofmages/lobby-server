@@ -31,14 +31,16 @@ public class MapManager {
 		Party.UpdateSpawns();
 		
 		// Update sun shafts caster
-		var sun = GameObject.FindGameObjectWithTag("Sun");
-		var sunShafts = Camera.main.GetComponent<SunShafts>();
-		if(sun != null && sunShafts != null) {
-			// TODO: Why doesn't this work?
-			sunShafts.sunTransform = sun.transform;
-			LogManager.General.Log("Updated sun shafts caster to " + sun.ToString() + ", " + sun.transform.ToString());
-		} else {
-			LogManager.General.LogWarning("Couldn't find sun (did you use the 'Sun' tag?)");
+		if(!uLink.Network.isServer) {
+			var sun = GameObject.FindGameObjectWithTag("Sun");
+			var sunShafts = Camera.main.GetComponent<SunShafts>();
+			if(sun != null && sunShafts != null) {
+				// TODO: Why doesn't this work?
+				sunShafts.sunTransform = sun.transform;
+				LogManager.General.Log("Updated sun shafts caster to " + sun.ToString() + ", " + sun.transform.ToString());
+			} else {
+				LogManager.General.LogWarning("Couldn't find sun (did you use the 'Sun' tag?)");
+			}
 		}
 		
 		return mapInstance;

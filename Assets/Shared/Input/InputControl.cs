@@ -9,6 +9,7 @@ public class InputControl {
 	public string description;
 	public KeyCode keyCode;
 	public KeyCode altKeyCode;
+	public KeyCode gamePadKeyCode;
 	public bool active = true;
 	
 	public string keyCodeString {
@@ -43,6 +44,14 @@ public class InputControl {
 				kc = KeyCode.LeftShift;
 			} else if(Input.GetKey(KeyCode.RightShift)) {
 				kc = KeyCode.RightShift;
+			} else {
+				// Gamepad support
+				for(KeyCode i = KeyCode.JoystickButton0; i <= KeyCode.JoystickButton19; i++) {
+					if(Input.GetKey(i)) {
+						kc = i;
+						break;
+					}
+				}
 			}
 		}
 		
@@ -74,6 +83,7 @@ public class InputControl {
 			"id",
 			"keyCode",
 			"altKeyCode",
+			//"gamePadKeyCode",
 		};
 		GenericSerializer.WriteJSONClassInstance<InputControl>(writer, control, fieldFilter);
 	}

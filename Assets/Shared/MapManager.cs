@@ -31,7 +31,7 @@ public class MapManager {
 		Party.UpdateSpawns();
 		
 		// Update sun shafts caster
-		if(!uLink.Network.isServer) {
+		if(uLink.Network.isClient) {
 			var sun = GameObject.FindGameObjectWithTag("Sun");
 			var sunShafts = Camera.main.GetComponent<SunShafts>();
 			if(sun != null && sunShafts != null) {
@@ -55,6 +55,16 @@ public class MapManager {
 		
 		LogManager.General.Log("Deleting old map");
 		GameObject.Destroy(mapInstance);
+	}
+	
+	public static void InitTownPhysics() {
+		//Physics.IgnoreLayerCollision(4, 4, false);
+		// ...
+	}
+	
+	public static void InitArenaPhysics() {
+		//Physics.IgnoreLayerCollision(4, 4, true);
+		// ...
 	}
 #endif
 }

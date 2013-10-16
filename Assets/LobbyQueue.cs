@@ -107,7 +107,7 @@ public class LobbyQueue {
 			while(true) {
 				player = playerList[Random.Range(start, end)];
 				
-				if(player.inMatch == false) {
+				if(player.queue != null) {
 					break;
 				}
 			}

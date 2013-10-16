@@ -38,8 +38,8 @@ public class MouseLook : MonoBehaviour {
 		if (axes == RotationAxes.MouseXAndY)
 		{
 			// Read the mouse input axis
-			rotationX += Input.GetAxis("Mouse X") * sensitivityX;
-			rotationY += Input.GetAxis("Mouse Y") * sensitivityY;
+			rotationX += (Input.GetAxis("Mouse X") + Input.GetAxis("Gamepad Mouse X")) * sensitivityX;
+			rotationY += (Input.GetAxis("Mouse Y") + Input.GetAxis("Gamepad Mouse Y")) * sensitivityY;
 
 			rotationX = ClampAngle (rotationX, minimumX, maximumX);
 			rotationY = ClampAngle (rotationY, minimumY, maximumY);

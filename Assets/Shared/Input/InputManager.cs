@@ -35,15 +35,15 @@ public class InputManager : MonoBehaviour {
 	}
 	
 	public bool GetButton(int index) {
-		return Input.GetKey(controls[index].keyCode) || Input.GetKey(controls[index].altKeyCode);
+		return Input.GetKey(controls[index].keyCode) || Input.GetKey(controls[index].altKeyCode) || Input.GetKey(controls[index].gamePadKeyCode);
 	}
 	
 	public bool GetButtonDown(int index) {
-		return Input.GetKeyDown(controls[index].keyCode) || Input.GetKeyDown(controls[index].altKeyCode);
+		return Input.GetKeyDown(controls[index].keyCode) || Input.GetKeyDown(controls[index].altKeyCode) || Input.GetKeyDown(controls[index].gamePadKeyCode);
 	}
 	
 	public float GetButtonFloat(int index) {
-		return Input.GetKey(controls[index].keyCode) || Input.GetKey(controls[index].altKeyCode) ? 1.0f : 0.0f;
+		return Input.GetKey(controls[index].keyCode) || Input.GetKey(controls[index].altKeyCode) || Input.GetKey(controls[index].gamePadKeyCode) ? 1.0f : 0.0f;
 	}
 	
 	public int GetButtonIndex(string id) {
@@ -64,6 +64,7 @@ public class InputManager : MonoBehaviour {
 				var myControl = controls[index];
 				myControl.keyCode = control.keyCode;
 				myControl.altKeyCode = control.altKeyCode;
+				//myControl.gamePadKeyCode = control.gamePadKeyCode;
 			}
 		}
 	}

@@ -23,14 +23,26 @@ public class RankingsServer : SingletonMonoBehaviour<RankingsServer> {
 	}
 	
 	// Updates the cached ranking list
-	public void StartRankingListCacheUpdate() {
+	public void StartRankingListCacheUpdate(LobbyMatch match = null) {
 		byte subject = (byte)RankingSubject.Player;
 		
 		for(byte page = 0; page < GameDB.numRankingPages; page++) {
+			byte pageSaved = page;
+			
 			StartCoroutine(rankingsDB.GetTopRanks(
 				subject,
 				page,
-				maxPlayerCount
+				maxPlayerCount,
+				data => {
+					if(match != null) {
+						foreach(var team in match.teams) {
+							foreach(var player in team) {
+								if(player.peer.type != LobbyPeerType.Disconnected)
+									Lobby.RPC("ReceiveRankingList", player.peer, subject, pageSaved, data, false);
+							}
+						}
+					}
+				}
 			));
 		}
 	}

@@ -18,6 +18,7 @@ public class LobbyServer : MonoBehaviour {
 	public static AccessLevelsDB accessLevelsDB;
 	public static SkillBuildsDB skillBuildsDB;
 	public static TraitsDB traitsDB;
+	public static GuildsDB guildsDB;
 	public static ArtifactsDB artifactsDB;
 	public static CharacterCustomizationDB characterCustomizationDB;
 	public static SettingsDB settingsDB;
@@ -72,6 +73,7 @@ public class LobbyServer : MonoBehaviour {
 		settingsDB = this.GetComponent<SettingsDB>();
 		ipInfoDB = this.GetComponent<IPInfoDB>();
 		skillBuildsDB = this.GetComponent<SkillBuildsDB>();
+		guildsDB = this.GetComponent<GuildsDB>();
 		characterCustomizationDB = this.GetComponent<CharacterCustomizationDB>();
 		
 		// Version number
@@ -346,7 +348,7 @@ public class LobbyServer : MonoBehaviour {
 		//StartCoroutine(accessLevelsDB.SetAccessLevel(player, AccessLevel.Admin));
 		
 		// Async: Retrieve the player information
-		SendPublicAccountInfo(player.account.id.ToString(), player);
+		SendPublicAccountInfo(player.accountId, player);
 		
 		// Others
 		StartCoroutine(settingsDB.GetInputSettings(player));
@@ -779,27 +781,30 @@ public class LobbyServer : MonoBehaviour {
 	}
 	
 	[RPC]
-	void ReturnedFromMatch(LobbyMessageInfo info) {
+	void LeaveInstance(bool gameEnded, LobbyMessageInfo info) {
 		LobbyPlayer player = GetLobbyPlayer(info);
 		
-		if(!player.inMatch)
-			return;
-		
-		LogManager.General.Log("Player '" + player.name + "' returned from a match");
-		
-		// Send him his new stats
-		StartCoroutine(lobbyGameDB.GetPlayerStats(player));
-		
-		// Send him his new artifact inventory
-		StartCoroutine(artifactsDB.GetArtifactInventory(player));
-		
-		// Update ranking list cache
-		if(!player.match.updatedRankingList) {
-			RankingsServer.instance.StartRankingListCacheUpdate();
-			player.match.updatedRankingList = true;
+		if(player.inMatch) {
+			LogManager.General.Log("Player '" + player.name + "' returned from a match");
+			
+			if(gameEnded) {
+				// Send him his new stats
+				StartCoroutine(lobbyGameDB.GetPlayerStats(player));
+				
+				// Send him his new artifact inventory
+				StartCoroutine(artifactsDB.GetArtifactInventory(player));
+				
+				// Update ranking list cache
+				if(!player.match.updatedRankingList) {
+					RankingsServer.instance.StartRankingListCacheUpdate(player.match);
+					player.match.updatedRankingList = true;
+				}
+			}
+			
+			LeaveMatch(info);
+		} else if(player.inTown) {
+			player.town = null;
 		}
-		
-		LeaveMatch(info);
 	}
 #endregion
 }

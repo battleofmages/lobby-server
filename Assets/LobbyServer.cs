@@ -759,10 +759,7 @@ public class LobbyServer : MonoBehaviour {
 		SendSystemMsg(player, "Type //practice if you'd like to practice.");
 	}
 	
-	[RPC]
-	void LeaveMatch(LobbyMessageInfo info) {
-		LobbyPlayer player = GetLobbyPlayer(info);
-		
+	void LeaveMatch(LobbyPlayer player) {
 		if(!player.inMatch)
 			return;
 		
@@ -781,7 +778,7 @@ public class LobbyServer : MonoBehaviour {
 	}
 	
 	[RPC]
-	void LeaveInstance(bool gameEnded, LobbyMessageInfo info) {
+	IEnumerator LeaveInstance(bool gameEnded, LobbyMessageInfo info) {
 		LobbyPlayer player = GetLobbyPlayer(info);
 		
 		if(player.inMatch) {
@@ -801,9 +798,13 @@ public class LobbyServer : MonoBehaviour {
 				}
 			}
 			
-			LeaveMatch(info);
+			LeaveMatch(player);
 		} else if(player.inTown) {
 			player.town = null;
+			
+			if(AccountManager.Master.IsLoggedIn(player.peer)) {
+				yield return AccountManager.Master.LogOut(info.sender).WaitUntilDone();
+			}
 		}
 	}
 #endregion

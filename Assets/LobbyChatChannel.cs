@@ -17,8 +17,12 @@ public class LobbyChatChannel {
 	}
 	
 	public void Unregister() {
+		foreach(var member in members) {
+			this.RemovePlayer(member);
+		}
+		
 		if(channels.ContainsKey(name))
-			channels.Remove(name);
+			LobbyChatChannel.channels.Remove(name);
 	}
 	
 	public bool isGameChannel {
@@ -66,17 +70,9 @@ public class LobbyChatChannel {
 		this.Broadcast(p => Lobby.RPC("ChatLeave", p.peer, this.name, player.chatMember.name));
 		
 		// TODO: If someone connects first and instantly disconnects, this would be a bug
-		if(isGameChannel && members.Count == 0) {
-			this.Destroy();
-		}
-	}
-	
-	public void Destroy() {
-		foreach(var member in members) {
-			this.RemovePlayer(member);
-		}
-		
-		LobbyChatChannel.channels.Remove(this.name);
+		/*if(isGameChannel && members.Count == 0) {
+			this.Unregister();
+		}*/
 	}
 	
 	public void SendMemberListToPlayer(LobbyPlayer player) {

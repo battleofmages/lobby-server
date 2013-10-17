@@ -68,6 +68,8 @@ public class LogCategory {
 	}
 	
 	public void Close() {
+#if !UNITY_WEBPLAYER
 		writer.Close();
+#endif
 	}
 }

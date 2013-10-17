@@ -1,40 +1,50 @@
 ﻿using UnityEngine;
 
 public class GUIArea : System.IDisposable {
-	public static int width = Screen.width;
-	public static int height = Screen.height;
+	public static float x = 0;
+	public static float y = 0;
+	public static float width = Screen.width;
+	public static float height = Screen.height;
 	
 	public GUIArea(Rect screenRect) {
-		GUIArea.width = (int)screenRect.width;
-		GUIArea.height = (int)screenRect.height;
+		GUIArea.x = screenRect.x;
+		GUIArea.y = screenRect.y;
+		GUIArea.width = screenRect.width;
+		GUIArea.height = screenRect.height;
 		
-		GUILayout.BeginArea(screenRect);
+		GUILayout.BeginArea(new Rect(GUIArea.x, GUIArea.y, GUIArea.width, GUIArea.height));
 	}
 	
 	public GUIArea(float width, float height) {
-		GUIArea.width = (int)width;
-		GUIArea.height = (int)height;
+		GUIArea.x = Screen.width / 2 - width / 2;
+		GUIArea.y = Screen.height / 2 - height / 2;
+		GUIArea.width = width;
+		GUIArea.height = height;
 		
-		GUILayout.BeginArea(new Rect(Screen.width / 2 - width / 2, Screen.height / 2 - height / 2, width, height));
+		GUILayout.BeginArea(new Rect(GUIArea.x, GUIArea.y, GUIArea.width, GUIArea.height));
 	}
 	
 	public GUIArea(float x, float y, float width, float height) {
 		if(width <= 1f && height <= 1f) {
-			GUIArea.width = (int)(Screen.width * width);
-			GUIArea.height = (int)(Screen.height * height);
-			
-			GUILayout.BeginArea(new Rect(Screen.width * x, Screen.height * y, GUIArea.width, GUIArea.height));
+			GUIArea.x = Screen.width * x;
+			GUIArea.y = Screen.height * y;
+			GUIArea.width = Screen.width * width;
+			GUIArea.height = Screen.height * height;
 		} else {
+			GUIArea.x = x;
+			GUIArea.y = y;
 			GUIArea.width = (int)(width);
 			GUIArea.height = (int)(height);
-			
-			GUILayout.BeginArea(new Rect(x, y, GUIArea.width, GUIArea.height));
 		}
+		
+		GUILayout.BeginArea(new Rect(GUIArea.x, GUIArea.y, GUIArea.width, GUIArea.height));
 	}
 	
 	void System.IDisposable.Dispose() {
 		GUILayout.EndArea();
 		
+		GUIArea.x = 0;
+		GUIArea.y = 0;
 		GUIArea.width = Screen.width;
 		GUIArea.height = Screen.height;
 	}

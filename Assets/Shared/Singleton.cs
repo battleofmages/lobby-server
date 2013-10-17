@@ -20,7 +20,7 @@ public abstract class Singleton<T> where T : Singleton<T> {
 }
 
 // SingletonMonoBehaviour
-public abstract class SingletonMonoBehaviour<T> : MonoBehaviour where T : SingletonMonoBehaviour<T> {
+public abstract class SingletonMonoBehaviour<T> : uLink.MonoBehaviour where T : SingletonMonoBehaviour<T> {
 	public static T instance = default(T);
 	
 	protected virtual void Awake() {
@@ -30,5 +30,14 @@ public abstract class SingletonMonoBehaviour<T> : MonoBehaviour where T : Single
 		} else {
 			Destroy(this.gameObject);
 		}
+	}
+}
+
+// SingletonMonoBehaviour
+public abstract class DestroyableSingletonMonoBehaviour<T> : uLink.MonoBehaviour where T : DestroyableSingletonMonoBehaviour<T> {
+	public static T instance = default(T);
+	
+	protected virtual void Awake() {
+		instance = (T)this;
 	}
 }

@@ -57,14 +57,12 @@ public class MapManager {
 		GameObject.Destroy(mapInstance);
 	}
 	
-	public static void InitTownPhysics() {
-		//Physics.IgnoreLayerCollision(4, 4, false);
-		// ...
-	}
-	
-	public static void InitArenaPhysics() {
-		//Physics.IgnoreLayerCollision(4, 4, true);
-		// ...
+	public static void InitPhysics(ServerType serverType) {
+		if(serverType == ServerType.Town) {
+			//Physics.IgnoreLayerCollision(Party.partyList[0].layer, Party.partyList[0].layer, false);
+		} else {
+			//Physics.IgnoreLayerCollision(Party.partyList[0].layer, Party.partyList[0].layer, true);
+		}
 	}
 #endif
 }

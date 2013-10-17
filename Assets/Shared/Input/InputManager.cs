@@ -35,14 +35,23 @@ public class InputManager : MonoBehaviour {
 	}
 	
 	public bool GetButton(int index) {
+		if(GUIUtility.hotControl != 0 || GUIUtility.keyboardControl != 0)
+			return false;
+		
 		return Input.GetKey(controls[index].keyCode) || Input.GetKey(controls[index].altKeyCode) || Input.GetKey(controls[index].gamePadKeyCode);
 	}
 	
 	public bool GetButtonDown(int index) {
+		if(GUIUtility.hotControl != 0 || GUIUtility.keyboardControl != 0)
+			return false;
+		
 		return Input.GetKeyDown(controls[index].keyCode) || Input.GetKeyDown(controls[index].altKeyCode) || Input.GetKeyDown(controls[index].gamePadKeyCode);
 	}
 	
 	public float GetButtonFloat(int index) {
+		if(GUIUtility.hotControl != 0 || GUIUtility.keyboardControl != 0)
+			return 0f;
+		
 		return Input.GetKey(controls[index].keyCode) || Input.GetKey(controls[index].altKeyCode) || Input.GetKey(controls[index].gamePadKeyCode) ? 1.0f : 0.0f;
 	}
 	
@@ -71,5 +80,9 @@ public class InputManager : MonoBehaviour {
 	
 	public static Vector2 GetMousePosition() {
 		return new Vector2(Input.mousePosition.x, (Screen.height - Input.mousePosition.y));
+	}
+	
+	public static Vector2 GetRelativeMousePosition() {
+		return new Vector2(Input.mousePosition.x - GUIArea.x, (Screen.height - Input.mousePosition.y) - GUIArea.y);
 	}
 }

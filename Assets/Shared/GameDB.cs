@@ -121,11 +121,16 @@ public class GameDB {
 		return email == "a" || email == "b" || email == "c" || email == "d" || email == "e";
 	}
 	
+	// Salt password
+	public static string SaltPassword(string password) {
+		string salt = "c90e8eca04f64d70baacc9d0a5c4c72e" + password;
+		return password + salt;
+	}
+	
 	// Encrypt a password using SHA1
 	public static byte[] EncryptPassword(string password) {
 		// Make precalculated, generic rainbow tables ineffective by using a salt
-		string salt = "c90e8eca04f64d70baacc9d0a5c4c72e" + password;
-		password += salt;
+		password = SaltPassword(password);
 		
 		// Encrypt the password
 		System.Security.Cryptography.SHA1 sha1 = System.Security.Cryptography.SHA1.Create();

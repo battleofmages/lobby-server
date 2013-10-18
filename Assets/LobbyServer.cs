@@ -111,6 +111,13 @@ public class LobbyServer : MonoBehaviour {
 		if(player.queue != null)
 			player.queue.RemovePlayer(player);
 		
+		// Remove game instance associations
+		if(player.inTown)
+			player.town = null;
+		
+		if(player.inMatch)
+			player.match = null;
+		
 		// Remove the reference from the dictionary
 		LobbyPlayer.accountIdToLobbyPlayer.Remove(player.accountId);
 		

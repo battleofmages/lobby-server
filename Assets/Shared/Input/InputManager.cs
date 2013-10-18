@@ -1,21 +1,11 @@
 using UnityEngine;
 using System.Collections;
 
-public class InputManager : MonoBehaviour {
-	private static bool created = false;
+public class InputManager : SingletonMonoBehaviour<InputManager> {
+	public static bool ignoreInput = false;
 	
 	private float _mouseSensitivity = 5f;
 	public InputControl[] controls;
-	
-	void Awake() {
-		// Don't destroy this object on level loading
-		if(!created) {
-			DontDestroyOnLoad(this.gameObject);
-			created = true;
-		} else {
-			Destroy(this.gameObject);
-		}
-	}
 	
 	public float mouseSensitivity {
 		get { return _mouseSensitivity; }
@@ -34,25 +24,40 @@ public class InputManager : MonoBehaviour {
 		}
 	}
 	
+	public void Clear() {
+		foreach(var control in controls) {
+			Input.GetKey(control.keyCode);
+			Input.GetKey(control.altKeyCode);
+			Input.GetKey(control.gamePadKeyCode);
+			
+			Input.GetKeyDown(control.keyCode);
+			Input.GetKeyDown(control.altKeyCode);
+			Input.GetKeyDown(control.gamePadKeyCode);
+		}
+	}
+	
 	public bool GetButton(int index) {
-		if(GUIUtility.hotControl != 0 || GUIUtility.keyboardControl != 0)
+		if(ignoreInput)
 			return false;
 		
-		return Input.GetKey(controls[index].keyCode) || Input.GetKey(controls[index].altKeyCode) || Input.GetKey(controls[index].gamePadKeyCode);
+		var control = controls[index];
+		return Input.GetKey(control.keyCode) || Input.GetKey(control.altKeyCode) || Input.GetKey(control.gamePadKeyCode);
 	}
 	
 	public bool GetButtonDown(int index) {
-		if(GUIUtility.hotControl != 0 || GUIUtility.keyboardControl != 0)
+		if(ignoreInput)
 			return false;
 		
-		return Input.GetKeyDown(controls[index].keyCode) || Input.GetKeyDown(controls[index].altKeyCode) || Input.GetKeyDown(controls[index].gamePadKeyCode);
+		var control = controls[index];
+		return Input.GetKeyDown(control.keyCode) || Input.GetKeyDown(control.altKeyCode) || Input.GetKeyDown(control.gamePadKeyCode);
 	}
 	
 	public float GetButtonFloat(int index) {
-		if(GUIUtility.hotControl != 0 || GUIUtility.keyboardControl != 0)
+		if(ignoreInput)
 			return 0f;
 		
-		return Input.GetKey(controls[index].keyCode) || Input.GetKey(controls[index].altKeyCode) || Input.GetKey(controls[index].gamePadKeyCode) ? 1.0f : 0.0f;
+		var control = controls[index];
+		return Input.GetKey(control.keyCode) || Input.GetKey(control.altKeyCode) || Input.GetKey(control.gamePadKeyCode) ? 1.0f : 0.0f;
 	}
 	
 	public int GetButtonIndex(string id) {

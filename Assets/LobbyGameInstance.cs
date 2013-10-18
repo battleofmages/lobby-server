@@ -10,6 +10,7 @@ public abstract class LobbyGameInstance<T> {
 	public static Dictionary<int, LobbyGameInstance<T>> requestIdToInstance = new Dictionary<int, LobbyGameInstance<T>>();
 	public static Dictionary<string, List<LobbyGameInstance<T>>> mapNameToInstances = new Dictionary<string, List<LobbyGameInstance<T>>>();
 	public static string[] mapPool = null;
+	public List<LobbyPlayer> players = new List<LobbyPlayer>();
 	
 	public uZone.GameInstance instance = null;
 	public int requestId;
@@ -83,6 +84,20 @@ public abstract class LobbyGameInstance<T> {
 		if(!running.Remove(this))
 			LogManager.General.LogError("Could not unregister instance from the running list: " + this.ToString());
 		
+		// Redirect players
+		foreach(var player in players) {
+			if(player.gameInstance == this) {
+				// Town server crashed?
+				if(player.inTown) {
+					// In that case we'll restart the town server.
+					// This can happen if you connect to a server while it is shutting down.
+					LogManager.General.Log("Town server crashed, restarting it and reconnecting all players to the new server.");
+					
+					player.town = null;
+					LobbyServer.instance.ReturnPlayerToTown(player);
+				}
+			}
+		}
 	}
 	
 	protected virtual void OnRegister() {}

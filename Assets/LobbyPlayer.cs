@@ -27,8 +27,9 @@ public class LobbyPlayer {
 	public List<LobbyChatChannel> channels;
 	
 	private string _name;
-	private LobbyMatch _match;
-	private LobbyTown _town;
+	//private LobbyMatch _match;
+	//private LobbyTown _town;
+	private object _gameInstance;
 	private LobbyQueue _queue;
 	
 	// Constructor
@@ -37,7 +38,7 @@ public class LobbyPlayer {
 		peer = AccountManager.Master.GetLoggedInPeer(account);
 		stats = null;
 		custom = null;
-		_match = null;
+		_gameInstance = null;
 		artifactsEditingFlag = false;
 		channels = new List<LobbyChatChannel>();
 		chatMember = new ChatMember(_name, ChatMemberStatus.Online);
@@ -62,57 +63,92 @@ public class LobbyPlayer {
 	// In match
 	public bool inMatch {
 		get {
-			return _match != null;
+			return _gameInstance is LobbyMatch;
 		}
 	}
 	
 	// In town
 	public bool inTown {
 		get {
-			return _town != null;
+			return _gameInstance is LobbyTown;
 		}
+	}
+	
+	public object gameInstance {
+		get { return _gameInstance; }
 	}
 	
 	public LobbyMatch match {
 		get {
-			return _match;
+			return _gameInstance as LobbyMatch;
 		}
 		
 		set {
 			if(value != null) {
+				if(value != _gameInstance) {
+					if(inMatch)
+						match.players.Remove(this);
+					
+					_gameInstance = value;
+					match.players.Add(this);
+				}
+				
 				this.chatMember.status = ChatMemberStatus.InMatch;
 			} else {
+				_gameInstance = value;
+				
+				if(match != null)
+					match.players.Remove(this);
+				
 				this.chatMember.status = ChatMemberStatus.Online;
 				
-				// Leave game chat channel
-				if(_match != null) {
-					_match.mapChannel.RemovePlayer(this);
+				// Leave map chat channel
+				if(match != null) {
+					match.mapChannel.RemovePlayer(this);
 				}
 			}
 			
-			_match = value;
 			this.BroadcastStatus();
 		}
 	}
 	
 	public LobbyTown town {
 		get {
-			return _town;
+			return _gameInstance as LobbyTown;
 		}
 		
 		set {
-			// TODO: ...
-			_town = value;
+			if(value != null) {
+				if(value != _gameInstance) {
+					if(inTown)
+						town.players.Remove(this);
+					
+					_gameInstance = value;
+					town.players.Add(this);
+				}
+			} else {
+				_gameInstance = value;
+				
+				if(town != null)
+					town.players.Remove(this);
+				
+				// Leave map chat channel
+				if(town != null) {
+					town.mapChannel.RemovePlayer(this);
+				}
+			}
+			
+			
 		}
 	}
 	
 	public uZone.GameInstance instance {
 		get {
-			if(_match != null)
-				return _match.instance;
+			if(match != null)
+				return match.instance;
 			
-			if(_town != null)
-				return _town.instance;
+			if(town != null)
+				return town.instance;
 			
 			return null;
 		}

@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections;
 
 public class MapManager {
+	public static GameObject currentMapInstance;
+	
 	// Starting town
 	public static string defaultTown = "Nubek";
 	
@@ -25,7 +27,7 @@ public class MapManager {
 		LogManager.General.Log("Loading map: " + mapName);
 		
 		var mapPrefab = Resources.Load("Maps/" + mapName);
-		var mapInstance = (GameObject)GameObject.Instantiate(mapPrefab, Vector3.zero, Quaternion.identity);
+		currentMapInstance = (GameObject)GameObject.Instantiate(mapPrefab, Vector3.zero, Quaternion.identity);
 		
 		// Update spawn locations
 		Party.UpdateSpawns();
@@ -43,18 +45,19 @@ public class MapManager {
 			}
 		}
 		
-		return mapInstance;
+		return currentMapInstance;
 	}
 	
 	// Deletes existing map
 	private static void DeleteOldMap() {
-		var mapInstance = GameObject.FindGameObjectWithTag("Map");
+		currentMapInstance = GameObject.FindGameObjectWithTag("Map");
 		
-		if(mapInstance == null)
+		if(currentMapInstance == null)
 			return;
 		
 		LogManager.General.Log("Deleting old map");
-		GameObject.Destroy(mapInstance);
+		GameObject.Destroy(currentMapInstance);
+		currentMapInstance = null;
 	}
 	
 	public static void InitPhysics(ServerType serverType) {

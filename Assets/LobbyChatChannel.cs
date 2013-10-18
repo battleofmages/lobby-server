@@ -17,7 +17,8 @@ public class LobbyChatChannel {
 	}
 	
 	public void Unregister() {
-		foreach(var member in members) {
+		var copiedMemberList = new List<LobbyPlayer>(members);
+		foreach(var member in copiedMemberList) {
 			this.RemovePlayer(member);
 		}
 		

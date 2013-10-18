@@ -289,7 +289,7 @@ public class LobbyServer : MonoBehaviour {
 	}
 	
 	// Returns a player to his town
-	void ReturnPlayerToTown(LobbyPlayer player) {
+	public void ReturnPlayerToTown(LobbyPlayer player) {
 		// Map name
 		string playerMap = "Nubek";
 		

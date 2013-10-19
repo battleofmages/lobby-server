@@ -29,7 +29,7 @@ public class LobbyPlayer {
 	private string _name;
 	//private LobbyMatch _match;
 	//private LobbyTown _town;
-	private object _gameInstance;
+	private LobbyGameInstanceInterface _gameInstance;
 	private LobbyQueue _queue;
 	
 	// Constructor
@@ -60,6 +60,49 @@ public class LobbyPlayer {
 		}
 	}
 	
+	// Clean up on leaving the instance
+	void OnLeaveInstance() {
+		if(_gameInstance == null)
+			return;
+		
+		// Remove from player list
+		_gameInstance.players.Remove(this);
+		
+		// Leave map chat channel
+		_gameInstance.mapChannel.RemovePlayer(this);
+	}
+	
+	// Game instance
+	public LobbyGameInstanceInterface gameInstance {
+		get {
+			return _gameInstance;
+		}
+		
+		set {
+			// Value is valid
+			if(value != null) {
+				if(value != _gameInstance) {
+					OnLeaveInstance();
+					
+					_gameInstance = value;
+					_gameInstance.players.Add(this);
+					_gameInstance.mapChannel.AddPlayer(this);
+				}
+				
+				if(inMatch)
+					this.chatMember.status = ChatMemberStatus.InMatch;
+			// Value is null
+			} else {
+				OnLeaveInstance();
+				
+				this.chatMember.status = ChatMemberStatus.Online;
+				_gameInstance = value;
+			}
+			
+			this.BroadcastStatus();
+		}
+	}
+	
 	// In match
 	public bool inMatch {
 		get {
@@ -74,80 +117,27 @@ public class LobbyPlayer {
 		}
 	}
 	
-	public object gameInstance {
-		get { return _gameInstance; }
-	}
-	
+	// Match
 	public LobbyMatch match {
 		get {
 			return _gameInstance as LobbyMatch;
 		}
-		
-		set {
-			if(value != null) {
-				if(value != _gameInstance) {
-					if(inMatch)
-						match.players.Remove(this);
-					
-					_gameInstance = value;
-					match.players.Add(this);
-				}
-				
-				this.chatMember.status = ChatMemberStatus.InMatch;
-			} else {
-				_gameInstance = value;
-				
-				if(match != null)
-					match.players.Remove(this);
-				
-				this.chatMember.status = ChatMemberStatus.Online;
-				
-				// Leave map chat channel
-				if(match != null) {
-					match.mapChannel.RemovePlayer(this);
-				}
-			}
-			
-			this.BroadcastStatus();
-		}
 	}
 	
+	// Town
 	public LobbyTown town {
 		get {
 			return _gameInstance as LobbyTown;
 		}
-		
-		set {
-			if(value != null) {
-				if(value != _gameInstance) {
-					if(inTown)
-						town.players.Remove(this);
-					
-					_gameInstance = value;
-					town.players.Add(this);
-				}
-			} else {
-				_gameInstance = value;
-				
-				if(town != null)
-					town.players.Remove(this);
-				
-				// Leave map chat channel
-				if(town != null) {
-					town.mapChannel.RemovePlayer(this);
-				}
-			}
-			
-			
-		}
 	}
 	
+	// Instance
 	public uZone.GameInstance instance {
 		get {
-			if(match != null)
+			if(inMatch)
 				return match.instance;
 			
-			if(town != null)
+			if(inTown)
 				return town.instance;
 			
 			return null;
@@ -179,6 +169,13 @@ public class LobbyPlayer {
 		}
 	}
 	
+	// Can use map chat
+	public bool canUseMapChat {
+		get {
+			return _gameInstance != null;
+		}
+	}
+	
 	// Update the status
 	void BroadcastStatus() {
 		foreach(var channel in this.channels) {
@@ -206,7 +203,7 @@ public class LobbyPlayer {
 			yield return null;
 		}
 		
-		// Player disconnected?
+		// Still null, player disconnected?
 		if(lobbyGameInstance.instance == null)
 			yield break;
 		
@@ -216,11 +213,9 @@ public class LobbyPlayer {
 	
 	// Connects the player to a game server instance
 	public void ConnectToGameInstance<T>(LobbyGameInstance<T> lobbyGameInstance) {
-		this.match = lobbyGameInstance as LobbyMatch;
-		this.town = lobbyGameInstance as LobbyTown;
+		this.gameInstance = lobbyGameInstance;
 		
 		this.ConnectToGameServer(lobbyGameInstance.instance);
-		lobbyGameInstance.mapChannel.AddPlayer(this);
 	}
 	
 	// Helper function

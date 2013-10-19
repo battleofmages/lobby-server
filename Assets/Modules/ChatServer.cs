@@ -43,39 +43,51 @@ public class ChatServer : MonoBehaviour {
 		
 		// Command?
 		if(ProcessLobbyChatCommands(player, msg)) {
-			LogManager.Chat.Log("[" + channelName + "][" + player.name + "] '" + msg + "'");
+			LogManager.Chat.Log("Lobby chat command: [" + channelName + "][" + player.name + "] '" + msg + "'");
 			return;
 		}
 		
 		// Add instance to channel name
-		if(channelName == "Map" && (player.inMatch || player.inTown)) {
-			var instance = player.instance;
-			
-			if(instance == null) {
-				LogManager.Chat.Log("[" + channelName + "][" + player.name + "] '" + msg + "'");
+		if(channelName == "Map") {
+			if(player.canUseMapChat) {
+				var instance = player.instance;
+				
+				if(instance == null) {
+					LogManager.Chat.LogError("Player instance is null on [" + channelName + "][" + player.name + "] '" + msg + "'");
+					return;
+				}
+				
+				var postfix = instance.ip + ":" + instance.port;
+				channelName += "@" + postfix;
+			} else {
+				LogManager.Chat.LogError("Player tries to use map chat while not being in an instance [" + channelName + "][" + player.name + "] '" + msg + "'");
+				LogManager.Chat.LogError(player.gameInstance.ToString());
 				return;
 			}
-			
-			var postfix = instance.ip + ":" + instance.port;
-			channelName += "@" + postfix;
 		}
 		
 		// Log all chat tries
 		LogManager.Chat.Log("[" + channelName + "][" + player.name + "] '" + msg + "'");
 		
 		// Access level?
-		if(channelName == "Announcement" && player.accessLevel < AccessLevel.CommunityManager)
+		if(channelName == "Announcement" && player.accessLevel < AccessLevel.CommunityManager) {
+			LogManager.Chat.LogError("Player tried to chat in announcement channel without having the rights for it!");
 			return;
+		}
 		
 		// Does the channel exist?
-		if(!LobbyChatChannel.channels.ContainsKey(channelName))
+		if(!LobbyChatChannel.channels.ContainsKey(channelName)) {
+			LogManager.Chat.LogError(string.Format("Channel '{0}' does not exist in the global channel list!", channelName));
 			return;
+		}
 		
 		var channel = LobbyChatChannel.channels[channelName];
 		
 		// Channel member?
-		if(!channel.members.Contains(player))
+		if(!channel.members.Contains(player)) {
+			LogManager.Chat.LogError(string.Format("Player '{0}' is not a member of chat channel '{1}'!", player.name, channelName));
 			return;
+		}
 		
 		// Broadcast message
 		channel.BroadcastMessage(player.name, msg);

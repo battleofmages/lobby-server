@@ -3,18 +3,40 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public abstract class LobbyGameInstance<T> {
+public interface LobbyGameInstanceInterface {
+	List<LobbyPlayer> players{ get; }
+	LobbyChatChannel mapChannel { get; }
+	
+	//void StartInstanceAsync();
+	void StartPlayingOn(uZone.GameInstance newInstance);
+	void Register();
+	void Unregister();
+	//void OnRegister();
+	//void OnUnregister();
+	//void OnInstanceAvailable();
+}
+
+public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 	public static List<LobbyGameInstance<T>> waitingForServer = new List<LobbyGameInstance<T>>();
 	public static List<LobbyGameInstance<T>> running = new List<LobbyGameInstance<T>>();
 	public static Dictionary<string, LobbyGameInstance<T>> idToInstance = new Dictionary<string, LobbyGameInstance<T>>();
 	public static Dictionary<int, LobbyGameInstance<T>> requestIdToInstance = new Dictionary<int, LobbyGameInstance<T>>();
 	public static Dictionary<string, List<LobbyGameInstance<T>>> mapNameToInstances = new Dictionary<string, List<LobbyGameInstance<T>>>();
 	public static string[] mapPool = null;
-	public List<LobbyPlayer> players = new List<LobbyPlayer>();
+	
+	private List<LobbyPlayer> _players = new List<LobbyPlayer>();
+	private LobbyChatChannel _mapChannel;
+	
+	public List<LobbyPlayer> players {
+		get { return _players; }
+	}
+	
+	public LobbyChatChannel mapChannel {
+		get { return _mapChannel; }
+	}
 	
 	public uZone.GameInstance instance = null;
 	public int requestId;
-	public LobbyChatChannel mapChannel;
 	public List<string> args = new List<string>();
 	protected string mapName;
 	protected ServerType serverType;
@@ -44,7 +66,7 @@ public abstract class LobbyGameInstance<T> {
 		waitingForServer.Remove(this);
 		
 		// Create a map channel
-		mapChannel = new LobbyChatChannel("Map@" + instance.ip + ":" + instance.port);
+		_mapChannel = new LobbyChatChannel("Map@" + instance.ip + ":" + instance.port);
 		
 		// Callback
 		this.OnInstanceAvailable();
@@ -69,8 +91,8 @@ public abstract class LobbyGameInstance<T> {
 		
 		//this.OnUnregister();
 		
-		mapChannel.Unregister();
-		mapChannel = null;
+		_mapChannel.Unregister();
+		_mapChannel = null;
 		
 		if(!requestIdToInstance.Remove(requestId))
 			LogManager.General.LogError("Could not unregister request id " + requestId);
@@ -93,7 +115,7 @@ public abstract class LobbyGameInstance<T> {
 					// This can happen if you connect to a server while it is shutting down.
 					LogManager.General.Log("Town server crashed, restarting it and reconnecting all players to the new server.");
 					
-					player.town = null;
+					player.gameInstance = null;
 					LobbyServer.instance.ReturnPlayerToTown(player);
 				}
 			}

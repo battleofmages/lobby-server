@@ -112,11 +112,7 @@ public class LobbyServer : MonoBehaviour {
 			player.queue.RemovePlayer(player);
 		
 		// Remove game instance associations
-		if(player.inTown)
-			player.town = null;
-		
-		if(player.inMatch)
-			player.match = null;
+		player.gameInstance = null;
 		
 		// Remove the reference from the dictionary
 		LobbyPlayer.accountIdToLobbyPlayer.Remove(player.accountId);
@@ -773,7 +769,7 @@ public class LobbyServer : MonoBehaviour {
 		LogManager.General.Log("Player '" + player.name + "' left a match");
 		
 		// A player just returned from a match, we'll send him queue infos again
-		player.match = null;
+		player.gameInstance = null;
 		
 		// Send him the chat members again to prevent wrong status info
 		foreach(var channel in player.channels) {
@@ -807,7 +803,7 @@ public class LobbyServer : MonoBehaviour {
 			
 			LeaveMatch(player);
 		} else if(player.inTown) {
-			player.town = null;
+			player.gameInstance = null;
 			
 			if(AccountManager.Master.IsLoggedIn(player.peer)) {
 				yield return AccountManager.Master.LogOut(info.sender).WaitUntilDone();

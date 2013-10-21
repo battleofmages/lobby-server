@@ -107,7 +107,8 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 			LogManager.General.LogError("Could not unregister instance from the running list: " + this.ToString());
 		
 		// Redirect players
-		foreach(var player in players) {
+		var playerList = new List<LobbyPlayer>(players);
+		foreach(var player in playerList) {
 			if(player.gameInstance == this) {
 				// Town server crashed?
 				if(player.inTown) {

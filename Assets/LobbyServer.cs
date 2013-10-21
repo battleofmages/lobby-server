@@ -91,6 +91,7 @@ public class LobbyServer : MonoBehaviour {
 		Lobby.InitializeLobby(maxConnections, listenPort, databaseHost, databasePort);
 	}
 	
+	// Creates a few scripts on the server to make log reading easier
 	void CreateLogViewScripts() {
 		string cat = "#!/bin/sh\ncat ";
 		string tail = "#!/bin/sh\ntail -f ";
@@ -99,13 +100,16 @@ public class LobbyServer : MonoBehaviour {
 		System.IO.File.WriteAllText("./tail-online.sh", tail + LogManager.Online.filePath);
 		System.IO.File.WriteAllText("./tail-db.sh", tail + LogManager.DB.filePath);
 		System.IO.File.WriteAllText("./tail-chat.sh", tail + LogManager.Chat.filePath);
+		System.IO.File.WriteAllText("./tail-spam.sh", tail + LogManager.Spam.filePath);
 		
 		System.IO.File.WriteAllText("./cat-general.sh", cat + LogManager.General.filePath);
 		System.IO.File.WriteAllText("./cat-online.sh", cat + LogManager.Online.filePath);
 		System.IO.File.WriteAllText("./cat-db.sh", cat + LogManager.DB.filePath);
 		System.IO.File.WriteAllText("./cat-chat.sh", cat + LogManager.Chat.filePath);
+		System.IO.File.WriteAllText("./cat-spam.sh", cat + LogManager.Spam.filePath);
 	}
 	
+	// Removes a player - This function can be called from logout, disconnect and SendQueueStats!
 	void RemovePlayer(LobbyPlayer player) {
 		// Remove the player from the queue he was in
 		if(player.queue != null)
@@ -124,9 +128,6 @@ public class LobbyServer : MonoBehaviour {
 		foreach(var channel in new List<LobbyChatChannel>(player.channels)) {
 			channel.RemovePlayer(player);
 		}
-		
-		// Log it
-		LogManager.Online.Log("'" + player.name + "' logged out. (Peer: " + player.peer + ", Acc: '" + player.account.name + "', AccID: '" + player.accountId + "')");
 	}
 	
 	// We send players information about the queues each second
@@ -298,7 +299,8 @@ public class LobbyServer : MonoBehaviour {
 		
 		// Start new town server if needed
 		LobbyTown townInstance = null;
-		if(!LobbyTown.mapNameToInstances.ContainsKey(playerMap) || LobbyTown.mapNameToInstances[playerMap].Count == 0) {
+		List<LobbyGameInstance<LobbyTown>> townList;
+		if(!LobbyTown.mapNameToInstances.TryGetValue(playerMap, out townList) || townList.Count == 0) {
 			townInstance = new LobbyTown(playerMap);
 			townInstance.Register();
 		} else {
@@ -318,10 +320,12 @@ public class LobbyServer : MonoBehaviour {
 	
 	// Gets the lobby player by the account ID
 	public static LobbyPlayer GetLobbyPlayer(string accountId) {
-		if(!LobbyPlayer.accountIdToLobbyPlayer.ContainsKey(accountId))
+		LobbyPlayer player;
+		
+		if(!LobbyPlayer.accountIdToLobbyPlayer.TryGetValue(accountId, out player))
 			return null;
 		
-		return LobbyPlayer.accountIdToLobbyPlayer[accountId];
+		return player;
 	}
 	
 #region Callbacks
@@ -408,8 +412,26 @@ public class LobbyServer : MonoBehaviour {
 	void OnAccountLoggedOut(Account account) {
 		//LogManager.General.Log("'" + account.name + "' logged out.");
 		
-		LobbyPlayer player = LobbyPlayer.accountIdToLobbyPlayer[account.id.value];
-		RemovePlayer(player);
+		LobbyPlayer player;
+		if(LobbyPlayer.accountIdToLobbyPlayer.TryGetValue(account.id.value, out player)) {
+			RemovePlayer(player);
+			
+			// Log it
+			LogManager.Online.Log(string.Format(
+				"'{0}' logged out. (Peer: {1}, E-Mail: '{2}', AccID: '{3}')",
+				player.name,
+				player.peer,
+				player.account.name,
+				player.accountId
+			));
+		} else {
+			// Log it
+			LogManager.Online.LogWarning(string.Format(
+				"Unknown player logged out, RemovePlayer has already been called. (E-Mail: '{0}', AccID: '{1}')",
+				account.name,
+				account.id.value
+			));
+		}
 	}
 	
 	// Lobby initialized
@@ -463,7 +485,34 @@ public class LobbyServer : MonoBehaviour {
 	
 	// Peer disconnected
 	void OnPeerDisconnected(LobbyPeer peer) {
-		LogManager.Online.Log("Peer disconnected: " + peer);
+		// Log him out
+		if(AccountManager.Master.IsLoggedIn(peer)) {
+			LogManager.Online.Log("Peer disconnected, logging him out: " + peer);
+			
+			uLobby.Request req = AccountManager.Master.LogOut(peer);
+			req.WaitUntilDone();
+		} else {
+			LogManager.Online.Log("Peer disconnected (not logged in): " + peer);
+		}
+		
+		// Clean up
+		LobbyPlayer player;
+		if(LobbyPlayer.peerToLobbyPlayer.TryGetValue(peer, out player)) {
+			// Just to be safe, in case OnAccountLoggedOut failed
+			RemovePlayer(player);
+			
+			// Remove player from peer list
+			LobbyPlayer.peerToLobbyPlayer.Remove(peer);
+			
+			// Log it
+			LogManager.Online.Log(string.Format(
+				"Registered peer from player '{0}' disconnected. (Peer: {1}, E-Mail: '{2}', AccID: '{3}')",
+				player.name,
+				player.peer,
+				player.account.name,
+				player.accountId
+			));
+		}
 	}
 	
 	// Account registered
@@ -529,49 +578,63 @@ public class LobbyServer : MonoBehaviour {
 		//StartTownServers();
 	}
 	
+	// uZone errors
+	void uZone_OnError(uZone.ErrorCode error) {
+		LogManager.General.LogWarning("uZone error code: " + error);
+	}
+	
 	// A new game server has finished starting up
 	void uZone_OnInstanceStarted(uZone.GameInstance instance) {
 		LogManager.General.Log("uZone instance started: " + instance.ToString());
 		
 		// Pick the match this instance has been started for
-		var instanceId = instance.requestId;
 		
-		if(LobbyMatch.requestIdToInstance.ContainsKey(instanceId)) {
-			LobbyMatch.requestIdToInstance[instanceId].StartPlayingOn(instance);
+		if(StartPlayingOnGameInstance<LobbyMatch>(instance, LobbyMatch.requestIdToInstance))
 			return;
-		}
 		
-		if(LobbyTown.requestIdToInstance.ContainsKey(instanceId)) {
-			LobbyTown.requestIdToInstance[instanceId].StartPlayingOn(instance);
+		if(StartPlayingOnGameInstance<LobbyFFA>(instance, LobbyFFA.requestIdToInstance))
 			return;
-		}
 		
-		/*foreach(var match in LobbyMatch.waitingForServer) {
-			if(match.requestId == instance.requestId) {
-				match.StartPlayingOn(instance);
-				return;
-			}
-		}*/
+		if(StartPlayingOnGameInstance<LobbyTown>(instance, LobbyTown.requestIdToInstance))
+			return;
 	}
 	
 	// A game server stopped running
 	void uZone_OnInstanceStopped(string id) {
 		LogManager.General.Log("Instance ID '" + id + "' stopped running.");
 		
-		if(LobbyMatch.idToInstance.ContainsKey(id)) {
-			LobbyMatch.idToInstance[id].Unregister();
+		if(UnregisterGameInstance<LobbyMatch>(id, LobbyMatch.idToInstance))
 			return;
-		}
 		
-		if(LobbyTown.idToInstance.ContainsKey(id)) {
-			LobbyTown.idToInstance[id].Unregister();
+		if(UnregisterGameInstance<LobbyFFA>(id, LobbyFFA.idToInstance))
 			return;
-		}
+		
+		if(UnregisterGameInstance<LobbyTown>(id, LobbyTown.idToInstance))
+			return;
 	}
 	
-	// uZone errors
-	void uZone_OnError(uZone.ErrorCode error) {
-		LogManager.General.LogWarning("uZone error code: " + error);
+	// Start playing on game instance
+	public bool StartPlayingOnGameInstance<T>(uZone.GameInstance instance, Dictionary<int, LobbyGameInstance<T>> requestIdToInstance) where T : LobbyGameInstance<T> {
+		var instanceId = instance.requestId;
+		LobbyGameInstance<T> inst = null;
+		
+		if(requestIdToInstance.TryGetValue(instanceId, out inst)) {
+			inst.StartPlayingOn(instance);
+			return true;
+		}
+		
+		return false;
+	}
+	
+	// Unregister game instance
+	public bool UnregisterGameInstance<T>(string id, Dictionary<string, LobbyGameInstance<T>> idToInstance) where T : LobbyGameInstance<T> {
+		LobbyGameInstance<T> inst = null;
+		if(idToInstance.TryGetValue(id, out inst)) {
+			inst.Unregister();
+			return true;
+		}
+		
+		return false;
 	}
 #endregion
 	
@@ -688,15 +751,27 @@ public class LobbyServer : MonoBehaviour {
 	}
 	
 	[RPC]
-	IEnumerator AccountPasswordChange(string newPassword, LobbyMessageInfo info) {
+	IEnumerator ChangePassword(string newPassword, LobbyMessageInfo info) {
 		// Get the account
 		LobbyPlayer player = GetLobbyPlayer(info);
 		
 		// Change name
-		LogManager.General.Log("Account " + player.accountId + " has requested to change its password hash.");
+		LogManager.General.Log("Player '" + player.name + "' has requested to change its password.");
 		yield return StartCoroutine(lobbyGameDB.SetPassword(player, newPassword));
+	}
+	
+	[RPC]
+	void JoinFFARequest(byte playersPerTeam, LobbyMessageInfo info) {
+		LobbyPlayer player = GetLobbyPlayer(info);
 		
-		Lobby.RPC("PasswordChangeSuccess", player.peer);
+		if(!player.inTown)
+			return;
+		
+		// Start new town server if needed
+		LobbyFFA ffaInstance = LobbyFFA.PickFFAInstance(player);
+		
+		// Connect the player once the instance is ready
+		StartCoroutine(player.ConnectToGameInstanceDelayed(ffaInstance));
 	}
 	
 	[RPC]
@@ -711,7 +786,7 @@ public class LobbyServer : MonoBehaviour {
 		if(player.stats == null)
 			return;
 		
-		if(player.inMatch)
+		if(!player.inTown)
 			return;
 		
 		// Add the player to the queue
@@ -751,6 +826,9 @@ public class LobbyServer : MonoBehaviour {
 	void Ready(LobbyMessageInfo info) {
 		LobbyPlayer player = GetLobbyPlayer(info);
 		
+		LogManager.General.Log(string.Format("Player '{0}' is now ready after logging in, connecting him to town", player.name));
+		
+		// Connect to town
 		ReturnPlayerToTown(player);
 		
 		// Chat channels
@@ -763,10 +841,12 @@ public class LobbyServer : MonoBehaviour {
 	}
 	
 	void LeaveMatch(LobbyPlayer player) {
-		if(!player.inMatch)
+		if(player.inMatch)
+			LogManager.General.Log("Player '" + player.name + "' left a match");
+		else if(player.inFFA)
+			LogManager.General.Log("Player '" + player.name + "' left an FFA server");
+		else
 			return;
-		
-		LogManager.General.Log("Player '" + player.name + "' left a match");
 		
 		// A player just returned from a match, we'll send him queue infos again
 		player.gameInstance = null;
@@ -800,6 +880,17 @@ public class LobbyServer : MonoBehaviour {
 					player.match.updatedRankingList = true;
 				}
 			}
+			
+			LeaveMatch(player);
+		} else if(player.inFFA) {
+			// Send him his new stats
+			//StartCoroutine(lobbyGameDB.GetPlayerStats(player));
+			
+			// Update ranking list cache
+			/*if(!player.match.updatedRankingList) {
+				RankingsServer.instance.StartRankingListCacheUpdate(player.match);
+				player.match.updatedRankingList = true;
+			}*/
 			
 			LeaveMatch(player);
 		} else if(player.inTown) {

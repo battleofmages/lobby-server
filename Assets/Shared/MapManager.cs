@@ -4,6 +4,10 @@ using System.Collections;
 public class MapManager {
 	public static GameObject currentMapInstance;
 	
+#if !LOBBY_SERVER
+	public static Intro currentMapIntro;
+#endif
+	
 	// Starting town
 	public static string defaultTown = "Nubek";
 	
@@ -19,6 +23,11 @@ public class MapManager {
 		"Ruins",
 	};
 	
+	// FFA maps
+	public static string[] ffaMaps = new string[] {
+		"Nubek",
+	};
+	
 #if !LOBBY_SERVER
 	// Loads a new map
 	public static GameObject LoadMap(string mapName) {
@@ -28,6 +37,7 @@ public class MapManager {
 		
 		var mapPrefab = Resources.Load("Maps/" + mapName);
 		currentMapInstance = (GameObject)GameObject.Instantiate(mapPrefab, Vector3.zero, Quaternion.identity);
+		currentMapIntro = currentMapInstance.GetComponent<Intro>();
 		
 		// Update spawn locations
 		Party.UpdateSpawns();

@@ -50,16 +50,18 @@ public class RankingsDB : MonoBehaviour {
 				entry.rankIndex = i;
 				
 				// Name
-				if(GameDB.accountIdToName.ContainsKey(entry.accountId)) {
-					entry.name = GameDB.accountIdToName[entry.accountId];
+				string name;
+				if(GameDB.accountIdToName.TryGetValue(entry.accountId, out name)) {
+					entry.name = name;
 					nameRequests[i] = null;
 				} else {
 					nameRequests[i] = nameBucket.Get(entry.accountId);
 				}
 				
 				// Country
-				if(IPInfoServer.accountIdToCountry.ContainsKey(entry.accountId)) {
-					entry.country = IPInfoServer.accountIdToCountry[entry.accountId];
+				string country;
+				if(IPInfoServer.accountIdToCountry.TryGetValue(entry.accountId, out country)) {
+					entry.country = country;
 					countryRequests[i] = null;
 				} else {
 					countryRequests[i] = countryBucket.Get(entry.accountId);

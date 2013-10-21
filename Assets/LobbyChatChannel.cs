@@ -65,10 +65,11 @@ public class LobbyChatChannel {
 	}
 	
 	public void RemovePlayer(LobbyPlayer player) {
-		members.Remove(player);
-		player.channels.Remove(this);
+		bool removedMember = members.Remove(player);
 		
-		this.Broadcast(p => Lobby.RPC("ChatLeave", p.peer, this.name, player.chatMember.name));
+		if(player.channels.Remove(this) && removedMember) {
+			this.Broadcast(p => Lobby.RPC("ChatLeave", p.peer, this.name, player.chatMember.name));
+		}
 		
 		// TODO: If someone connects first and instantly disconnects, this would be a bug
 		/*if(isGameChannel && members.Count == 0) {

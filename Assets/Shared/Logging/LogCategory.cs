@@ -43,7 +43,7 @@ public class LogCategory {
 #endif
 #if UNITY_EDITOR || UNITY_WEBPLAYER
 		if(useUnityDebugLog)
-			Debug.Log(msg);
+			Debug.Log(string.Concat("<color=#808080>", System.DateTime.UtcNow.ToString(timeFormat), ":</color> <color=#dddddd>", msg, "</color>"));
 #endif
 	}
 	
@@ -53,17 +53,17 @@ public class LogCategory {
 #endif
 #if UNITY_EDITOR || UNITY_WEBPLAYER
 		if(useUnityDebugLog)
-			Debug.LogWarning(msg);
+			Debug.LogWarning(string.Concat("<color=#808080>", System.DateTime.UtcNow.ToString(timeFormat), ":</color> <color=#dddddd>", msg, "</color>"));
 #endif
 	}
 	
 	public void LogError(object msg) {
 #if !UNITY_WEBPLAYER
-		writer.WriteLine(System.DateTime.UtcNow.ToString(timeFormat) + ": [WARNING] " + msg);
+		writer.WriteLine(System.DateTime.UtcNow.ToString(timeFormat) + ": [ERROR] " + msg);
 #endif
 #if UNITY_EDITOR || UNITY_WEBPLAYER
 		if(useUnityDebugLog)
-			Debug.LogError(msg);
+			Debug.LogError(string.Concat("<color=#808080>", System.DateTime.UtcNow.ToString(timeFormat), ":</color> <color=#dddddd>", msg, "</color>"));
 #endif
 	}
 	

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using uLobby;
 
-public class GuildsDB : MonoBehaviour {
+public class GuildsDB : SingletonMonoBehaviour<GuildsDB> {
 	// --------------------------------------------------------------------------------
 	// Guilds
 	// --------------------------------------------------------------------------------
@@ -60,8 +60,7 @@ public class GuildsDB : MonoBehaviour {
 			guildId,
 			success => {
 				if(success) {
-					if(GameDB.guildIdToGuild.ContainsKey(guildId))
-						GameDB.guildIdToGuild.Remove(guildId);
+					GameDB.guildIdToGuild.Remove(guildId);
 				}
 			}
 		));
@@ -128,8 +127,7 @@ public class GuildsDB : MonoBehaviour {
 			guildId,
 			success => {
 				if(success) {
-					if(GameDB.guildIdToGuildMembers.ContainsKey(guildId))
-						GameDB.guildIdToGuildMembers.Remove(guildId);
+					GameDB.guildIdToGuildMembers.Remove(guildId);
 				}
 			}
 		));

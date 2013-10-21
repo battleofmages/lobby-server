@@ -92,9 +92,27 @@ public class CharacterStats {
 		}
 	}
 	
+	public string GetMultiLineStringCombined(CharacterStats other, string formatStart = "<b>", string formatEnd = "</b>") {
+		var s = "\n";
+		return string.Concat(
+			"Attack: ", attack, " ", formatStart, "+", other.attack, formatEnd, s,
+			"Defense: ", defense, " ", formatStart, "+", other.defense, formatEnd, s,
+			"Energy: ", block, " ", formatStart, "+", other.block, formatEnd, s,
+			"CD reduction: ", cooldownReduction, " ", formatStart, "+", other.cooldownReduction, formatEnd, s,
+			"Attack speed: ", attackSpeed, " ", formatStart, "+", other.attackSpeed, formatEnd, s,
+			"Move speed: ", moveSpeed, " ", formatStart, "+", other.moveSpeed, formatEnd
+		);
+	}
+	
 	public override string ToString() {
 		var s = " / ";
 		return attack + s + defense + s + block + s + cooldownReduction + s + attackSpeed + s + moveSpeed;
+	}
+	
+	public bool valid {
+		get {
+			return totalStatPointsUsed <= maxStatPoints;
+		}
 	}
 	
 	public int totalStatPointsUsed {

@@ -21,7 +21,7 @@ public class TraitsServer : MonoBehaviour {
 	void ClientCharacterStats(CharacterStats charStats, LobbyMessageInfo info) {
 		LobbyPlayer player = LobbyServer.GetLobbyPlayer(info);
 		
-		if(charStats.totalStatPointsUsed > charStats.maxStatPoints) {
+		if(!charStats.valid) {
 			LogManager.General.LogWarning("Detected character stat points hack on player '" +player.name  + "'");
 			return;
 		}

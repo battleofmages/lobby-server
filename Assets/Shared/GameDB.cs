@@ -94,13 +94,13 @@ public class GameDB {
 	
 	// Resolve
 	public static string Resolve(string key) {
-		if(GameDB.accountIdToName.ContainsKey(key)) {
-			return GameDB.accountIdToName[key]; //+ " (" + key + ")";
-		}
+		string name;
+		if(GameDB.accountIdToName.TryGetValue(key, out name))
+			return name; //+ " (" + key + ")";
 		
-		if(GameDB.guildIdToGuild.ContainsKey(key)) {
-			return GameDB.guildIdToGuild[key].name; //+ " (" + key + ")";
-		}
+		Guild guild;
+		if(GameDB.guildIdToGuild.TryGetValue(key, out guild))
+			return guild.name; //+ " (" + key + ")";
 		
 		return key;
 	}

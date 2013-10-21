@@ -24,6 +24,13 @@ public class InputManager : SingletonMonoBehaviour<InputManager> {
 		}
 	}
 	
+	void Start() {
+		#pragma warning disable 0618
+		// If we don't do this, KeyUp event is never registered for the Input class
+		Input.eatKeyPressOnTextFieldFocus = false;
+		#pragma warning restore 0618
+	}
+	
 	public void Clear() {
 		foreach(var control in controls) {
 			Input.GetKey(control.keyCode);

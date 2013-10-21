@@ -82,14 +82,18 @@ public class PlayerStats {
 	double CalculateLevel() {
 		double winValue = 0d;
 		double loseValue = 0d;
+		double killValue = 0d;
 		
 		if(total.wins > 0)
 			winValue = Math.Log(total.wins);
 		
-		if(total.losses > 0)
-			loseValue = Math.Log(total.losses) / 2;
+		if(total.kills > 0)
+			killValue = Math.Log((total.kills) / 5);
 		
-		return 1.0d + winValue + loseValue;
+		if(total.losses > 0)
+			loseValue = Math.Log(total.losses / 2);
+		
+		return 1.0d + winValue + loseValue + killValue;
 	}
 	
 	int ChooseBestRanking() {

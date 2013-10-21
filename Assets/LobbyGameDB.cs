@@ -134,9 +134,19 @@ public class LobbyGameDB : MonoBehaviour {
 	
 	// Set password hash
 	public IEnumerator SetPassword(LobbyPlayer player, string newPassword) {
-		yield return AccountManager.Master.UpdateAccount(player.account, new AccountUpdate() {
+		var req = AccountManager.Master.UpdateAccount(player.account, new AccountUpdate() {
 			password = newPassword
 		});
+		
+		req.OnSuccessful += (request) => {
+			Lobby.RPC("PasswordChangeSuccess", player.peer);
+		};
+		
+		req.OnException += (request, exception) => {
+			Lobby.RPC("PasswordChangeError", player.peer, exception.ToString());
+		};
+		
+		yield return req;
 	}
 	
 	// --------------------------------------------------------------------------------

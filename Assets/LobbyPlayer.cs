@@ -9,6 +9,7 @@ using uLobby;
 
 public class LobbyPlayer {
 	public static Dictionary<string, LobbyPlayer> accountIdToLobbyPlayer = new Dictionary<string, LobbyPlayer>();
+	public static Dictionary<LobbyPeer, LobbyPlayer> peerToLobbyPlayer = new Dictionary<LobbyPeer, LobbyPlayer>();
 	public static List<LobbyPlayer> list = new List<LobbyPlayer>();
 	
 	public Account account;
@@ -46,6 +47,7 @@ public class LobbyPlayer {
 		
 		LobbyPlayer.list.Add(this);
 		LobbyPlayer.accountIdToLobbyPlayer[account.id.value] = this;
+		LobbyPlayer.peerToLobbyPlayer[peer] = this;
 	}
 	
 	// Player name
@@ -69,7 +71,8 @@ public class LobbyPlayer {
 		_gameInstance.players.Remove(this);
 		
 		// Leave map chat channel
-		_gameInstance.mapChannel.RemovePlayer(this);
+		if(_gameInstance.mapChannel != null)
+			_gameInstance.mapChannel.RemovePlayer(this);
 	}
 	
 	// Game instance
@@ -86,10 +89,12 @@ public class LobbyPlayer {
 					
 					_gameInstance = value;
 					_gameInstance.players.Add(this);
-					_gameInstance.mapChannel.AddPlayer(this);
 				}
 				
-				if(inMatch)
+				if(_gameInstance.mapChannel != null && !channels.Contains(_gameInstance.mapChannel))
+					_gameInstance.mapChannel.AddPlayer(this);
+				
+				if(inMatch || inFFA)
 					this.chatMember.status = ChatMemberStatus.InMatch;
 			// Value is null
 			} else {
@@ -117,6 +122,13 @@ public class LobbyPlayer {
 		}
 	}
 	
+	// In FFA
+	public bool inFFA {
+		get {
+			return _gameInstance is LobbyFFA;
+		}
+	}
+	
 	// Match
 	public LobbyMatch match {
 		get {
@@ -131,6 +143,13 @@ public class LobbyPlayer {
 		}
 	}
 	
+	// FFA
+	public LobbyFFA ffa {
+		get {
+			return _gameInstance as LobbyFFA;
+		}
+	}
+	
 	// Instance
 	public uZone.GameInstance instance {
 		get {
@@ -139,6 +158,9 @@ public class LobbyPlayer {
 			
 			if(inTown)
 				return town.instance;
+			
+			if(inFFA)
+				return ffa.instance;
 			
 			return null;
 		}
@@ -199,8 +221,7 @@ public class LobbyPlayer {
 		
 		// Wait for instance to be online
 		while(lobbyGameInstance.instance == null && this.peer.type != LobbyPeerType.Disconnected) {
-			System.Threading.Thread.Sleep(50);
-			yield return null;
+			yield return new WaitForSeconds(0.01f);
 		}
 		
 		// Still null, player disconnected?
@@ -220,7 +241,7 @@ public class LobbyPlayer {
 	
 	// Helper function
 	private void ConnectToGameServer(uZone.GameInstance instance) {
-		LogManager.General.Log("Connecting account '" + account.name + "' to " + (this.inTown ? "Town" : "Arena") + " server " + instance.ip + ":" + instance.port);
+		LogManager.General.Log("Connecting player '" + name + "' to " + (this.inTown ? "Town" : "Arena") + " server " + instance.ip + ":" + instance.port);
 		Lobby.RPC("ConnectToGameServer", peer, instance.ip, instance.port);
 	}
 	

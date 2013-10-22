@@ -100,14 +100,14 @@ public class InputControl {
 		
 		if(keyCode >= KeyCode.Mouse0 && keyCode <= KeyCode.Mouse6) {
 			switch(keyCode) {
-			case KeyCode.Mouse0:
-				return "Left mouse button";
-			case KeyCode.Mouse1:
-				return "Right mouse button";
-			case KeyCode.Mouse2:
-				return "Middle mouse button";
-			default:
-				return "Mouse extra button " + (keyCode - KeyCode.Mouse2).ToString();
+				case KeyCode.Mouse0:
+					return "Left mouse button";
+				case KeyCode.Mouse1:
+					return "Right mouse button";
+				case KeyCode.Mouse2:
+					return "Middle mouse button";
+				default:
+					return "Mouse extra button " + (keyCode - KeyCode.Mouse2).ToString();
 			}
 		}
 		

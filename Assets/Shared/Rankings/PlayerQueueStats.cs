@@ -23,6 +23,9 @@ public class PlayerQueueStats {
 	public int lifeDrain;
 	public int lifeDrainTaken;
 	
+	public long heal;
+	public long healTaken;
+	
 	public long damage;
 	public long damageTaken;
 	
@@ -44,7 +47,7 @@ public class PlayerQueueStats {
 	public void CalculateRanking() {
 		int winLoseDifference = wins - losses;
 		int killDeathDifference = kills - deaths;
-		long damageDifference = damage - damageTaken;
+		long damageDifference = damage - damageTaken; // + (heal / 2)
 		
 		int actualRanking = (int)(
 			winLoseDifference * 2

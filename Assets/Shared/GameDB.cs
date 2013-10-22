@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 public class GameDB {
+	public static bool codecsInitialized = false;
 	public static Dictionary<string, string> accountIdToName = new Dictionary<string, string>();
 	public static Dictionary<string, Guild> guildIdToGuild = new Dictionary<string, Guild>();
 	public static Dictionary<string, List<GuildMember>> guildIdToGuildMembers = new Dictionary<string, List<GuildMember>>();
@@ -20,7 +21,12 @@ public class GameDB {
 	public static int maxGuildTagLength = 4;
 	public static int numRankingPages = 7;
 	
+	// Initializes serialization codecs
 	public static void InitCodecs() {
+		// Prevent double call
+		if(codecsInitialized)
+			return;
+		
 		// Register JSON codec for player statistics
 		Json.AddCodec<PlayerStats>(PlayerStats.JsonDeserializer, PlayerStats.JsonSerializer);
 		Json.AddCodec<PlayerQueueStats>(PlayerQueueStats.JsonDeserializer, PlayerQueueStats.JsonSerializer);
@@ -65,8 +71,12 @@ public class GameDB {
 		uLink.BitStreamCodec.AddAndMakeArray<WeaponBuild>(WeaponBuild.ReadFromBitStream, WeaponBuild.WriteToBitStream);
 		uLink.BitStreamCodec.AddAndMakeArray<AttunementBuild>(AttunementBuild.ReadFromBitStream, AttunementBuild.WriteToBitStream);
 		uLink.BitStreamCodec.AddAndMakeArray<CharacterCustomization>(CharacterCustomization.ReadFromBitStream, CharacterCustomization.WriteToBitStream);
+		
+		// Flag
+		codecsInitialized = true;
 	}
 	
+	// Initializes ranking lists
 	public static void InitRankingLists() {
 		// Subject -> Queue -> RankEntry
 		rankingLists = new List<List<RankEntry[]>>();
@@ -137,6 +147,7 @@ public class GameDB {
 		return sha1.ComputeHash(System.Text.Encoding.Unicode.GetBytes(password));
 	}
 	
+	// Formats bucket name
 	static string FormatBucketName(string bucketName) {
 		var toIndex = bucketName.IndexOf("To");
 		if(toIndex != -1) {
@@ -146,6 +157,7 @@ public class GameDB {
 		return bucketName;
 	}
 	
+	// Format on success
 	static string FormatSuccess(string key, string operation, string bucketName, object val) {
 		if(operation != "get")
 			return Resolve(key) + "." + operation + FormatBucketName(bucketName) + "(" + val.ToString() + ")";
@@ -153,6 +165,7 @@ public class GameDB {
 		return Resolve(key) + "." + operation + FormatBucketName(bucketName) + "() -> " + val.ToString();
 	}
 	
+	// Format on fail
 	static string FormatFail(string key, string operation, string bucketName) {
 		return Resolve(key) + "." + operation + FormatBucketName(bucketName) + "() FAIL";
 	}

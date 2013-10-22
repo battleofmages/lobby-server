@@ -2,12 +2,6 @@ using UnityEngine;
 using System.Collections;
 
 public class MapManager {
-	public static GameObject currentMapInstance;
-	
-#if !LOBBY_SERVER
-	public static Intro currentMapIntro;
-#endif
-	
 	// Starting town
 	public static string defaultTown = "Nubek";
 	
@@ -29,6 +23,9 @@ public class MapManager {
 	};
 	
 #if !LOBBY_SERVER
+	public static GameObject currentMapInstance;
+	public static Intro currentMapIntro;
+	
 	// Loads a new map
 	public static GameObject LoadMap(string mapName) {
 		DeleteOldMap();
@@ -42,8 +39,12 @@ public class MapManager {
 		// Update spawn locations
 		Party.UpdateSpawns();
 		
+		// Delete NPCs if needed
+		if(GameManager.isFFA || GameManager.isArena)
+			DeleteNPCs();
+		
 		// Update sun shafts caster
-		if(uLink.Network.isClient) {
+		/*if(isServer) {
 			var sun = GameObject.FindGameObjectWithTag("Sun");
 			var sunShafts = Camera.main.GetComponent<SunShafts>();
 			if(sun != null && sunShafts != null) {
@@ -53,9 +54,18 @@ public class MapManager {
 			} else {
 				LogManager.General.LogWarning("Couldn't find sun (did you use the 'Sun' tag?)");
 			}
-		}
+		}*/
 		
 		return currentMapInstance;
+	}
+	
+	// Deletes NPCs
+	public static void DeleteNPCs() {
+		var npcList = GameObject.FindGameObjectsWithTag("NPC");
+		
+		foreach(var npc in npcList) {
+			GameObject.Destroy(npc);
+		}
 	}
 	
 	// Deletes existing map

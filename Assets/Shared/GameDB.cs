@@ -137,14 +137,19 @@ public class GameDB {
 		return password + salt;
 	}
 	
-	// Encrypt a password using SHA1
+	// Encrypt a password using SHA512
 	public static byte[] EncryptPassword(string password) {
 		// Make precalculated, generic rainbow tables ineffective by using a salt
 		password = SaltPassword(password);
 		
 		// Encrypt the password
-		System.Security.Cryptography.SHA1 sha1 = System.Security.Cryptography.SHA1.Create();
-		return sha1.ComputeHash(System.Text.Encoding.Unicode.GetBytes(password));
+		System.Security.Cryptography.SHA512 sha512 = System.Security.Cryptography.SHA512.Create();
+		return sha512.ComputeHash(System.Text.Encoding.Unicode.GetBytes(password));
+	}
+	
+	// Encrypt a password using SHA512
+	public static string EncryptPasswordString(string password) {
+		return System.Text.Encoding.UTF8.GetString(EncryptPassword(password));
 	}
 	
 	// Formats bucket name

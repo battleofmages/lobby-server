@@ -150,6 +150,31 @@ public class LobbyGameDB : MonoBehaviour {
 	}
 	
 	// --------------------------------------------------------------------------------
+	// AccountsAwaitingActivation
+	// --------------------------------------------------------------------------------
+	
+	// Adds an account to the activation waiting list
+	public IEnumerator PutAccountAwaitingActivation(string email, GameDB.ActionOnResult<string> func) {
+		var token = GameDB.GetUniqueKey();
+		
+		yield return StartCoroutine(GameDB.Set<string>(
+			"AccountsAwaitingActivation",
+			email,
+			token,
+			func
+		));
+	}
+	
+	// Is the account in the activation wait list?
+	public IEnumerator GetAccountAwaitingActivation(string email, GameDB.ActionOnResult<string> func) {
+		yield return StartCoroutine(GameDB.Get<string>(
+			"AccountsAwaitingActivation",
+			email,
+			func
+		));
+	}
+	
+	// --------------------------------------------------------------------------------
 	// MapReduce
 	// --------------------------------------------------------------------------------
 	

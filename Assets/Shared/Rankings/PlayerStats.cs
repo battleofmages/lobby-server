@@ -59,6 +59,9 @@ public class PlayerStats {
 		db.lifeDrain += matchStats.lifeDrain;
 		db.lifeDrainTaken += matchStats.lifeDrainTaken;
 		
+		db.heal += matchStats.heal;
+		db.healTaken += matchStats.healTaken;
+		
 		db.damage += matchStats.damage;
 		db.damageTaken += matchStats.damageTaken;
 		
@@ -85,13 +88,23 @@ public class PlayerStats {
 		double killValue = 0d;
 		
 		if(total.wins > 0)
-			winValue = Math.Log(total.wins);
-		
-		if(total.kills > 0)
-			killValue = Math.Log((total.kills) / 5);
+			winValue = Math.Log(1d + (double)(total.wins));
 		
 		if(total.losses > 0)
-			loseValue = Math.Log(total.losses / 2);
+			loseValue = Math.Log(1d + (double)(total.losses) / 2d);
+		
+		if(total.kills > 0)
+			killValue = Math.Log(1d + (double)(total.kills) / 5d);
+		
+		// Just to be safe
+		if(winValue == Mathf.Infinity)
+			winValue = 0d;
+		
+		if(loseValue == Mathf.Infinity)
+			loseValue = 0d;
+		
+		if(killValue == Mathf.Infinity)
+			killValue = 0d;
 		
 		return 1.0d + winValue + loseValue + killValue;
 	}

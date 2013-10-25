@@ -93,7 +93,7 @@ public class PlayerQueueStats {
 	
 	public float kdaRatio {get{
 		if(deaths == 0)
-			return 0;
+			return 0f;
 		
 		return (float)(kills + assists) / deaths;
 	}}
@@ -104,23 +104,44 @@ public class PlayerQueueStats {
 	
 	public float averageKills {get{
 		if(matchesPlayed == 0)
-			return 0;
+			return 0f;
 		
 		return (float)kills / matchesPlayed;
 	}}
 	
 	public float averageDeaths {get{
 		if(matchesPlayed == 0)
-			return 0;
+			return 0f;
 		
 		return (float)deaths / matchesPlayed;
 	}}
 	
 	public float averageAssists {get{
 		if(matchesPlayed == 0)
-			return 0;
+			return 0f;
 		
 		return (float)assists / matchesPlayed;
+	}}
+	
+	public float damageRatio {get{
+		if(damageTaken == 0)
+			return 0f;
+		
+		return (float)(damage) / damageTaken;
+	}}
+	
+	public float blockRatio {get{
+		if(blocksTaken == 0)
+			return 0f;
+		
+		return (float)(blocks) / blocksTaken;
+	}}
+	
+	public float hitRatio {get{
+		if(hitsTaken == 0)
+			return 0f;
+		
+		return (float)(hits) / hitsTaken;
 	}}
 	
 	// Writer

@@ -2,9 +2,7 @@
 using System.IO;
 #endif
 
-#if UNITY_EDITOR || UNITY_WEBPLAYER
 using UnityEngine;
-#endif
 
 public class LogCategory {
 	public static string logPath = "./logs/"; 
@@ -17,6 +15,7 @@ public class LogCategory {
 	
 	private bool useUnityDebugLog;
 	
+	// Static init
 	public static void Init(string newLogPath) {
 		logPath = newLogPath;
 		
@@ -26,6 +25,7 @@ public class LogCategory {
 #endif
 	}
 	
+	// Constructor
 	public LogCategory(string categoryName, bool nUseUnityDebugLog = true) {
 #if !UNITY_WEBPLAYER
 		filePath = logPath + categoryName + ".log";
@@ -37,6 +37,7 @@ public class LogCategory {
 #endif
 	}
 	
+	// Log
 	public void Log(object msg) {
 #if !UNITY_WEBPLAYER
 		writer.WriteLine(System.DateTime.UtcNow.ToString(timeFormat) + ": " + msg);
@@ -47,6 +48,7 @@ public class LogCategory {
 #endif
 	}
 	
+	// LogWarning
 	public void LogWarning(object msg) {
 #if !UNITY_WEBPLAYER
 		writer.WriteLine(System.DateTime.UtcNow.ToString(timeFormat) + ": [WARNING] " + msg);
@@ -57,6 +59,7 @@ public class LogCategory {
 #endif
 	}
 	
+	// LogError
 	public void LogError(object msg) {
 #if !UNITY_WEBPLAYER
 		writer.WriteLine(System.DateTime.UtcNow.ToString(timeFormat) + ": [ERROR] " + msg);
@@ -67,9 +70,39 @@ public class LogCategory {
 #endif
 	}
 	
+	// Close
 	public void Close() {
 #if !UNITY_WEBPLAYER
 		writer.Close();
 #endif
+	}
+	
+	// GenerateReport
+	public void GenerateReport() {
+		this.Log("Platform: " + Application.platform.ToString());
+		this.Log("Unity player version: " + Application.unityVersion);
+		
+		if(Application.genuineCheckAvailable)
+			this.Log("Genuine: " + Application.genuine.ToString());
+		
+		// CPU
+		this.Log("Processor count: " + SystemInfo.processorCount.ToString());
+		
+		// RAM
+		this.Log("System memory: " + SystemInfo.systemMemorySize.ToString() + " MB");
+		
+		// GPU
+		this.Log("Graphics device: " + SystemInfo.graphicsDeviceName);
+		this.Log("Graphics memory: " + SystemInfo.graphicsMemorySize + " MB");
+		this.Log("Graphics device version: " + SystemInfo.graphicsDeviceVersion);
+		this.Log("Graphics device vendor: " + SystemInfo.graphicsDeviceVendor);
+		this.Log("Shadows: " + (SystemInfo.supportsShadows ? "Supported" : "Not supported"));
+		this.Log("Image Effects: " + (SystemInfo.supportsImageEffects ? "Supported" : "Not supported"));
+		this.Log("Render Textures: " + (SystemInfo.supportsRenderTextures ? "Supported" : "Not supported"));
+		
+		// Misc
+		this.Log("Internet reachability: " + Application.internetReachability.ToString());
+		this.Log("Language: " + Application.systemLanguage.ToString());
+		this.Log("Data path: " + Application.dataPath);
 	}
 }

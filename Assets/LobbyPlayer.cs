@@ -241,7 +241,7 @@ public class LobbyPlayer {
 	
 	// Helper function
 	private void ConnectToGameServer(uZone.GameInstance instance) {
-		LogManager.General.Log("Connecting player '" + name + "' to " + (this.inTown ? "Town" : "Arena") + " server " + instance.ip + ":" + instance.port);
+		LogManager.General.Log("Connecting player '" + name + "' to " + this.gameInstance.ToString() + " server " + instance.ip + ":" + instance.port);
 		Lobby.RPC("ConnectToGameServer", peer, instance.ip, instance.port);
 	}
 	

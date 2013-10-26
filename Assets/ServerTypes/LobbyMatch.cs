@@ -48,9 +48,4 @@ public class LobbyMatch : LobbyGameInstance<LobbyMatch> {
 			}
 		}
 	}
-	
-	// ToString
-	public override string ToString () {
-		return string.Format("[LobbyMatch] {0}", mapName);
-	}
 }

@@ -1,5 +1,6 @@
 ﻿using uLobby;
 using UnityEngine;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -62,6 +63,9 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 	public virtual void StartPlayingOn(uZone.GameInstance newInstance) {
 		instance = newInstance;
 		
+		// Log after the instance has been assigned, so we see the IP
+		LogManager.General.Log("Instance started: " + this.ToString());
+		
 		// Remove this from the waiting list so we don't get selected for a server again
 		waitingForServer.Remove(this);
 		
@@ -87,7 +91,7 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 	
 	// Unregister
 	public virtual void Unregister() {
-		LogManager.General.Log("Unregistering instance '" + instance.id + "'...");
+		LogManager.General.Log("Instance stopped running: " + this.ToString());
 		
 		//this.OnUnregister();
 		
@@ -110,17 +114,33 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 		var playerList = new List<LobbyPlayer>(players);
 		foreach(var player in playerList) {
 			if(player.gameInstance == this) {
-				// Town server crashed?
 				if(player.inTown) {
-					// In that case we'll restart the town server.
+					// In that case we'll send the player back to the town server.
 					// This can happen if you connect to a server while it is shutting down.
-					LogManager.General.Log("Town server crashed, restarting it and reconnecting all players to the new server.");
+					LogManager.General.Log("Server crashed, returning all players on the instance to the town.");
 					
 					player.gameInstance = null;
 					LobbyServer.instance.ReturnPlayerToTown(player);
+				} else {
+					// ...
+					player.gameInstance = null;
 				}
 			}
 		}
+	}
+	
+	// ToString
+	public override string ToString() {
+		var playerList =
+			from p in this.players
+			select p.ToString();
+		var playerListString = string.Join(", ", playerList.ToArray());
+		
+		if(instance != null) {
+			return string.Format("[{0}] {1}\n * {2}:{3}\n * Players: [{4}]", serverType.ToString(), mapName, instance.ip, instance.port, playerListString);
+		}
+		
+		return string.Format("[{0}] {1}\n * Players: [{2}]", serverType.ToString(), mapName, playerListString);
 	}
 	
 	protected virtual void OnRegister() {}

@@ -44,7 +44,7 @@ public class LogCategory {
 #endif
 #if UNITY_EDITOR || UNITY_WEBPLAYER
 		if(useUnityDebugLog)
-			Debug.Log(string.Concat("<color=#808080>", System.DateTime.UtcNow.ToString(timeFormat), ":</color> <color=#dddddd>", msg, "</color>"));
+			Debug.Log(string.Concat("<color=#808080>", System.DateTime.UtcNow.ToString(timeFormat), ":</color> <color=#dddddd>", msg.ToString().Replace("\n", "</color>\n<color=#dddddd>"), "</color>"));
 #endif
 	}
 	
@@ -55,7 +55,7 @@ public class LogCategory {
 #endif
 #if UNITY_EDITOR || UNITY_WEBPLAYER
 		if(useUnityDebugLog)
-			Debug.LogWarning(string.Concat("<color=#808080>", System.DateTime.UtcNow.ToString(timeFormat), ":</color> <color=#dddddd>", msg, "</color>"));
+			Debug.LogWarning(string.Concat("<color=#808080>", System.DateTime.UtcNow.ToString(timeFormat), ":</color> <color=#dddddd>", msg.ToString().Replace("\n", "</color>\n<color=#dddddd>"), "</color>"));
 #endif
 	}
 	
@@ -66,7 +66,7 @@ public class LogCategory {
 #endif
 #if UNITY_EDITOR || UNITY_WEBPLAYER
 		if(useUnityDebugLog)
-			Debug.LogError(string.Concat("<color=#808080>", System.DateTime.UtcNow.ToString(timeFormat), ":</color> <color=#dddddd>", msg, "</color>"));
+			Debug.LogError(string.Concat("<color=#808080>", System.DateTime.UtcNow.ToString(timeFormat), ":</color> <color=#dddddd>", msg.ToString().Replace("\n", "</color>\n<color=#dddddd>"), "</color>"));
 #endif
 	}
 	

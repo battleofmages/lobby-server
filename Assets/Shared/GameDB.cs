@@ -27,6 +27,9 @@ public class GameDB {
 		if(codecsInitialized)
 			return;
 		
+		// Log
+		LogManager.DB.Log("Initializing database codecs");
+		
 		// Register JSON codec for player statistics
 		Json.AddCodec<PlayerStats>(PlayerStats.JsonDeserializer, PlayerStats.JsonSerializer);
 		Json.AddCodec<PlayerQueueStats>(PlayerQueueStats.JsonDeserializer, PlayerQueueStats.JsonSerializer);

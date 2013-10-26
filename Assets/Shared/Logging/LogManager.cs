@@ -11,6 +11,7 @@ public class LogManager {
 	// Reserved
 #endif
 	
+	// Static constructor
 	static LogManager() {
 		string logPath = DateTime.UtcNow.ToString("yyyy-MM-dd/HH-mm-ss/");
 		
@@ -31,5 +32,15 @@ public class LogManager {
 #if !LOBBY_SERVER
 		// Reserved
 #endif
+	}
+	
+	// Close all
+	public static void CloseAll() {
+		LogManager.General.Close();
+		LogManager.Online.Close();
+		LogManager.Chat.Close();
+		LogManager.DB.Close();
+		LogManager.System.Close();
+		LogManager.Spam.Close();
 	}
 }

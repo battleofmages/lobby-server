@@ -4,13 +4,13 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class LobbyFFA : LobbyGameInstance<LobbyFFA> {
-	public static int maxPlayerCount = 2;
+	public const int maxPlayerCount = 2;
 	
 	// Constructor
 	public LobbyFFA(string nMapName) {
 		// Set map pool
-		if(LobbyTown.mapPool == null)
-			LobbyTown.mapPool = MapManager.ffaMaps;
+		if(LobbyFFA.mapPool == null)
+			LobbyFFA.mapPool = MapManager.ffaMaps;
 		
 		// Server type
 		serverType = ServerType.FFA;
@@ -25,6 +25,7 @@ public class LobbyFFA : LobbyGameInstance<LobbyFFA> {
 		LobbyFFA pickedInstance = null;
 		
 		// Look for the instance with the lowest amount of players
+		LogManager.General.Log("Trying to find an FFA instance for player '" + player.name + "'");
 		foreach(var gameInstance in LobbyFFA.running) {
 			var playerCount = gameInstance.players.Count;
 			
@@ -36,6 +37,7 @@ public class LobbyFFA : LobbyGameInstance<LobbyFFA> {
 		
 		// If no instance was found, we create one
 		if(pickedInstance == null) {
+			LogManager.General.Log("No free FFA instance found, creating one for '" + player.name + "'");
 			pickedInstance = new LobbyFFA(MapManager.ffaMaps[Random.Range(0, MapManager.ffaMaps.Length)]);
 			pickedInstance.Register();
 		}
@@ -45,10 +47,5 @@ public class LobbyFFA : LobbyGameInstance<LobbyFFA> {
 		player.gameInstance = pickedInstance;
 		
 		return pickedInstance;
-	}
-	
-	// ToString
-	public override string ToString () {
-		return string.Format("[LobbyFFA] {0}", mapName);
 	}
 }

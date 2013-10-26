@@ -241,12 +241,17 @@ public class LobbyPlayer {
 	
 	// Helper function
 	private void ConnectToGameServer(uZone.GameInstance instance) {
-		LogManager.General.Log("Connecting player '" + name + "' to " + this.gameInstance.ToString() + " server " + instance.ip + ":" + instance.port);
+		LogManager.General.Log("Connecting player '" + name + "' to " + this.gameInstance.ToString());
 		Lobby.RPC("ConnectToGameServer", peer, instance.ip, instance.port);
 	}
 	
 	// Account is online
 	public static bool AccountIsOnline(string checkAccountId) {
 		return accountIdToLobbyPlayer.ContainsKey(checkAccountId);
+	}
+	
+	// ToString
+	public override string ToString() {
+		return _name;
 	}
 }

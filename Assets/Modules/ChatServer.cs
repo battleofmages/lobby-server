@@ -22,7 +22,30 @@ public class ChatServer : MonoBehaviour {
 			return true;
 			
 		default:
-			if(msg.StartsWith("//ginvite ")) {
+			if(msg.StartsWith("//list ")) {
+				//var serverType = msg.Substring(7);
+				return true;
+			} else if(msg.StartsWith("//create ") && player.accessLevel >= AccessLevel.GameMaster) {
+				var param = msg.Split(' ');
+				var serverType = param[1];
+				var mapName = param[2];
+				
+				switch(serverType.ToLower()) {
+					case "ffa":
+						new LobbyFFA(mapName).Register();
+						break;
+					
+					case "town":
+						new LobbyTown(mapName).Register();
+						break;
+					
+					/*case "match":
+						new LobbyMatch().Register();
+						break;*/
+				}
+				
+				return true;
+			} else if(msg.StartsWith("//ginvite ")) {
 				/*StartCoroutine(lobbyGameDB.GetAccountIdByPlayerName(msg.Split(' ')[1], data => {
 					Debug.Log ("ginvite: " + data);
 				}));*/

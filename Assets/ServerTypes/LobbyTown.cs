@@ -16,9 +16,4 @@ public class LobbyTown : LobbyGameInstance<LobbyTown> {
 		// Map name
 		mapName = nMapName;
 	}
-	
-	// ToString
-	public override string ToString () {
-		return string.Format("[LobbyTown] {0}", mapName);
-	}
 }

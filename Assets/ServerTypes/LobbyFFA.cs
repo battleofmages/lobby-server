@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class LobbyFFA : LobbyGameInstance<LobbyFFA> {
-	public const int maxPlayerCount = 2;
+	public const int maxPlayerCount = 10;
 	
 	// Constructor
 	public LobbyFFA(string nMapName) {

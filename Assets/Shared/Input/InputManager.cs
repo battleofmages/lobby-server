@@ -97,4 +97,8 @@ public class InputManager : SingletonMonoBehaviour<InputManager> {
 	public static Vector2 GetRelativeMousePosition() {
 		return new Vector2(Input.mousePosition.x - GUIArea.x, (Screen.height - Input.mousePosition.y) - GUIArea.y);
 	}
+	
+	public static Vector3 GetRelativeMousePositionToScreen() {
+		return new Vector3(Input.mousePosition.x / Screen.width, Input.mousePosition.y / Screen.height, 0f);
+	}
 }

@@ -40,8 +40,20 @@ public class SkillBuild {
 			new WeaponBuild {
 				weaponId = 0,
 				attunements = new AttunementBuild[] {
-					// Fire
+					// Lightning
 					new AttunementBuild {
+						attunementId = 12,
+						skills = new int[] {
+							500,
+							501,
+							502,
+							503,
+							504
+						}
+					},
+					
+					// Fire
+					/*new AttunementBuild {
 						attunementId = 10,
 						skills = new int[] {
 							100,
@@ -50,7 +62,7 @@ public class SkillBuild {
 							103,
 							104
 						}
-					},
+					},*/
 					
 					// Ice
 					new AttunementBuild {

@@ -46,6 +46,9 @@ public class GenericSerializer {
 		writer.WriteObjectStart();
 		
 		foreach(var field in fields) {
+			if(field.IsStatic)
+				continue;
+			
 			// Get property name and value
 			string name = field.Name;
 			
@@ -170,7 +173,8 @@ public class GenericSerializer {
 			
 			if(success) {
 				var field = typeInfo.GetField(propName);
-				field.SetValue(instance, GenericSerializer.ReadJSONValue(reader, field));
+				if(!field.IsStatic)
+					field.SetValue(instance, GenericSerializer.ReadJSONValue(reader, field));
 			} else {
 				break;
 			}

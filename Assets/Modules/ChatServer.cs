@@ -24,7 +24,6 @@ public class ChatServer : MonoBehaviour {
 		default:
 			if(msg.StartsWith("//list ")) {
 				//var serverType = msg.Substring(7);
-				return true;
 			} else if(msg.StartsWith("//create ") && player.accessLevel >= AccessLevel.GameMaster) {
 				var param = msg.Split(' ');
 				var serverType = param[1];
@@ -43,16 +42,15 @@ public class ChatServer : MonoBehaviour {
 						new LobbyMatch().Register();
 						break;*/
 				}
-				
-				return true;
 			} else if(msg.StartsWith("//ginvite ")) {
 				/*StartCoroutine(lobbyGameDB.GetAccountIdByPlayerName(msg.Split(' ')[1], data => {
 					Debug.Log ("ginvite: " + data);
 				}));*/
-				return true;
+			} else {
+				return false;
 			}
 			
-			return false;
+			return true;
 		}
 	}
 	

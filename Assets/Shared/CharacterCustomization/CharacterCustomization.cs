@@ -3,6 +3,11 @@ using System.Collections;
 
 [System.Serializable]
 public class CharacterCustomization {
+	public const float heightMultiplier = 0.25f;
+	public const float voicePitchMultiplier = 0.1f;
+	
+	public float height;
+	public float voicePitch;
 	public Color hairColor;
 	public Color eyeColor;
 	public Color eyeBackgroundColor;
@@ -11,6 +16,8 @@ public class CharacterCustomization {
 	public Color stockingsColor;
 	
 	public CharacterCustomization() {
+		height = 0.5f;
+		voicePitch = 0.5f;
 		hairColor = Color.white;
 		eyeColor = Color.white;
 		eyeBackgroundColor = Color.white;
@@ -50,6 +57,8 @@ public class CharacterCustomization {
 	// BitStream Writer
 	public static void WriteToBitStream(uLink.BitStream stream, object val, params object[] args) {
 		var myObj = (CharacterCustomization)val;
+		stream.Write<float>(myObj.height);
+		stream.Write<float>(myObj.voicePitch);
 		stream.Write<Color>(myObj.hairColor);
 		stream.Write<Color>(myObj.eyeColor);
 		stream.Write<Color>(myObj.eyeBackgroundColor);
@@ -61,6 +70,8 @@ public class CharacterCustomization {
 	// BitStream Reader
 	public static object ReadFromBitStream(uLink.BitStream stream, params object[] args) {
 		var myObj = new CharacterCustomization();
+		myObj.height = stream.Read<float>();
+		myObj.voicePitch = stream.Read<float>();
 		myObj.hairColor = stream.Read<Color>();
 		myObj.eyeColor = stream.Read<Color>();
 		myObj.eyeBackgroundColor = stream.Read<Color>();

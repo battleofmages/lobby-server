@@ -3,8 +3,11 @@ using System.Collections;
 
 [System.Serializable]
 public class CharacterCustomization {
+	public const float baseHeight = 1f;
+	public const float baseVoicePitch = 1.12f;
+	
 	public const float heightMultiplier = 0.25f;
-	public const float voicePitchMultiplier = 0.1f;
+	public const float voicePitchMultiplier = 0.12f;
 	
 	public float height;
 	public float voicePitch;
@@ -15,6 +18,7 @@ public class CharacterCustomization {
 	public Color skirtColor;
 	public Color stockingsColor;
 	
+	// Constructor
 	public CharacterCustomization() {
 		height = 0.5f;
 		voicePitch = 0.5f;
@@ -26,6 +30,7 @@ public class CharacterCustomization {
 		stockingsColor = Color.white;
 	}
 	
+	// Update materials
 	public void UpdateMaterials(Transform previewModel) {
 		if(previewModel == null)
 			return;
@@ -42,6 +47,21 @@ public class CharacterCustomization {
 		clothesMaterial.color = this.clothesColor;
 		skirtMaterial.color = this.skirtColor;
 		stockingsMaterial.color = this.stockingsColor;
+	}
+	
+	// Scale vector
+	public Vector3 scaleVector {
+		get {
+			float newScale = CharacterCustomization.baseHeight + (height - 0.5f) * CharacterCustomization.heightMultiplier;
+			return new Vector3(newScale, newScale, newScale);
+		}
+	}
+	
+	// Final voice pitch
+	public float finalVoicePitch {
+		get {
+			return CharacterCustomization.baseVoicePitch + (voicePitch - 0.5f) * CharacterCustomization.voicePitchMultiplier;
+		}
 	}
 	
 	// Writer

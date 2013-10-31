@@ -84,6 +84,8 @@ public class GenericSerializer {
 			return (byte)(reader.ReadNumber());
 		} else if(fieldType == typeof(double)) {
 			return reader.ReadNumber();
+		} else if(fieldType == typeof(float)) {
+			return (float)reader.ReadNumber();
 		} else if(fieldType == typeof(KeyCode)) {
 			return (KeyCode)(reader.ReadNumber());
 		} else if(fieldType == typeof(string)) {

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using UnityEngine;
+using System.Collections;
 
 public static class StringExtensions {
 	public static string Capitalize(this string input) {
@@ -15,5 +16,43 @@ public static class StringExtensions {
 			parts[i] = parts[i].Trim().Capitalize();
 		}
 		return string.Join(" ", parts);
+	}
+	
+	public static string HumanReadableInteger(this string number) {
+		bool isNegative = false;
+		
+		if(number.StartsWith("-")) {
+			isNegative = true;
+			number = number.Substring(1);
+		}
+		
+		if(number.Length < 4) {
+			if(!isNegative)
+				return number;
+			else
+				return "-" + number;
+		}
+		
+		int partsCount = Mathf.CeilToInt((float)number.Length / 3);
+		string[] parts = new string[partsCount];
+		
+		for(int i = 1; i <= partsCount; i++) {
+			int pos = number.Length - i * 3;
+			int length = 3;
+			
+			while(pos < 0) {
+				pos++;
+				length--;
+			}
+			
+			parts[partsCount - i] = number.Substring(pos, length);
+		}
+		
+		number = string.Join(System.Globalization.NumberFormatInfo.CurrentInfo.NumberGroupSeparator, parts);
+		
+		if(!isNegative)
+			return number;
+		else
+			return "-" + number;
 	}
 }

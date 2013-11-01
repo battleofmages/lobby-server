@@ -23,8 +23,9 @@ public class MapManager {
 	};
 	
 #if !LOBBY_SERVER
-	public static GameObject currentMapInstance;
-	public static Intro currentMapIntro;
+	public static GameObject mapInstance;
+	public static Intro mapIntro;
+	public static Bounds mapBounds;
 	
 	// Loads a new map
 	public static GameObject LoadMap(string mapName) {
@@ -35,11 +36,14 @@ public class MapManager {
 		var mapPrefab = Resources.Load("Maps/" + mapName);
 		LogManager.General.Log("Map prefab loaded");
 		
-		currentMapInstance = (GameObject)GameObject.Instantiate(mapPrefab, Vector3.zero, Quaternion.identity);
-		LogManager.General.Log("Map instantiated: " + currentMapInstance);
+		mapInstance = (GameObject)GameObject.Instantiate(mapPrefab, Vector3.zero, Quaternion.identity);
+		LogManager.General.Log("Map instantiated: " + mapInstance);
 		
-		currentMapIntro = currentMapInstance.GetComponent<Intro>();
-		LogManager.General.Log("Map intro: " + currentMapIntro);
+		mapIntro = mapInstance.GetComponent<Intro>();
+		LogManager.General.Log("Map intro: " + mapIntro);
+		
+		mapBounds = mapInstance.GetComponent<Boundary>().bounds;
+		LogManager.General.Log("Map bounds: " + mapBounds);
 		
 		// Update spawn locations
 		Party.UpdateSpawns();
@@ -62,7 +66,7 @@ public class MapManager {
 			}
 		}*/
 		
-		return currentMapInstance;
+		return mapInstance;
 	}
 	
 	// Deletes NPCs
@@ -79,16 +83,40 @@ public class MapManager {
 	
 	// Deletes existing map
 	private static void DeleteOldMap() {
-		currentMapInstance = GameObject.FindGameObjectWithTag("Map");
+		mapInstance = GameObject.FindGameObjectWithTag("Map");
 		
-		if(currentMapInstance == null)
+		if(mapInstance == null)
 			return;
 		
 		LogManager.General.Log("Deleting old map");
-		GameObject.Destroy(currentMapInstance);
-		currentMapInstance = null;
+		GameObject.Destroy(mapInstance);
+		mapInstance = null;
 	}
 	
+	// Stay in map boundaries
+	public static Vector3 StayInMapBoundaries(Vector3 pos) {
+		Vector3 min = MapManager.mapBounds.min;
+		Vector3 max = MapManager.mapBounds.max;
+		
+		if(pos.x < min.x)
+			pos.Set(min.x, pos.y, pos.z);
+		else if(pos.x > max.x)
+			pos.Set(max.x, pos.y, pos.z);
+		
+		if(pos.y < min.y)
+			pos.Set(pos.x, min.y, pos.z);
+		else if(pos.y > max.y)
+			pos.Set(pos.x, max.y, pos.z);
+		
+		if(pos.z < min.z)
+			pos.Set(pos.x, pos.y, min.z);
+		else if(pos.z > max.z)
+			pos.Set(pos.x, pos.y, max.z);
+		
+		return pos;
+	}
+	
+	// Init physics
 	public static void InitPhysics(ServerType serverType) {
 		LogManager.General.Log("Initializing map physics");
 		

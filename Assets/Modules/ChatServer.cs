@@ -14,8 +14,8 @@ public class ChatServer : MonoBehaviour {
 		switch(msg) {
 		case "//practice":
 			if(!player.inMatch) {
-				var match = LobbyQueue.CreatePracticeMatch(player);
-				match.Register();
+				LobbyQueue.CreatePracticeMatch(player);
+				//match.Register();
 			} else {
 				// Notify player ...
 			}

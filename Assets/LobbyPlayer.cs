@@ -32,6 +32,7 @@ public class LobbyPlayer {
 	//private LobbyTown _town;
 	private LobbyGameInstanceInterface _gameInstance;
 	private LobbyQueue _queue;
+	public LobbyGameInstanceInterface instanceAwaitingAccept;
 	
 	// Constructor
 	public LobbyPlayer(Account nAccount) {
@@ -203,6 +204,39 @@ public class LobbyPlayer {
 		foreach(var channel in this.channels) {
 			channel.Broadcast(p => Lobby.RPC("ChatStatus", p.peer, channel.name, this.chatMember));
 		}
+	}
+	
+	// Send match accept request
+	public void SendMatchAcceptRequest(LobbyMatch newMatch) {
+		instanceAwaitingAccept = newMatch;
+		Lobby.RPC("MatchFound", this.peer);
+	}
+	
+	// Accept match
+	public void AcceptMatch() {
+		var acceptedMatch = this.instanceAwaitingAccept as LobbyMatch;
+		
+		// This should never happen
+		if(acceptedMatch == null) {
+			LogManager.General.LogError("Accepted instance is not a match: " + acceptedMatch.ToString());
+			return;
+		}
+		
+		this.instanceAwaitingAccept = null;
+		acceptedMatch.UpdatePlayerAccept();
+	}
+	
+	// Deny match
+	public void DenyMatch() {
+		var deniedMatch = this.instanceAwaitingAccept as LobbyMatch;
+		
+		// This should never happen
+		if(deniedMatch == null) {
+			LogManager.General.LogError("Denied instance is not a match: " + deniedMatch.ToString());
+			return;
+		}
+		
+		deniedMatch.Cancel();
 	}
 	
 	// Makes the player leave the queue

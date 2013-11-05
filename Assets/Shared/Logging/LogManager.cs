@@ -28,7 +28,7 @@ public class LogManager {
 		LogManager.Chat = new LogCategory("Chat");
 		LogManager.DB = new LogCategory("DB");
 		LogManager.System = new LogCategory("System", false);
-		LogManager.Spam = new LogCategory("Spam", false);
+		LogManager.Spam = new LogCategory("Spam", false, false);
 #if !LOBBY_SERVER
 		// Reserved
 #endif

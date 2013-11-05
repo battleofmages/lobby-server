@@ -26,11 +26,11 @@ public class LogCategory {
 	}
 	
 	// Constructor
-	public LogCategory(string categoryName, bool nUseUnityDebugLog = true) {
+	public LogCategory(string categoryName, bool nUseUnityDebugLog = true, bool autoFlush = true) {
 #if !UNITY_WEBPLAYER
 		filePath = logPath + categoryName + ".log";
 		writer = File.AppendText(filePath);
-		writer.AutoFlush = true;
+		writer.AutoFlush = autoFlush;
 #endif
 #if UNITY_EDITOR || UNITY_WEBPLAYER
 		useUnityDebugLog = nUseUnityDebugLog;

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 public class LobbyMatch : LobbyGameInstance<LobbyMatch> {
 	public List<LobbyPlayer>[] teams;
 	public bool updatedRankingList = false;
+	private bool canceled = false;
 	
 	// Constructor
 	public LobbyMatch() {
@@ -45,6 +46,40 @@ public class LobbyMatch : LobbyGameInstance<LobbyMatch> {
 		foreach(List<LobbyPlayer> team in teams) {
 			foreach(LobbyPlayer player in team) {
 				player.ConnectToGameInstance(this);
+			}
+		}
+	}
+	
+	// Update player accept
+	public void UpdatePlayerAccept() {
+		if(canceled)
+			return;
+		
+		foreach(var player in allPlayers) {
+			if(player.instanceAwaitingAccept != null)
+				return;
+		}
+		
+		this.Register();
+	}
+	
+	// Cancel
+	public void Cancel() {
+		foreach(var player in allPlayers) {
+			Lobby.RPC("MatchCanceled", player.peer);
+			player.instanceAwaitingAccept = null;
+		}
+		
+		canceled = true;
+	}
+	
+	// Iterator
+	public IEnumerable<LobbyPlayer> allPlayers {
+		get {
+			foreach(var team in teams) {
+				foreach(var player in team) {
+					yield return player;
+				}
 			}
 		}
 	}

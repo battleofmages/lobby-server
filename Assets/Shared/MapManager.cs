@@ -26,6 +26,8 @@ public class MapManager {
 	public static GameObject mapInstance;
 	public static Intro mapIntro;
 	public static Bounds mapBounds;
+	public static bool occlusionCullingActive = false;
+	public static Transform occlusionArea = null;
 	
 	// Loads a new map
 	public static GameObject LoadMap(string mapName) {
@@ -36,7 +38,7 @@ public class MapManager {
 		var mapPrefab = Resources.Load("Maps/" + mapName);
 		LogManager.General.Log("Map prefab loaded");
 		
-		mapInstance = (GameObject)GameObject.Instantiate(mapPrefab, Vector3.zero, Quaternion.identity);
+		mapInstance = (GameObject)GameObject.Instantiate(mapPrefab, Cache.vector3Zero, Cache.quaternionIdentity);
 		LogManager.General.Log("Map instantiated: " + mapInstance);
 		
 		mapIntro = mapInstance.GetComponent<Intro>();
@@ -44,6 +46,15 @@ public class MapManager {
 		
 		mapBounds = mapInstance.GetComponent<Boundary>().bounds;
 		LogManager.General.Log("Map bounds: " + mapBounds);
+		
+		occlusionArea = mapInstance.transform.FindChild("Occlusion Area");
+		if(occlusionArea != null) {
+			LogManager.General.Log("Occlusion culling information available");
+			occlusionCullingActive = true;
+		} else {
+			LogManager.General.Log("Occlusion culling information not available");
+			occlusionCullingActive = false;
+		}
 		
 		// Update spawn locations
 		Party.UpdateSpawns();

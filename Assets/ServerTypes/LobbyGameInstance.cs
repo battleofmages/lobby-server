@@ -112,21 +112,24 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 		
 		// Redirect players
 		var playerList = new List<LobbyPlayer>(players);
+		int reconnectCount = 0;
 		foreach(var player in playerList) {
 			if(player.gameInstance == this) {
 				if(player.inTown) {
-					// In that case we'll send the player back to the town server.
-					// This can happen if you connect to a server while it is shutting down.
-					LogManager.General.Log("Server crashed, returning all players on the instance to the town.");
-					
 					player.gameInstance = null;
 					LobbyServer.instance.ReturnPlayerToTown(player);
+					reconnectCount++;
 				} else {
 					// ...
 					player.gameInstance = null;
 				}
 			}
 		}
+		
+		// In that case we'll send the players back to the town server.
+		// This can happen if you connect to a server while it is shutting down.
+		if(reconnectCount > 0)
+			LogManager.General.Log(string.Format("Server crashed, returned {0} players on the instance to the town.", reconnectCount));
 	}
 	
 	// ToString

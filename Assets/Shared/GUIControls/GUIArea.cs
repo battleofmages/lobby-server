@@ -7,10 +7,17 @@ public class GUIArea : System.IDisposable {
 	public static float height = Screen.height;
 	
 	public GUIArea(Rect screenRect) {
-		GUIArea.x = screenRect.x;
-		GUIArea.y = screenRect.y;
-		GUIArea.width = screenRect.width;
-		GUIArea.height = screenRect.height;
+		if(screenRect.width <= 1f && screenRect.height <= 1f) {
+			GUIArea.x = Screen.width * screenRect.x;
+			GUIArea.y = Screen.height * screenRect.y;
+			GUIArea.width = Screen.width * screenRect.width;
+			GUIArea.height = Screen.height * screenRect.height;
+		} else {
+			GUIArea.x = screenRect.x;
+			GUIArea.y = screenRect.y;
+			GUIArea.width = screenRect.width;
+			GUIArea.height = screenRect.height;
+		}
 		
 		GUILayout.BeginArea(new Rect(GUIArea.x, GUIArea.y, GUIArea.width, GUIArea.height));
 	}

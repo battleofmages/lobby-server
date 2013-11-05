@@ -12,6 +12,7 @@ public class LobbyQueue {
 	private int _unitsNeededForGameStart;
 	private int _playersPerTeam;
 	
+	// Units needed for game start
 	public int unitsNeededForGameStart {
 		get {
 			return _unitsNeededForGameStart;
@@ -23,14 +24,17 @@ public class LobbyQueue {
 		}
 	}
 	
+	// Constructor
 	public LobbyQueue() {
 		playerList = new List<LobbyPlayer>();
 	}
 	
+	// Player count
 	public int playerCount {
 		get { return playerList.Count; }
 	}
 	
+	// Add player
 	public bool AddPlayer(LobbyPlayer player) {
 		// Remove player from his old queue if he is still in
 		if(player.queue != null) {
@@ -46,11 +50,6 @@ public class LobbyQueue {
 		// Set this queue to this one
 		player.queue = this;
 		
-		// Make matches since new players joined
-		if(LobbyServer.uZoneNodeCount > 0) {
-			MakeMatchesBasedOnRanking();
-		}
-		
 		return true;
 	}
 	
@@ -59,7 +58,7 @@ public class LobbyQueue {
 		// Not enough players?
 		if(playerList.Count < unitsNeededForGameStart)
 			return;
-			
+		
 		// Sort the list
 		// TODO: Insertion sort
 		playerList = playerList.OrderBy(o => o.stats.bestRanking).ToList();
@@ -73,10 +72,10 @@ public class LobbyQueue {
 			// Ranking difference should be lower than maxRankingRange
 			if(highestPlayer.stats.bestRanking - lowestPlayer.stats.bestRanking <= maxRankingRange) {
 				// Create a match
-				var match = CreateMatchInRange(i, unitsNeededForGameStart);
+				CreateMatchInRange(i, unitsNeededForGameStart);
 				
 				// Register in the waiting list
-				match.Register();
+				//match.Register();
 			} else {
 				// Skip to next player
 				i += 1;
@@ -88,10 +87,10 @@ public class LobbyQueue {
 	public void MakeMatches() {
 		while(playerList.Count >= unitsNeededForGameStart) {
 			// Create a match
-			var match = CreateMatchInRange(0, unitsNeededForGameStart);
+			CreateMatchInRange(0, unitsNeededForGameStart);
 			
 			// Register in the waiting list
-			match.Register();
+			//match.Register();
 		}
 	}
 	
@@ -116,7 +115,7 @@ public class LobbyQueue {
 			player.queue = null;
 			
 			//player.match = match;
-			Lobby.RPC("MatchFound", player.peer);
+			player.SendMatchAcceptRequest(match);
 			match.teams[i / _playersPerTeam].Add(player);
 		}
 		
@@ -126,19 +125,21 @@ public class LobbyQueue {
 		return match;
 	}
 	
+	// Remove player
 	public void RemovePlayer(LobbyPlayer player) {
 		playerList.Remove(player);
 		player.queue = null;
 	}
 	
+	// Create practice match
 	public static LobbyMatch CreatePracticeMatch(LobbyPlayer player) {
 		player.LeaveQueue();
 		
 		LobbyMatch match = new LobbyMatch();
 		
 		//player.match = match;
-		Lobby.RPC("MatchFound", player.peer);
 		match.teams[0].Add(player);
+		player.SendMatchAcceptRequest(match);
 		
 		return match;
 	}

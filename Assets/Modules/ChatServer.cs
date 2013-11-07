@@ -11,46 +11,48 @@ public class ChatServer : MonoBehaviour {
 	
 	// User and admin commands
 	bool ProcessLobbyChatCommands(LobbyPlayer player, string msg) {
+		msg = msg.ReplaceCommands();
+		
 		switch(msg) {
-		case "//practice":
-			if(!player.inMatch) {
-				LobbyQueue.CreatePracticeMatch(player);
-				//match.Register();
-			} else {
-				// Notify player ...
-			}
-			return true;
-			
-		default:
-			if(msg.StartsWith("//list ")) {
-				//var serverType = msg.Substring(7);
-			} else if(msg.StartsWith("//create ") && player.accessLevel >= AccessLevel.GameMaster) {
-				var param = msg.Split(' ');
-				var serverType = param[1];
-				var mapName = param[2];
-				
-				switch(serverType.ToLower()) {
-					case "ffa":
-						new LobbyFFA(mapName).Register();
-						break;
-					
-					case "town":
-						new LobbyTown(mapName).Register();
-						break;
-					
-					/*case "match":
-						new LobbyMatch().Register();
-						break;*/
+			case "//practice":
+				if(!player.inMatch) {
+					LobbyQueue.CreatePracticeMatch(player);
+					//match.Register();
+				} else {
+					// Notify player ...
 				}
-			} else if(msg.StartsWith("//ginvite ")) {
-				/*StartCoroutine(lobbyGameDB.GetAccountIdByPlayerName(msg.Split(' ')[1], data => {
-					Debug.Log ("ginvite: " + data);
-				}));*/
-			} else {
-				return false;
-			}
-			
-			return true;
+				return true;
+				
+			default:
+				if(msg.StartsWith("//list ")) {
+					//var serverType = msg.Substring(7);
+				} else if(msg.StartsWith("//create ") && player.accessLevel >= AccessLevel.GameMaster) {
+					var param = msg.Split(' ');
+					var serverType = param[1];
+					var mapName = param[2];
+					
+					switch(serverType.ToLower()) {
+						case "ffa":
+							new LobbyFFA(mapName).Register();
+							break;
+						
+						case "town":
+							new LobbyTown(mapName).Register();
+							break;
+						
+						/*case "match":
+							new LobbyMatch().Register();
+							break;*/
+					}
+				} else if(msg.StartsWith("//ginvite ")) {
+					/*StartCoroutine(lobbyGameDB.GetAccountIdByPlayerName(msg.Split(' ')[1], data => {
+						Debug.Log ("ginvite: " + data);
+					}));*/
+				} else {
+					return false;
+				}
+				
+				return true;
 		}
 	}
 	

@@ -3,9 +3,15 @@ using System.Collections;
 
 public static class StringExtensions {
 	public static string Capitalize(this string input) {
-		if(input.Length > 0) {
+		if(input.Length > 0)
 			return System.Char.ToUpper(input[0]) + input.Substring(1);
-		}
+		
+		return input;
+	}
+	
+	public static string ReplaceCommands(this string input) {
+		if(input.Length >= 2 && input.StartsWith("-") && !char.IsDigit(input[1]))
+			return "//" + input.Substring(1);
 		
 		return input;
 	}

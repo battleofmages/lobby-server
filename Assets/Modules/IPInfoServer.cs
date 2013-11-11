@@ -10,6 +10,7 @@ public class IPInfoServer : MonoBehaviour {
 	public static string ip2nationURL = "http://battle-of-mages.com/scripts/ip2nation.php?ip=";
 	//private IPInfoDB ipInfoDB;
 	
+	// Start
 	void Start () {
 		//ipInfoDB = this.GetComponent<IPInfoDB>();
 		
@@ -17,6 +18,7 @@ public class IPInfoServer : MonoBehaviour {
 		//Lobby.AddListener(this);
 	}
 	
+	// GetCountryByIP
 	public static IEnumerator GetCountryByIP(string ip) {
 		var request = new WWW(ip2nationURL + ip);
 		

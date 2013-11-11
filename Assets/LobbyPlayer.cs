@@ -7,7 +7,7 @@ using uLobby;
 	public LobbyPlayer[] players;
 }*/
 
-public class LobbyPlayer {
+public class LobbyPlayer : PartyMember<LobbyPlayer> {
 	public static Dictionary<string, LobbyPlayer> accountIdToLobbyPlayer = new Dictionary<string, LobbyPlayer>();
 	public static Dictionary<LobbyPeer, LobbyPlayer> peerToLobbyPlayer = new Dictionary<LobbyPeer, LobbyPlayer>();
 	public static List<LobbyPlayer> list = new List<LobbyPlayer>();
@@ -25,6 +25,8 @@ public class LobbyPlayer {
 	public List<string> guildInvitations;
 	public AccessLevel accessLevel;
 	
+	private LobbyParty _party;
+	
 	public List<LobbyChatChannel> channels;
 	
 	private string _name;
@@ -40,6 +42,7 @@ public class LobbyPlayer {
 		peer = AccountManager.Master.GetLoggedInPeer(account);
 		stats = null;
 		custom = null;
+		_party = new LobbyParty();
 		_gameInstance = null;
 		artifactsEditingFlag = false;
 		channels = new List<LobbyChatChannel>();
@@ -282,6 +285,21 @@ public class LobbyPlayer {
 	// Account is online
 	public static bool AccountIsOnline(string checkAccountId) {
 		return accountIdToLobbyPlayer.ContainsKey(checkAccountId);
+	}
+	
+	// SetParty
+	public void SetParty(Party<LobbyPlayer> pty) {
+		_party = (LobbyParty)pty;
+	}
+	
+	// GetParty
+	public Party<LobbyPlayer> GetParty() {
+		return _party;
+	}
+	
+	// GetAccountId
+	public string GetAccountId() {
+		return accountId;
 	}
 	
 	// ToString

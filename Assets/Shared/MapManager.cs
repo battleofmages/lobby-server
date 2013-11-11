@@ -57,7 +57,7 @@ public class MapManager {
 		}
 		
 		// Update spawn locations
-		Party.UpdateSpawns();
+		GameServerParty.UpdateSpawns();
 		
 		// Delete NPCs if needed
 		if(GameManager.isFFA || GameManager.isArena) {
@@ -132,9 +132,9 @@ public class MapManager {
 		LogManager.General.Log("Initializing map physics");
 		
 		if(serverType == ServerType.Town) {
-			//Physics.IgnoreLayerCollision(Party.partyList[0].layer, Party.partyList[0].layer, false);
+			//Physics.IgnoreLayerCollision(Party.partyList[0].layer, GameServerParty.partyList[0].layer, false);
 		} else {
-			//Physics.IgnoreLayerCollision(Party.partyList[0].layer, Party.partyList[0].layer, true);
+			//Physics.IgnoreLayerCollision(Party.partyList[0].layer, GameServerParty.partyList[0].layer, true);
 		}
 	}
 #endif

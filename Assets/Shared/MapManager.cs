@@ -1,25 +1,25 @@
 using UnityEngine;
-using System.Collections;
+using System.IO;
 
 public class MapManager {
 	// Starting town
-	public static string defaultTown = "Nubek";
+	public static string defaultTown = "Alpha Tester Grounds";
 	
 	// Towns
 	public static string[] towns = new string[] {
-		"Nubek",
+		"Alpha Tester Grounds",
 		//"El Thea",
 		//"Tamburin",
 	};
 	
 	// Arenas
 	public static string[] arenas = new string[] {
-		"Ruins",
+		"Alpha Tester Grounds",
 	};
 	
 	// FFA maps
 	public static string[] ffaMaps = new string[] {
-		"Nubek",
+		"Alpha Tester Grounds",
 	};
 	
 #if !LOBBY_SERVER

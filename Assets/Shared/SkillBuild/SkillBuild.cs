@@ -99,8 +99,22 @@ public class SkillBuild {
 							404
 						}
 					},
+				},
+			},
+
+			// Katana
+			new WeaponBuild {
+				weaponId = 2,
+				attunements = new AttunementBuild[] {
+					// Wind
+					new AttunementBuild {
+						attunementId = 213,
+						skills = new int[] {
+							2000,
+						}
+					},
 				}
-			}
+			},
 		};
 		
 		return build;

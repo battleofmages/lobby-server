@@ -42,6 +42,10 @@ public class GameDB {
 		Json.AddCodec<GuildList>(GuildList.JsonDeserializer, GuildList.JsonSerializer);
 		Json.AddCodec<CharacterCustomization>(CharacterCustomization.JsonDeserializer, CharacterCustomization.JsonSerializer);
 		Json.AddCodec<PaymentsList>(PaymentsList.JsonDeserializer, PaymentsList.JsonSerializer);
+
+		// Register JSON codecs for friends lists
+		Json.AddCodec<FriendsGroup>(FriendsGroup.JsonDeserializer, FriendsGroup.JsonSerializer);
+		Json.AddCodec<FriendsList>(FriendsList.JsonDeserializer, FriendsList.JsonSerializer);
 		
 		// Register JSON codecs for integrated types
 		Json.AddCodec<Color>(GenericSerializer.ColorJsonDeserializer, GenericSerializer.ColorJsonSerializer);

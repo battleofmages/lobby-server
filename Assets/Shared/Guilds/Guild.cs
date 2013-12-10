@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 [System.Serializable]
-public class Guild {
+public class Guild : JsonSerializable<Guild> {
 	public string name;
 	public string tag;
 	public string introduction;
@@ -11,7 +11,8 @@ public class Guild {
 	public TimeStamp creationDate;
 	public string founderAccountId;
 	public Texture2D icon;
-	
+
+	// Constructor
 	public Guild() {
 		name = "";
 		tag = "";
@@ -20,7 +21,8 @@ public class Guild {
 		creationDate = new TimeStamp();
 		icon = null; //new Texture2D(64, 64);
 	}
-	
+
+	// Constructor
 	public Guild(string guildName, string guildTag, string nFounderAccountId) {
 		name = guildName;
 		tag = guildTag;
@@ -30,7 +32,8 @@ public class Guild {
 		founderAccountId = nFounderAccountId;
 		icon = null;
 	}
-	
+
+	// ToString
 	public override string ToString() {
 		return name + " [" + tag + "]";
 	}
@@ -60,15 +63,5 @@ public class Guild {
 		} catch {
 			return false;
 		}
-	}
-	
-	// Writer
-	public static void JsonSerializer(Jboy.JsonWriter writer, object instance) {
-		GenericSerializer.WriteJSONClassInstance<Guild>(writer, (Guild)instance);
-	}
-	
-	// Reader
-	public static object JsonDeserializer(Jboy.JsonReader reader) {
-		return GenericSerializer.ReadJSONClassInstance<Guild>(reader);
 	}
 }

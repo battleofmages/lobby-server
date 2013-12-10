@@ -152,6 +152,10 @@ public class GenericSerializer {
 			return Jboy.Json.ReadObject<GuildMember[]>(reader);
 		} else if(fieldType == typeof(List<string>)) {
 			return Jboy.Json.ReadObject<List<string>>(reader);
+		} else if(fieldType == typeof(List<Friend>)) {
+			return Jboy.Json.ReadObject<List<Friend>>(reader);
+		} else if(fieldType == typeof(List<FriendsGroup>)) {
+			return Jboy.Json.ReadObject<List<FriendsGroup>>(reader);
 		} else if(fieldType == typeof(Texture2D)) {
 			return GenericSerializer.Texture2DJsonDeserializer(reader);
 		} else {

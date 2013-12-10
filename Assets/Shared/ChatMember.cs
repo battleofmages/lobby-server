@@ -11,22 +11,26 @@ public enum ChatMemberStatus {
 public class ChatMember {
 	public string name;
 	public ChatMemberStatus status;
-	
+
+	// Constructor
 	public ChatMember() {
 		name = "";
 		status = ChatMemberStatus.Online;
 	}
-	
+
+	// Constructor
 	public ChatMember(string nName) {
 		name = nName;
 		status = ChatMemberStatus.Online;
 	}
-	
+
+	// Constructor
 	public ChatMember(string nName, ChatMemberStatus nStatus) {
 		name = nName;
 		status = nStatus;
 	}
-	
+
+	// Constructor
 	public ChatMember(string nName, byte nStatus) {
 		name = nName;
 		status = (ChatMemberStatus)nStatus;

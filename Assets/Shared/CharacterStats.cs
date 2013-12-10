@@ -1,15 +1,12 @@
-using UnityEngine;
-using System.Collections;
-
 [System.Serializable]
-public class CharacterStats {
+public class CharacterStats : JsonSerializable<CharacterStats> {
 	public int attack;
 	public int defense;
 	public int block;
 	public int cooldownReduction;
 	public int attackSpeed;
 	public int moveSpeed;
-	
+
 	// Empty constructor
 	public CharacterStats() {
 		attack = 50;
@@ -66,16 +63,6 @@ public class CharacterStats {
 		cooldownReduction += stats.cooldownReduction;
 		attackSpeed += stats.attackSpeed;
 		moveSpeed += stats.moveSpeed;
-	}
-	
-	// Writer
-	public static void JsonSerializer(Jboy.JsonWriter writer, object instance) {
-		GenericSerializer.WriteJSONClassInstance<CharacterStats>(writer, (CharacterStats)instance);
-	}
-	
-	// Reader
-	public static object JsonDeserializer(Jboy.JsonReader reader) {
-		return GenericSerializer.ReadJSONClassInstance<CharacterStats>(reader);
 	}
 	
 	public string multiLineString {

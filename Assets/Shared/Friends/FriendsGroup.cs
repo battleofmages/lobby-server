@@ -2,22 +2,23 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class FriendsGroup {
+[System.Serializable]
+public class FriendsGroup : JsonSerializable<FriendsGroup> {
 	public string name;
-	public List<string> friends;
+	public Color color;
+	public List<Friend> friends;
 
+	// Constructor
 	public FriendsGroup() {
 		name = "";
-		friends = new List<string>();
+		color = Color.white;
+		friends = new List<Friend>();
 	}
 
-	// Writer
-	public static void JsonSerializer(Jboy.JsonWriter writer, object instance) {
-		GenericSerializer.WriteJSONClassInstance<FriendsGroup>(writer, (FriendsGroup)instance);
-	}
-	
-	// Reader
-	public static object JsonDeserializer(Jboy.JsonReader reader) {
-		return GenericSerializer.ReadJSONClassInstance<FriendsGroup>(reader);
+	// Constructor
+	public FriendsGroup(string nName) {
+		name = nName;
+		color = Color.white;
+		friends = new List<Friend>();
 	}
 }

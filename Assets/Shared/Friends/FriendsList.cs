@@ -1,20 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public class FriendsList {
+[System.Serializable]
+public class FriendsList : JsonSerializable<FriendsList> {
 	public List<FriendsGroup> groups;
 
+	// Constructor
 	public FriendsList() {
 		groups = new List<FriendsGroup>();
-	}
-
-	// Writer
-	public static void JsonSerializer(Jboy.JsonWriter writer, object instance) {
-		GenericSerializer.WriteJSONClassInstance<FriendsGroup>(writer, (FriendsGroup)instance);
-	}
-	
-	// Reader
-	public static object JsonDeserializer(Jboy.JsonReader reader) {
-		return GenericSerializer.ReadJSONClassInstance<FriendsGroup>(reader);
+		groups.Add(new FriendsGroup("General"));
 	}
 }

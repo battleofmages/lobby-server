@@ -2,10 +2,11 @@
 using System.Collections;
 
 [System.Serializable]
-public class AttunementBuild {
+public class AttunementBuild : JsonSerializable<AttunementBuild> {
 	public int attunementId;
 	public int[] skills;
-	
+
+	// Constructor
 	public AttunementBuild() {
 		
 	}
@@ -26,15 +27,5 @@ public class AttunementBuild {
 		obj.skills = stream.Read<int[]>();
 		
 		return obj;
-	}
-	
-	// Writer
-	public static void JsonSerializer(Jboy.JsonWriter writer, object instance) {
-		GenericSerializer.WriteJSONClassInstance<AttunementBuild>(writer, (AttunementBuild)instance);
-	}
-	
-	// Reader
-	public static object JsonDeserializer(Jboy.JsonReader reader) {
-		return GenericSerializer.ReadJSONClassInstance<AttunementBuild>(reader);
 	}
 }

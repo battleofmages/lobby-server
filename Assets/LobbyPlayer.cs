@@ -16,6 +16,7 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 	public LobbyPeer peer;
 	public CharacterCustomization custom;
 	public ChatMember chatMember;
+	public FriendsList friends;
 	public PlayerStats stats;
 	public CharacterStats charStats;
 	public ArtifactTree artifactTree;
@@ -42,6 +43,7 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 		peer = AccountManager.Master.GetLoggedInPeer(account);
 		stats = null;
 		custom = null;
+		friends = null;
 		_party = new LobbyParty();
 		_gameInstance = null;
 		artifactsEditingFlag = false;

@@ -5,8 +5,9 @@ using uLobby;
 
 public class CharacterCustomizationServer : MonoBehaviour {
 	private CharacterCustomizationDB characterCustomizationDB;
-	
-	void Start () {
+
+	// Start
+	void Start() {
 		characterCustomizationDB = this.GetComponent<CharacterCustomizationDB>();
 		
 		// Make this class listen to lobby events

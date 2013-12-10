@@ -2,7 +2,7 @@
 using System.Collections;
 
 [System.Serializable]
-public class SkillBuild {
+public class SkillBuild : JsonSerializable<SkillBuild> {
 	public WeaponBuild[] weapons;
 	
 	public SkillBuild() {
@@ -134,15 +134,5 @@ public class SkillBuild {
 		obj.weapons = stream.Read<WeaponBuild[]>();
 		
 		return obj;
-	}
-	
-	// Writer
-	public static void JsonSerializer(Jboy.JsonWriter writer, object instance) {
-		GenericSerializer.WriteJSONClassInstance<SkillBuild>(writer, (SkillBuild)instance);
-	}
-	
-	// Reader
-	public static object JsonDeserializer(Jboy.JsonReader reader) {
-		return GenericSerializer.ReadJSONClassInstance<SkillBuild>(reader);
 	}
 }

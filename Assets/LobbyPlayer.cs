@@ -25,6 +25,7 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 	public GuildList guildList;
 	public List<string> guildInvitations;
 	public AccessLevel accessLevel;
+	public HashSet<LobbyPlayer> statusObservers;
 	
 	private LobbyParty _party;
 	
@@ -47,6 +48,7 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 		_party = new LobbyParty();
 		_gameInstance = null;
 		artifactsEditingFlag = false;
+		statusObservers = new HashSet<LobbyPlayer>();
 		channels = new List<LobbyChatChannel>();
 		chatMember = new ChatMember(_name, ChatMemberStatus.Online);
 		//artifactInventories = new Inventory();
@@ -206,7 +208,11 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 	
 	// Update the status
 	void BroadcastStatus() {
-		foreach(var channel in this.channels) {
+		foreach(var player in statusObservers) {
+			Lobby.RPC("ReceivePlayerStatus", player.peer, this.accountId, this.chatMember.status);
+		}
+		
+		foreach(var channel in channels) {
 			channel.Broadcast(p => Lobby.RPC("ChatStatus", p.peer, channel.name, this.chatMember));
 		}
 	}

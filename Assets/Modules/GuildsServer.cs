@@ -8,6 +8,7 @@ public class GuildsServer : MonoBehaviour {
 	private LobbyGameDB lobbyGameDB;
 	private GuildsDB guildsDB;
 	
+	// Start
 	void Start () {
 		lobbyGameDB = this.GetComponent<LobbyGameDB>();
 		guildsDB = this.GetComponent<GuildsDB>();

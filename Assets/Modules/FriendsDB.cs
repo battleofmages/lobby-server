@@ -19,8 +19,9 @@ public class FriendsDB : MonoBehaviour {
 					player.friends = new FriendsList();
 			}
 		));
-
-		Lobby.RPC("ReceiveFriendsList", player.peer, player.accountId, Jboy.Json.WriteObject(player.friends));
+		
+		// Send new friends list
+		player.OnFriendsListLoaded();
 	}
 
 	// Get friends

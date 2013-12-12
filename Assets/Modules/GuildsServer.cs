@@ -90,9 +90,7 @@ public class GuildsServer : MonoBehaviour {
 			
 			// Member names
 			foreach(var member in guildMembers) {
-				if(GameDB.accountIdToName.ContainsKey(member.accountId)) {
-					member.name = GameDB.accountIdToName[member.accountId];
-				} else {
+				if(!GameDB.accountIdToName.TryGetValue(member.accountId, out member.name)) {
 					yield return StartCoroutine(lobbyGameDB.GetPlayerName(member.accountId, data => {
 						if(data != null) {
 							member.name = data;

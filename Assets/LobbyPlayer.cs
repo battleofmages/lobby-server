@@ -70,8 +70,36 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 		}
 	}
 	
+	// OnFriendsListLoaded
+	public void OnFriendsListLoaded() {
+		// Send new friends list
+		Lobby.RPC("ReceiveFriendsList", peer, accountId, Jboy.Json.WriteObject(friends));
+		
+		// TODO: Only send changes
+		// Send player info for all the accounts on the friends list
+		foreach(var group in friends.groups) {
+			foreach(var friend in group.friends) {
+				string friendAccountId = friend.accountId;
+				string friendName = null;
+				
+				if(GameDB.accountIdToName.TryGetValue(friendAccountId, out friendName)) {
+					Lobby.RPC("ReceivePlayerInfo", peer, friendAccountId, friendName);
+				} else {
+					LobbyServer.instance.StartCoroutine(
+						LobbyGameDB.instance.GetPlayerName(friendAccountId, data => {
+							if(data != null) {
+								GameDB.accountIdToName[friendAccountId] = data;
+								Lobby.RPC("ReceivePlayerInfo", peer, friendAccountId, data);
+							}
+						})
+					);
+				}
+			}
+		}
+	}
+	
 	// Clean up on leaving the instance
-	void OnLeaveInstance() {
+	private void OnLeaveInstance() {
 		if(_gameInstance == null)
 			return;
 		

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 [System.Serializable]
 public class FriendsList : JsonSerializable<FriendsList> {
+	// TODO: Make this a HashSet
 	public List<FriendsGroup> groups;
 
 	// Constructor

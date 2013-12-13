@@ -24,7 +24,7 @@ public class FriendsServer : MonoBehaviour {
 	[RPC]
 	IEnumerator AddFriend(string friendName, string groupName, LobbyMessageInfo info) {
 		LobbyPlayer player = LobbyServer.GetLobbyPlayer(info);
-		LogManager.General.Log(string.Format("Player '{0}' is adding player '{1}' to friend list group '{2}'!", player.account.name, friendName, groupName));
+		LogManager.General.Log(string.Format("'{0}' added '{1}' to friend list group '{2}'", player.name, friendName, groupName));
 		
 		// Find friends group
 		var selectedGroup = player.friends.GetGroupByName(groupName);
@@ -71,7 +71,7 @@ public class FriendsServer : MonoBehaviour {
 	[RPC]
 	IEnumerator RemoveFriend(string friendName, string groupName, LobbyMessageInfo info) {
 		LobbyPlayer player = LobbyServer.GetLobbyPlayer(info);
-		LogManager.General.Log(string.Format("Player '{0}' is removing player '{1}' from friend list group '{2}'!", player.account.name, friendName, groupName));
+		LogManager.General.Log(string.Format("'{0}' removed '{1}' from friend list group '{2}'", player.name, friendName, groupName));
 		
 		// Find friends group
 		var selectedGroup = player.friends.GetGroupByName(groupName);
@@ -106,7 +106,7 @@ public class FriendsServer : MonoBehaviour {
 	[RPC]
 	IEnumerator SetFriendNote(string friendName, string groupName, string note, LobbyMessageInfo info) {
 		LobbyPlayer player = LobbyServer.GetLobbyPlayer(info);
-		LogManager.General.Log(string.Format("Player '{0}' sets friends list note for player '{1}' to '{2}'!", player.account.name, friendName, note));
+		LogManager.General.Log(string.Format("'{0}' sets friends list note for '{1}' to '{2}'", player.name, friendName, note));
 		
 		// Find friends group
 		var selectedGroup = player.friends.GetGroupByName(groupName);
@@ -133,6 +133,13 @@ public class FriendsServer : MonoBehaviour {
 			player.friends,
 			null
 		));
+	}
+	
+	[RPC]
+	void CreateFriendsGroup(string groupName, LobbyMessageInfo info) {
+		LobbyPlayer player = LobbyServer.GetLobbyPlayer(info);
+		LogManager.General.Log(string.Format("'{0}' created new friends group called '{1}'", player.name, groupName));
+		player.friends.groups.Add(new FriendsGroup(groupName));
 	}
 #endregion
 }

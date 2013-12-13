@@ -3,13 +3,23 @@ using System.Collections.Generic;
 
 [System.Serializable]
 public class FriendsList : JsonSerializable<FriendsList> {
-	// TODO: Make this a HashSet
+	// This should keep user-defined order, so don't make it a HashSet
 	public List<FriendsGroup> groups;
 
 	// Constructor
 	public FriendsList() {
 		groups = new List<FriendsGroup>();
 		groups.Add(new FriendsGroup("General"));
+	}
+	
+	// AddGroup
+	public void AddGroup(string groupName) {
+		groups.Add(new FriendsGroup(groupName));
+	}
+	
+	// RemoveGroup
+	public void RemoveGroup(string groupName) {
+		groups.RemoveAll(grp => grp.name == groupName);
 	}
 	
 	// GetGroup

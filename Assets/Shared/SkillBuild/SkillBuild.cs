@@ -60,7 +60,7 @@ public class SkillBuild : JsonSerializable<SkillBuild> {
 							101,
 							102,
 							103,
-							104
+							105
 						}
 					},
 					

@@ -136,10 +136,35 @@ public class FriendsServer : MonoBehaviour {
 	}
 	
 	[RPC]
-	void CreateFriendsGroup(string groupName, LobbyMessageInfo info) {
+	IEnumerator AddFriendsGroup(string groupName, LobbyMessageInfo info) {
 		LobbyPlayer player = LobbyServer.GetLobbyPlayer(info);
 		LogManager.General.Log(string.Format("'{0}' created new friends group called '{1}'", player.name, groupName));
-		player.friends.groups.Add(new FriendsGroup(groupName));
+		
+		// Add it
+		player.friends.AddGroup(groupName);
+		
+		// Save friends list in database
+		yield return StartCoroutine(friendsDB.SetFriends(
+			player.accountId,
+			player.friends,
+			null
+		));
+	}
+	
+	[RPC]
+	IEnumerator RemoveFriendsGroup(string groupName, LobbyMessageInfo info) {
+		LobbyPlayer player = LobbyServer.GetLobbyPlayer(info);
+		LogManager.General.Log(string.Format("'{0}' removed friends group called '{1}'", player.name, groupName));
+		
+		// Remove it
+		player.friends.RemoveGroup(groupName);
+		
+		// Save friends list in database
+		yield return StartCoroutine(friendsDB.SetFriends(
+			player.accountId,
+			player.friends,
+			null
+		));
 	}
 #endregion
 }

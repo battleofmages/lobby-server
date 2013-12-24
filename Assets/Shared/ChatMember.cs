@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 
 public enum ChatMemberStatus {
+	Offline,
 	Online,
 	InQueue,
 	InMatch,
@@ -15,13 +16,13 @@ public class ChatMember {
 	// Constructor
 	public ChatMember() {
 		name = "";
-		status = ChatMemberStatus.Online;
+		status = ChatMemberStatus.Offline;
 	}
 
 	// Constructor
 	public ChatMember(string nName) {
 		name = nName;
-		status = ChatMemberStatus.Online;
+		status = ChatMemberStatus.Offline;
 	}
 
 	// Constructor

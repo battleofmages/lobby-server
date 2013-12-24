@@ -17,6 +17,7 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 	public CharacterCustomization custom;
 	public ChatMember chatMember;
 	public FriendsList friends;
+	public string[] followers;
 	public PlayerStats stats;
 	public CharacterStats charStats;
 	public ArtifactTree artifactTree;
@@ -26,6 +27,7 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 	public List<string> guildInvitations;
 	public AccessLevel accessLevel;
 	public HashSet<LobbyPlayer> statusObservers;
+	public HashSet<string> accountsWhereInfoIsRequired;
 	
 	private LobbyParty _party;
 	
@@ -45,10 +47,12 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 		stats = null;
 		custom = null;
 		friends = null;
+		followers = null;
 		_party = new LobbyParty();
 		_gameInstance = null;
 		artifactsEditingFlag = false;
 		statusObservers = new HashSet<LobbyPlayer>();
+		accountsWhereInfoIsRequired = new HashSet<string>();
 		channels = new List<LobbyChatChannel>();
 		chatMember = new ChatMember(_name, ChatMemberStatus.Online);
 		//artifactInventories = new Inventory();
@@ -76,24 +80,47 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 		Lobby.RPC("ReceiveFriendsList", peer, accountId, Jboy.Json.WriteObject(friends));
 		
 		// TODO: Only send changes
-		// Send player info for all the accounts on the friends list
 		foreach(var group in friends.groups) {
 			foreach(var friend in group.friends) {
-				string friendAccountId = friend.accountId;
-				string friendName = null;
-				
-				if(GameDB.accountIdToName.TryGetValue(friendAccountId, out friendName)) {
-					Lobby.RPC("ReceivePlayerInfo", peer, friendAccountId, friendName);
-				} else {
-					LobbyServer.instance.StartCoroutine(
-						LobbyGameDB.instance.GetPlayerName(friendAccountId, data => {
-							if(data != null) {
-								GameDB.accountIdToName[friendAccountId] = data;
-								Lobby.RPC("ReceivePlayerInfo", peer, friendAccountId, data);
-							}
-						})
-					);
-				}
+				accountsWhereInfoIsRequired.Add(friend.accountId);
+			}
+		}
+		
+		// Send player info for all the accounts on the friends list
+		SendInfoAboutOtherAccounts();
+	}
+	
+	// OnFollowersListLoaded
+	public void OnFollowersListLoaded() {
+		// Send new friends list
+		Lobby.RPC("ReceiveFollowersList", peer, accountId, followers, true);
+		
+		// Combine account lists
+		accountsWhereInfoIsRequired.UnionWith(followers);
+		
+		// Send player info for all the accounts on the followers list
+		SendInfoAboutOtherAccounts();
+	}
+	
+	// SendInfoAboutOtherAccounts
+	void SendInfoAboutOtherAccounts() {
+		if(friends == null || followers == null)
+			return;
+		
+		foreach(var friendAccountId in accountsWhereInfoIsRequired) {
+			string friendName = null;
+			
+			if(GameDB.accountIdToName.TryGetValue(friendAccountId, out friendName)) {
+				Lobby.RPC("ReceivePlayerInfo", peer, friendAccountId, friendName);
+			} else {
+				LobbyServer.instance.StartCoroutine(
+					LobbyGameDB.instance.GetPlayerName(friendAccountId, data => {
+						if(data != null) {
+							GameDB.accountIdToName[friendAccountId] = data;
+							Lobby.RPC("ReceivePlayerInfo", peer, friendAccountId, data);
+						}
+					})
+				);
 			}
 		}
 	}

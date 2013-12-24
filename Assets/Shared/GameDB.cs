@@ -275,7 +275,7 @@ public class GameDB {
 	// Generic MapReduce
 	// --------------------------------------------------------------------------------
 	
-	// Map
+	// Search.Map
 	public static string GetSearchMapFunction(string property) {
 		return @"
 			function(value, keydata, arg) {
@@ -285,7 +285,7 @@ public class GameDB {
 		";
 	}
 	
-	// Reduce
+	// Search.Reduce
 	public static string GetSearchReduceFunction() {
 		return @"
 			function(valueList, nameToFind) {
@@ -300,6 +300,26 @@ public class GameDB {
 				}
 				
 				return [];
+			}
+		";
+	}
+	
+	// SearchMultiple.Reduce
+	public static string GetSearchMultipleReduceFunction() {
+		return @"
+			function(valueList, nameToFind) {
+				var length = valueList.length;
+				var element = null;
+				var result = [];
+				
+				for(var i = 0; i < length; i++) {
+					element = valueList[i];
+					if(element[1] == nameToFind) {
+						result.push(element);
+					}
+				}
+				
+				return result;
 			}
 		";
 	}

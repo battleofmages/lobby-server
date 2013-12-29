@@ -82,6 +82,7 @@ public class PlayerStats {
 		db.CalculateRanking();
 	}
 	
+	// CalculateLevel
 	double CalculateLevel() {
 		double winValue = 0d;
 		double loseValue = 0d;
@@ -109,6 +110,7 @@ public class PlayerStats {
 		return 1.0d + winValue + loseValue + killValue;
 	}
 	
+	// ChooseBestRanking
 	int ChooseBestRanking() {
 		int tmpBestRanking = 0;
 		

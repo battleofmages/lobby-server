@@ -3,10 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using uLobby;
 
-/*public class LobbyParty {
-	public LobbyPlayer[] players;
-}*/
-
 public class LobbyPlayer : PartyMember<LobbyPlayer> {
 	public static Dictionary<string, LobbyPlayer> accountIdToLobbyPlayer = new Dictionary<string, LobbyPlayer>();
 	public static Dictionary<LobbyPeer, LobbyPlayer> peerToLobbyPlayer = new Dictionary<LobbyPeer, LobbyPlayer>();
@@ -19,6 +15,7 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 	public FriendsList friends;
 	public string[] followers;
 	public PlayerStats stats;
+	public PlayerStats ffaStats;
 	public CharacterStats charStats;
 	public ArtifactTree artifactTree;
 	public ArtifactInventory artifactInventory;
@@ -45,6 +42,7 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 		account = nAccount;
 		peer = AccountManager.Master.GetLoggedInPeer(account);
 		stats = null;
+		ffaStats = null;
 		custom = null;
 		friends = null;
 		followers = null;
@@ -54,7 +52,7 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 		statusObservers = new HashSet<LobbyPlayer>();
 		accountsWhereInfoIsRequired = new HashSet<string>();
 		channels = new List<LobbyChatChannel>();
-		chatMember = new ChatMember(_name, ChatMemberStatus.Online);
+		chatMember = new ChatMember(_name, OnlineStatus.Online);
 		//artifactInventories = new Inventory();
 		
 		LobbyPlayer.list.Add(this);
@@ -158,12 +156,12 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 					_gameInstance.mapChannel.AddPlayer(this);
 				
 				if(inMatch || inFFA)
-					this.chatMember.status = ChatMemberStatus.InMatch;
+					this.chatMember.status = OnlineStatus.InMatch;
 			// Value is null
 			} else {
 				OnLeaveInstance();
 				
-				this.chatMember.status = ChatMemberStatus.Online;
+				this.chatMember.status = OnlineStatus.Online;
 				_gameInstance = value;
 			}
 			
@@ -239,9 +237,9 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 			_queue = value;
 			
 			if(_queue != null)
-				this.chatMember.status = ChatMemberStatus.InQueue;
+				this.chatMember.status = OnlineStatus.InQueue;
 			else
-				this.chatMember.status = ChatMemberStatus.Online;
+				this.chatMember.status = OnlineStatus.Online;
 			
 			this.BroadcastStatus();
 		}

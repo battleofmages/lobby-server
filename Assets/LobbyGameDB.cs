@@ -67,6 +67,15 @@ public class LobbyGameDB : SingletonMonoBehaviour<LobbyGameDB> {
 		));
 	}
 	
+	// Get FFA stats for a single player
+	public IEnumerator GetPlayerFFAStats(string accountId, GameDB.ActionOnResult<PlayerStats> func) {
+		yield return StartCoroutine(GameDB.Get<PlayerStats>(
+			"AccountToFFAStats",
+			accountId,
+			func
+		));
+	}
+	
 	// Sets last login date
 	public IEnumerator SetLastLoginDate(LobbyPlayer player, System.DateTime timestamp) {
 		yield return StartCoroutine(GameDB.Set<TimeStamp>(

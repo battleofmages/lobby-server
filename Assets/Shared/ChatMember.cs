@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public enum ChatMemberStatus {
+public enum OnlineStatus {
 	Offline,
 	Online,
 	InQueue,
@@ -11,22 +11,22 @@ public enum ChatMemberStatus {
 
 public class ChatMember {
 	public string name;
-	public ChatMemberStatus status;
+	public OnlineStatus status;
 
 	// Constructor
 	public ChatMember() {
 		name = "";
-		status = ChatMemberStatus.Offline;
+		status = OnlineStatus.Offline;
 	}
 
 	// Constructor
 	public ChatMember(string nName) {
 		name = nName;
-		status = ChatMemberStatus.Offline;
+		status = OnlineStatus.Offline;
 	}
 
 	// Constructor
-	public ChatMember(string nName, ChatMemberStatus nStatus) {
+	public ChatMember(string nName, OnlineStatus nStatus) {
 		name = nName;
 		status = nStatus;
 	}
@@ -34,7 +34,7 @@ public class ChatMember {
 	// Constructor
 	public ChatMember(string nName, byte nStatus) {
 		name = nName;
-		status = (ChatMemberStatus)nStatus;
+		status = (OnlineStatus)nStatus;
 	}
 	
 	public static void WriteToBitStream(uLink.BitStream stream, object val, params object[] args) {

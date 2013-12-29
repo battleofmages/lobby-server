@@ -30,16 +30,19 @@ public class CharacterCustomization {
 		stockingsColor = Color.white;
 	}
 	
+#if !LOBBY_SERVER
 	// Update materials
 	public void UpdateMaterials(Transform previewModel) {
 		if(previewModel == null)
 			return;
 		
-		var hairMaterial = previewModel.FindChild("Hair").renderer.material;
-		var eyesMaterial = previewModel.FindChild("Eyes").renderer.material;
-		var clothesMaterial = previewModel.FindChild("Clothes").renderer.materials[0];
-		var skirtMaterial = previewModel.FindChild("Clothes").renderer.materials[1];
-		var stockingsMaterial = previewModel.FindChild("Body").renderer.materials[1];
+		var charDefinition = previewModel.GetComponent<CharacterDefinition>();
+		
+		var hairMaterial = charDefinition.hair.renderer.material;
+		var eyesMaterial = charDefinition.eyes.renderer.material;
+		var clothesMaterial = charDefinition.cloak.renderer.material;
+		var skirtMaterial = charDefinition.legWear.renderer.material;
+		var stockingsMaterial = charDefinition.boots.renderer.material;
 		
 		hairMaterial.color = this.hairColor;
 		eyesMaterial.color = this.eyeColor;
@@ -63,6 +66,7 @@ public class CharacterCustomization {
 			return CharacterCustomization.baseVoicePitch + (voicePitch - 0.5f) * CharacterCustomization.voicePitchMultiplier;
 		}
 	}
+#endif
 	
 	// Writer
 	public static void JsonSerializer(Jboy.JsonWriter writer, object instance) {

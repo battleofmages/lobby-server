@@ -5,6 +5,7 @@ using uLobby;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
 
 public class GameDB {
 	public static bool codecsInitialized = false;
@@ -173,9 +174,9 @@ public class GameDB {
 	// Format on success
 	static string FormatSuccess(string key, string operation, string bucketName, object val) {
 		if(operation != "get")
-			return Resolve(key) + "." + operation + FormatBucketName(bucketName) + "(" + val.ToString() + ")";
+			return Resolve(key) + "." + operation + FormatBucketName(bucketName) + "(" + (val != null ? val.ToString() : "null") + ")";
 		
-		return Resolve(key) + "." + operation + FormatBucketName(bucketName) + "() -> " + val.ToString();
+		return Resolve(key) + "." + operation + FormatBucketName(bucketName) + "() -> " + (val != null ? val.ToString() : "null");
 	}
 	
 	// Format on fail
@@ -185,32 +186,40 @@ public class GameDB {
 	
 	// Get
 	public static IEnumerator Get<T>(string bucketName, string key, ActionOnResult<T> func) {
+		var stopWatch = Stopwatch.StartNew();
+		
 		var bucket = new Bucket(bucketName);
 		var request = bucket.Get(key);
 		yield return request.WaitUntilDone();
 		
+		stopWatch.Stop();
+		
 		if(request.isSuccessful) {
 			T val = request.GetValue<T>();
-			LogManager.DB.Log(FormatSuccess(key, "get", bucketName, val));
+			LogManager.DB.Log(FormatSuccess(key, "get", bucketName, val) + " (" + stopWatch.ElapsedMilliseconds + " ms)");
 			func(val);
 		} else {
-			LogManager.DB.LogWarning(FormatFail(key, "get", bucketName));
+			LogManager.DB.LogWarning(FormatFail(key, "get", bucketName) + " (" + stopWatch.ElapsedMilliseconds + " ms)");
 			func(default(T));
 		}
 	}
 	
 	// Set
 	public static IEnumerator Set<T>(string bucketName, string key, T val, ActionOnResult<T> func) {
+		var stopWatch = Stopwatch.StartNew();
+		
 		var bucket = new Bucket(bucketName);
 		var request = bucket.Set(key, val, Encoding.Json);
 		yield return request.WaitUntilDone();
 		
+		stopWatch.Stop();
+		
 		if(request.isSuccessful) {
-			LogManager.DB.Log(FormatSuccess(key, "set", bucketName, val));
+			LogManager.DB.Log(FormatSuccess(key, "set", bucketName, val) + " (" + stopWatch.ElapsedMilliseconds + " ms)");
 			if(func != null)
 				func(val);
 		} else {
-			LogManager.DB.LogWarning(FormatFail(key, "set", bucketName));
+			LogManager.DB.LogWarning(FormatFail(key, "set", bucketName) + " (" + stopWatch.ElapsedMilliseconds + " ms)");
 			if(func != null)
 				func(default(T));
 		}
@@ -218,37 +227,48 @@ public class GameDB {
 	
 	// Put
 	public static IEnumerator Put<T>(string bucketName, T val, PutActionOnResult<T> func) {
+		var stopWatch = Stopwatch.StartNew();
+		
 		var bucket = new Bucket(bucketName);
 		var request = bucket.SetGeneratedKey(val, Encoding.Json);
 		yield return request.WaitUntilDone();
 		
+		stopWatch.Stop();
+		
 		if(request.isSuccessful) {
 			string generatedKey = request.GetGeneratedKey();
 			
-			LogManager.DB.Log(FormatSuccess(generatedKey, "put", bucketName, val));
+			LogManager.DB.Log(FormatSuccess(generatedKey, "put", bucketName, val) + " (" + stopWatch.ElapsedMilliseconds + " ms)");
 			func(generatedKey, val);
 		} else {
-			LogManager.DB.LogWarning(FormatFail("", "put", bucketName));
+			LogManager.DB.LogWarning(FormatFail("", "put", bucketName) + " (" + stopWatch.ElapsedMilliseconds + " ms)");
 			func(default(string), default(T));
 		}
 	}
 	
 	// Remove
 	public static IEnumerator Remove(string bucketName, string key, ActionOnResult<bool> func) {
+		var stopWatch = Stopwatch.StartNew();
+		
 		var bucket = new Bucket(bucketName);
 		var request = bucket.Remove(key);
 		yield return request.WaitUntilDone();
 		
+		stopWatch.Stop();
+		
 		if(request.isSuccessful) {
+			LogManager.DB.Log(FormatSuccess(key, "remove", bucketName, null) + " (" + stopWatch.ElapsedMilliseconds + " ms)");
 			func(true);
 		} else {
-			LogManager.DB.LogWarning(FormatFail(key, "remove", bucketName));
+			LogManager.DB.LogWarning(FormatFail(key, "remove", bucketName) + " (" + stopWatch.ElapsedMilliseconds + " ms)");
 			func(false);
 		}
 	}
 	
 	// MapReduce
 	public static IEnumerator MapReduce<T>(string bucketName, string jsMapPhase, string jsReducePhase, object argument, ActionOnResult<T[]> func) {
+		var stopWatch = Stopwatch.StartNew();
+		
 		var bucket = new Bucket(bucketName);
 		var mapReduceRequest = bucket.MapReduce(
 			new JavaScriptMapPhase(jsMapPhase),
@@ -258,15 +278,17 @@ public class GameDB {
 		// Wait until the request finishes
 		yield return mapReduceRequest.WaitUntilDone();
 		
+		stopWatch.Stop();
+		
 		string logInfo = logBucketPrefix + bucketName + logBucketMid + argument.ToString() + logBucketPostfix;
 		
 		if(mapReduceRequest.isSuccessful) {
 			var results = mapReduceRequest.GetResult<T>().ToArray();
 			
-			LogManager.DB.Log("MapReduce successful: " + logInfo + " -> " + typeof(T).ToString() + "[" + results.Length + "]");
+			LogManager.DB.Log("MapReduce successful: " + logInfo + " -> " + typeof(T).ToString() + "[" + results.Length + "] (" + stopWatch.ElapsedMilliseconds + " ms)");
 			func(results);
 		} else {
-			LogManager.DB.LogWarning("MapReduce failed: " + logInfo + " -> " + mapReduceRequest.GetErrorString());
+			LogManager.DB.LogWarning("MapReduce failed: " + logInfo + " -> " + mapReduceRequest.GetErrorString() + " (" + stopWatch.ElapsedMilliseconds + " ms)");
 			func(default(T[]));
 		}
 	}

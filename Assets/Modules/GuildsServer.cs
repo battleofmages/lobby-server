@@ -34,7 +34,7 @@ public class GuildsServer : MonoBehaviour {
 	// Once we have the guild ID list, send it to the player
 	public static void SendGuildList(LobbyPlayer player) {
 		string guildListString = Jboy.Json.WriteObject(player.guildList);
-		Lobby.RPC("ReceiveGuildList", player.peer, guildListString);
+		Lobby.RPC("ReceiveGuildList", player.peer, player.accountId, guildListString);
 	}
 	
 	// --------------------------------------------------------------------------------

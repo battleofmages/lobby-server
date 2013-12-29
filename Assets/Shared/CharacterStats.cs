@@ -1,5 +1,14 @@
 [System.Serializable]
 public class CharacterStats : JsonSerializable<CharacterStats> {
+	public static string[] statNames = new string[] {
+		"Attack",
+		"Defense",
+		"Energy",
+		"Cooldown Reduction",
+		"Attack Speed",
+		"Move Speed"
+	};
+	
 	public int attack;
 	public int defense;
 	public int block;

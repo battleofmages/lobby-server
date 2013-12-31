@@ -10,12 +10,14 @@ public class LobbyChatChannel {
 	public List<LobbyPlayer> members;
 	public string name;
 	
+	// Constructor
 	public LobbyChatChannel(string channelName) {
 		members = new List<LobbyPlayer>();
 		name = channelName;
 		channels[channelName] = this;
 	}
 	
+	// Unregister
 	public void Unregister() {
 		var copiedMemberList = new List<LobbyPlayer>(members);
 		foreach(var member in copiedMemberList) {
@@ -26,14 +28,17 @@ public class LobbyChatChannel {
 			LobbyChatChannel.channels.Remove(name);
 	}
 	
+	// Is game channel
 	public bool isGameChannel {
 		get { return name.IndexOf('@') != -1; }
 	}
 	
+	// BroadcastMessage
 	public void BroadcastMessage(string msg) {
 		this.Broadcast(p => Lobby.RPC("Chat", p.peer, this.name, "", msg));
 	}
 	
+	// BroadcastMessage
 	public void BroadcastMessage(string playerName, string msg) {
 		this.Broadcast(p => Lobby.RPC("Chat", p.peer, this.name, playerName, msg));
 	}
@@ -55,6 +60,7 @@ public class LobbyChatChannel {
 		}
 	}
 	
+	// AddPlayer
 	public void AddPlayer(LobbyPlayer player) {
 		this.SendMemberListToPlayer(player);
 		
@@ -64,11 +70,12 @@ public class LobbyChatChannel {
 		this.Broadcast(p => Lobby.RPC("ChatJoin", p.peer, this.name, player.chatMember));
 	}
 	
+	// RemovePlayer
 	public void RemovePlayer(LobbyPlayer player) {
 		bool removedMember = members.Remove(player);
 		
 		if(player.channels.Remove(this) && removedMember) {
-			this.Broadcast(p => Lobby.RPC("ChatLeave", p.peer, this.name, player.chatMember.name));
+			this.Broadcast(p => Lobby.RPC("ChatLeave", p.peer, this.name, player.chatMember));
 		}
 		
 		// TODO: If someone connects first and instantly disconnects, this would be a bug
@@ -77,7 +84,9 @@ public class LobbyChatChannel {
 		}*/
 	}
 	
+	// SendMemberListToPlayer
 	public void SendMemberListToPlayer(LobbyPlayer player) {
+		// Convert to simple array
 		var chatMemberList = this.members.Select(o => o.chatMember).ToArray();
 		//Debug.Log ("Sending " + chatMemberList + " list with " + chatMemberList.Length + " entries");
 		

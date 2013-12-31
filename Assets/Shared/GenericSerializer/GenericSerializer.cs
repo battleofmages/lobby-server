@@ -179,6 +179,12 @@ public class GenericSerializer {
 			
 			if(success) {
 				var field = typeInfo.GetField(propName);
+				
+				if(field == null) {
+					LogManager.DB.LogError("Field does not exist: '" + propName + "'");
+					continue;
+				}
+				
 				if(!field.IsStatic)
 					field.SetValue(instance, GenericSerializer.ReadJSONValue(reader, field));
 			} else {

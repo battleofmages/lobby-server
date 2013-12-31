@@ -27,6 +27,29 @@ public class FriendsList : JsonSerializable<FriendsList> {
 		return groups.Find(grp => grp.name == groupName);
 	}
 	
+	// ContainsAccount
+	public bool ContainsAccount(string accountId) {
+		foreach(var grp in groups) {
+			foreach(var friend in grp.friends) {
+				if(friend.accountId == accountId)
+					return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	// All friends
+	public System.Collections.Generic.IEnumerable<Friend> allFriends {
+		get {
+			foreach(var grp in groups) {
+				foreach(var friend in grp.friends) {
+					yield return friend;
+				}
+			}
+		}
+	}
+	
 	// CanAdd
 	public bool CanAdd(string accountId) {
 		foreach(var grp in groups) {

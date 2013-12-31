@@ -4,30 +4,35 @@ using System.Collections;
 [System.Serializable]
 public class CharacterCustomization {
 	public const float baseHeight = 1f;
-	public const float baseVoicePitch = 1.12f;
+	public const float baseVoicePitch = 1f;//1.12f;
 	
-	public const float heightMultiplier = 0.25f;
-	public const float voicePitchMultiplier = 0.12f;
+	public const float heightMultiplier = 0.35f;
+	public const float voicePitchMultiplier = 0.15f;//0.12f;
 	
 	public float height;
 	public float voicePitch;
+	
+	public Color skinColor;
 	public Color hairColor;
 	public Color eyeColor;
 	public Color eyeBackgroundColor;
-	public Color clothesColor;
-	public Color skirtColor;
-	public Color stockingsColor;
+	public Color cloakColor;
+	public Color topWearColor;
+	public Color legWearColor;
+	public Color bootsColor;
 	
 	// Constructor
 	public CharacterCustomization() {
 		height = 0.5f;
 		voicePitch = 0.5f;
-		hairColor = Color.white;
-		eyeColor = Color.white;
+		skinColor = Color.white;
+		hairColor = Color.gray;
+		eyeColor = Color.gray;
 		eyeBackgroundColor = Color.white;
-		clothesColor = Color.white;
-		skirtColor = Color.white;
-		stockingsColor = Color.white;
+		cloakColor = new Color(0.3f, 0.3f, 0.3f, 1f);
+		topWearColor = Color.gray;
+		legWearColor = Color.gray;
+		bootsColor = Color.gray;
 	}
 	
 #if !LOBBY_SERVER
@@ -41,15 +46,17 @@ public class CharacterCustomization {
 		var hairMaterial = charDefinition.hair.renderer.material;
 		var eyesMaterial = charDefinition.eyes.renderer.material;
 		var clothesMaterial = charDefinition.cloak.renderer.material;
+		var topWearMaterial = charDefinition.topWear.renderer.material;
 		var skirtMaterial = charDefinition.legWear.renderer.material;
 		var stockingsMaterial = charDefinition.boots.renderer.material;
 		
 		hairMaterial.color = this.hairColor;
 		eyesMaterial.color = this.eyeColor;
 		eyesMaterial.SetColor("_BackgroundColor", this.eyeBackgroundColor);
-		clothesMaterial.color = this.clothesColor;
-		skirtMaterial.color = this.skirtColor;
-		stockingsMaterial.color = this.stockingsColor;
+		clothesMaterial.color = this.cloakColor;
+		topWearMaterial.color = this.topWearColor;
+		skirtMaterial.color = this.legWearColor;
+		stockingsMaterial.color = this.bootsColor;
 	}
 	
 	// Scale vector
@@ -83,12 +90,14 @@ public class CharacterCustomization {
 		var myObj = (CharacterCustomization)val;
 		stream.Write<float>(myObj.height);
 		stream.Write<float>(myObj.voicePitch);
+		stream.Write<Color>(myObj.skinColor);
 		stream.Write<Color>(myObj.hairColor);
 		stream.Write<Color>(myObj.eyeColor);
 		stream.Write<Color>(myObj.eyeBackgroundColor);
-		stream.Write<Color>(myObj.clothesColor);
-		stream.Write<Color>(myObj.skirtColor);
-		stream.Write<Color>(myObj.stockingsColor);
+		stream.Write<Color>(myObj.cloakColor);
+		stream.Write<Color>(myObj.topWearColor);
+		stream.Write<Color>(myObj.legWearColor);
+		stream.Write<Color>(myObj.bootsColor);
 	}
 	
 	// BitStream Reader
@@ -96,12 +105,14 @@ public class CharacterCustomization {
 		var myObj = new CharacterCustomization();
 		myObj.height = stream.Read<float>();
 		myObj.voicePitch = stream.Read<float>();
+		myObj.skinColor = stream.Read<Color>();
 		myObj.hairColor = stream.Read<Color>();
 		myObj.eyeColor = stream.Read<Color>();
 		myObj.eyeBackgroundColor = stream.Read<Color>();
-		myObj.clothesColor = stream.Read<Color>();
-		myObj.skirtColor = stream.Read<Color>();
-		myObj.stockingsColor = stream.Read<Color>();
+		myObj.cloakColor = stream.Read<Color>();
+		myObj.topWearColor = stream.Read<Color>();
+		myObj.legWearColor = stream.Read<Color>();
+		myObj.bootsColor = stream.Read<Color>();
 		return myObj;
 	}
 }

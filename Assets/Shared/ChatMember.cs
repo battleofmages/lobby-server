@@ -1,50 +1,27 @@
 using UnityEngine;
 using System.Collections;
 
-public enum OnlineStatus {
-	Offline,
-	Online,
-	InQueue,
-	InMatch,
-	AFK
-}
-
 public class ChatMember {
-	public string name;
-	public OnlineStatus status;
+	// TODO: Change to account IDs
+	public string accountId;
 
 	// Constructor
 	public ChatMember() {
-		name = "";
-		status = OnlineStatus.Offline;
+		accountId = "";
 	}
 
 	// Constructor
 	public ChatMember(string nName) {
-		name = nName;
-		status = OnlineStatus.Offline;
-	}
-
-	// Constructor
-	public ChatMember(string nName, OnlineStatus nStatus) {
-		name = nName;
-		status = nStatus;
-	}
-
-	// Constructor
-	public ChatMember(string nName, byte nStatus) {
-		name = nName;
-		status = (OnlineStatus)nStatus;
+		accountId = nName;
 	}
 	
 	public static void WriteToBitStream(uLink.BitStream stream, object val, params object[] args) {
 		ChatMember myObj = (ChatMember)val;
-		stream.WriteString(myObj.name);
-		stream.WriteByte((byte)myObj.status);
+		stream.WriteString(myObj.accountId);
 	}
 	
 	public static object ReadFromBitStream(uLink.BitStream stream, params object[] args) {
-		ChatMember myObj = new ChatMember(stream.ReadString(), stream.ReadByte());
+		ChatMember myObj = new ChatMember(stream.ReadString());
 		return myObj;
 	}
 }

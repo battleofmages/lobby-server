@@ -7,7 +7,7 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 
 public class Mail {
-	public static void Send(string to, string subject, string body, string mailFrom = "noreply@battle-of-mages.com") {
+	public static void Send(string to, string subject, string body, string mailFrom = "noreply@battleofmages.com") {
 		MailMessage mail = new MailMessage();
 		
 		mail.From = new MailAddress(mailFrom);

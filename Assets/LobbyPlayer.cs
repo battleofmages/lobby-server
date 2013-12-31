@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using uLobby;
 
 public class LobbyPlayer : PartyMember<LobbyPlayer> {
@@ -13,7 +14,6 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 	public CharacterCustomization custom;
 	public ChatMember chatMember;
 	public FriendsList friends;
-	public string[] followers;
 	public PlayerStats stats;
 	public PlayerStats ffaStats;
 	public CharacterStats charStats;
@@ -26,7 +26,10 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 	public HashSet<LobbyPlayer> statusObservers;
 	public HashSet<string> accountsWhereInfoIsRequired;
 	
+	private string[] _followers;
+	private OnlineStatus _onlineStatus;
 	private LobbyParty _party;
+	private HashSet<LobbyPlayer> playersReceivedStatus;
 	
 	public List<LobbyChatChannel> channels;
 	
@@ -41,23 +44,38 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 	public LobbyPlayer(Account nAccount) {
 		account = nAccount;
 		peer = AccountManager.Master.GetLoggedInPeer(account);
+		
+		statusObservers = new HashSet<LobbyPlayer>();
+		statusObservers.Add(this);
+		
 		stats = null;
 		ffaStats = null;
 		custom = null;
 		friends = null;
-		followers = null;
+		_followers = null;
 		_party = new LobbyParty();
 		_gameInstance = null;
 		artifactsEditingFlag = false;
-		statusObservers = new HashSet<LobbyPlayer>();
-		accountsWhereInfoIsRequired = new HashSet<string>();
 		channels = new List<LobbyChatChannel>();
-		chatMember = new ChatMember(_name, OnlineStatus.Online);
-		//artifactInventories = new Inventory();
+		chatMember = new ChatMember(account.id.value);
+		
+		accountsWhereInfoIsRequired = new HashSet<string>();
 		
 		LobbyPlayer.list.Add(this);
 		LobbyPlayer.accountIdToLobbyPlayer[account.id.value] = this;
 		LobbyPlayer.peerToLobbyPlayer[peer] = this;
+	}
+	
+	// Online status
+	public OnlineStatus onlineStatus {
+		get {
+			return _onlineStatus;
+		}
+		
+		set {
+			_onlineStatus = value;
+			BroadcastStatus();
+		}
 	}
 	
 	// Player name
@@ -68,7 +86,18 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 		
 		set {
 			_name = value;
-			chatMember.name = value;
+		}
+	}
+	
+	// Followers
+	public string[] followers {
+		get {
+			return _followers;
+		}
+		
+		set {
+			_followers = value;
+			this.BroadcastStatus();
 		}
 	}
 	
@@ -108,6 +137,7 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 		foreach(var friendAccountId in accountsWhereInfoIsRequired) {
 			string friendName = null;
 			
+			// Send name
 			if(GameDB.accountIdToName.TryGetValue(friendAccountId, out friendName)) {
 				Lobby.RPC("ReceivePlayerInfo", peer, friendAccountId, friendName);
 			} else {
@@ -115,11 +145,16 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 					LobbyGameDB.instance.GetPlayerName(friendAccountId, data => {
 						if(data != null) {
 							GameDB.accountIdToName[friendAccountId] = data;
-							Lobby.RPC("ReceivePlayerInfo", peer, friendAccountId, data);
+							Lobby.RPC("ReceivePlayerInfo", this.peer, friendAccountId, data);
 						}
 					})
 				);
 			}
+			
+			// Send initial online status
+			LobbyPlayer player;
+			if(accountIdToLobbyPlayer.TryGetValue(friendAccountId, out player))
+				Lobby.RPC("ReceiveOnlineStatus", this.peer, friendAccountId, player.onlineStatus);
 		}
 	}
 	
@@ -156,12 +191,12 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 					_gameInstance.mapChannel.AddPlayer(this);
 				
 				if(inMatch || inFFA)
-					this.chatMember.status = OnlineStatus.InMatch;
+					this.onlineStatus = OnlineStatus.InMatch;
 			// Value is null
 			} else {
 				OnLeaveInstance();
 				
-				this.chatMember.status = OnlineStatus.Online;
+				this.onlineStatus = OnlineStatus.Online;
 				_gameInstance = value;
 			}
 			
@@ -237,9 +272,9 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 			_queue = value;
 			
 			if(_queue != null)
-				this.chatMember.status = OnlineStatus.InQueue;
+				this.onlineStatus = OnlineStatus.InQueue;
 			else
-				this.chatMember.status = OnlineStatus.Online;
+				this.onlineStatus = OnlineStatus.Online;
 			
 			this.BroadcastStatus();
 		}
@@ -259,14 +294,49 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 		}
 	}
 	
-	// Update the status
+	// Broadcast status
 	void BroadcastStatus() {
-		foreach(var player in statusObservers) {
-			Lobby.RPC("ReceivePlayerStatus", player.peer, this.accountId, this.chatMember.status);
-		}
+		playersReceivedStatus = new HashSet<LobbyPlayer>();
 		
-		foreach(var channel in channels) {
-			channel.Broadcast(p => Lobby.RPC("ChatStatus", p.peer, channel.name, this.chatMember));
+		// Status observers
+		BroadcastStatus(statusObservers);
+		
+		// Friends
+		if(friends != null)
+			BroadcastStatus(from friend in friends.allFriends select friend.accountId);
+		
+		// Followers
+		if(followers != null)
+			BroadcastStatus(followers);
+	}
+	
+	// Broadcast status to a group of players
+	void BroadcastStatus(IEnumerable<LobbyPlayer> players) {
+		foreach(var player in players) {
+			if(!Lobby.IsPeerConnected(player.peer))
+				continue;
+			
+			if(!playersReceivedStatus.Contains(player)) {
+				Lobby.RPC("ReceiveOnlineStatus", player.peer, this.accountId, _onlineStatus);
+				playersReceivedStatus.Add(player);
+			}
+		}
+	}
+	
+	// Broadcast status to a group of account IDs
+	void BroadcastStatus(IEnumerable<string> accountIds) {
+		LobbyPlayer player;
+		foreach(var accountId in accountIds) {
+			if(!accountIdToLobbyPlayer.TryGetValue(accountId, out player))
+				continue;
+			
+			if(!Lobby.IsPeerConnected(player.peer))
+				continue;
+			
+			if(!playersReceivedStatus.Contains(player)) {
+				Lobby.RPC("ReceiveOnlineStatus", player.peer, this.accountId, _onlineStatus);
+				playersReceivedStatus.Add(player);
+			}
 		}
 	}
 	

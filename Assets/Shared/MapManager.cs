@@ -8,18 +8,21 @@ public class MapManager {
 	// Towns
 	public static string[] towns = new string[] {
 		"Alpha Tester Grounds",
+		//"Nubek"
 		//"El Thea",
 		//"Tamburin",
 	};
 	
 	// Arenas
 	public static string[] arenas = new string[] {
-		"Alpha Tester Grounds",
+		//"Alpha Tester Grounds",
+		"Ruins"
 	};
 	
 	// FFA maps
 	public static string[] ffaMaps = new string[] {
 		"Alpha Tester Grounds",
+		//"Nubek",
 	};
 	
 #if !LOBBY_SERVER

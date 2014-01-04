@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 [System.Serializable]
 public class FriendsList : JsonSerializable<FriendsList> {
@@ -49,6 +50,15 @@ public class FriendsList : JsonSerializable<FriendsList> {
 			}
 		}
 	}
+	
+#if !LOBBY_SERVER
+	// Online count
+	public int onlineCount {
+		get {
+			return allFriends.Count(friend => PlayerAccount.Get(friend.accountId).onlineStatus != OnlineStatus.Offline);
+		}
+	}
+#endif
 	
 	// CanAdd
 	public bool CanAdd(string accountId) {

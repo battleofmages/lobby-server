@@ -70,9 +70,9 @@ public class uLinkInstantiatePool : uLink.MonoBehaviour
 
 		for (int i = 0; i < minSize; i++)
 		{
-			uLink.NetworkView instance = (uLink.NetworkView)Instantiate(prefab);
+			uLink.NetworkView instance = (uLink.NetworkView)Instantiate(prefab); // will trigger callback message "Awake" and "OnEnable" (networkView.viewID == unassigned).
 
-			SetActive(instance, false);
+			SetActive(instance, false); // will trigger callback message "OnDisable" (networkView.viewID == unassigned).
 
 			instance.transform.parent = parent;
 
@@ -105,21 +105,21 @@ public class uLinkInstantiatePool : uLink.MonoBehaviour
 
 			args.SetupNetworkView(instance);
 
-			SetActive(instance, true);
+			SetActive(instance, true); // will trigger callback message "OnEnable" (networkView.viewID != unassigned).
 		}
 		else
 		{
-			instance = uLink.NetworkInstantiatorUtility.Instantiate(prefab, args);
+			instance = uLink.NetworkInstantiatorUtility.Instantiate(prefab, args); // will trigger callback message "Awake" and "OnEnable" (networkView.viewID != unassigned).
 		}
 
-		uLink.NetworkInstantiatorUtility.BroadcastOnNetworkInstantiate(instance, info);
+		uLink.NetworkInstantiatorUtility.BroadcastOnNetworkInstantiate(instance, info); // will trigger callback message "OnNetworkInstantiate".
 
 		return instance;
 	}
 
 	private void Destroyer(uLink.NetworkView instance)
 	{
-		SetActive(instance, false);
+		SetActive(instance, false); // will trigger callback message "OnDisable" (networkView.viewID != unassigned).
 
 		pool.Push(instance);
 	}

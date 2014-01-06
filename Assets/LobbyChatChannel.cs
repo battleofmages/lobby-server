@@ -67,7 +67,7 @@ public class LobbyChatChannel {
 		members.Add(player);
 		player.channels.Add(this);
 		
-		this.Broadcast(p => Lobby.RPC("ChatJoin", p.peer, this.name, player.chatMember));
+		this.Broadcast(p => Lobby.RPC("ChatJoin", p.peer, this.name, player.chatMember, player.name));
 	}
 	
 	// RemovePlayer

@@ -139,13 +139,15 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 			
 			// Send name
 			if(GameDB.accountIdToName.TryGetValue(friendAccountId, out friendName)) {
-				Lobby.RPC("ReceivePlayerInfo", peer, friendAccountId, friendName);
+				Lobby.RPC("ReceivePlayerName", peer, friendAccountId, friendName);
 			} else {
+				string lambdaAccountId = friendAccountId;
+				
 				LobbyServer.instance.StartCoroutine(
-					LobbyGameDB.instance.GetPlayerName(friendAccountId, data => {
+					LobbyGameDB.instance.GetPlayerName(lambdaAccountId, data => {
 						if(data != null) {
-							GameDB.accountIdToName[friendAccountId] = data;
-							Lobby.RPC("ReceivePlayerInfo", this.peer, friendAccountId, data);
+							GameDB.accountIdToName[lambdaAccountId] = data;
+							Lobby.RPC("ReceivePlayerName", this.peer, lambdaAccountId, data);
 						}
 					})
 				);

@@ -70,7 +70,7 @@ public class CharacterCustomization {
 	// Final voice pitch
 	public float finalVoicePitch {
 		get {
-			return CharacterCustomization.baseVoicePitch + (voicePitch - 0.5f) * CharacterCustomization.voicePitchMultiplier;
+			return CharacterCustomization.baseVoicePitch - (voicePitch - 0.5f) * CharacterCustomization.voicePitchMultiplier;
 		}
 	}
 #endif

@@ -30,7 +30,7 @@ public class LobbyGameDB : SingletonMonoBehaviour<LobbyGameDB> {
 					Lobby.RPC("PlayerNameChangeError", player.peer);
 				} else {
 					player.name = data;
-					Lobby.RPC("ReceivePlayerInfo", player.peer, player.accountId, player.name);
+					Lobby.RPC("ReceivePlayerName", player.peer, player.accountId, player.name);
 					LobbyServer.OnReceivePlayerName(player);
 				}
 			}

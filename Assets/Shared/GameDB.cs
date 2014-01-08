@@ -22,6 +22,30 @@ public class GameDB {
 	public static int maxGuildTagLength = 4;
 	public static int numRankingPages = 7;
 	
+	// Generic KeyValue map function
+	public const string keyValueMapFunction =
+		@"
+		function(value, keydata, arg) {
+			var parsedData = JSON.parse(value.values[0].data);
+			
+			var obj = new Object();
+			obj.key = value.key;
+			obj.val = parsedData;
+			
+			return [obj];
+		}
+		";
+	
+	// RegisterClassCodecs
+	private static void RegisterClassCodecs(System.Type genericType) {
+		foreach(var type in GetAllTypesImplementingGenericType(genericType)) {
+			if(!type.IsGenericType) {
+				var baseClassType = genericType.MakeGenericType(type);
+				System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(baseClassType.TypeHandle);
+			}
+		}
+	}
+	
 	// Initializes serialization codecs
 	public static void InitCodecs() {
 		// Prevent double call
@@ -31,27 +55,24 @@ public class GameDB {
 		// Log
 		LogManager.DB.Log("Initializing database codecs");
 		
+		// Register codecs automatically
+		RegisterClassCodecs(typeof(JsonSerializable<>));
+		
+		// Force static constructor calls to register JSON MapReduce codecs
+		new KeyValue<string>();
+		new KeyValue<TimeStamp>();
+		
 		// Register JSON codec for player statistics
 		Json.AddCodec<PlayerStats>(PlayerStats.JsonDeserializer, PlayerStats.JsonSerializer);
 		Json.AddCodec<PlayerQueueStats>(PlayerQueueStats.JsonDeserializer, PlayerQueueStats.JsonSerializer);
-		Json.AddCodec<CharacterStats>(CharacterStats.JsonDeserializer, CharacterStats.JsonSerializer);
 		Json.AddCodec<InputControl>(InputControl.JsonDeserializer, InputControl.JsonSerializer);
 		Json.AddCodec<InputSettings>(InputSettings.JsonDeserializer, InputSettings.JsonSerializer);
 		Json.AddCodec<TimeStamp>(TimeStamp.JsonDeserializer, TimeStamp.JsonSerializer);
-		Json.AddCodec<GuildMember>(GuildMember.JsonDeserializer, GuildMember.JsonSerializer);
-		Json.AddCodec<Guild>(Guild.JsonDeserializer, Guild.JsonSerializer);
-		Json.AddCodec<GuildList>(GuildList.JsonDeserializer, GuildList.JsonSerializer);
 		Json.AddCodec<CharacterCustomization>(CharacterCustomization.JsonDeserializer, CharacterCustomization.JsonSerializer);
-		Json.AddCodec<PaymentsList>(PaymentsList.JsonDeserializer, PaymentsList.JsonSerializer);
-
-		// Register JSON codecs for friends lists
-		Json.AddCodec<FriendsGroup>(FriendsGroup.JsonDeserializer, FriendsGroup.JsonSerializer);
-		Json.AddCodec<FriendsList>(FriendsList.JsonDeserializer, FriendsList.JsonSerializer);
-		Json.AddCodec<Friend>(Friend.JsonDeserializer, Friend.JsonSerializer);
 		
-		// Register JSON codecs for integrated types
-		Json.AddCodec<Color>(GenericSerializer.ColorJsonDeserializer, GenericSerializer.ColorJsonSerializer);
-		Json.AddCodec<Texture2D>(GenericSerializer.Texture2DJsonDeserializer, GenericSerializer.Texture2DJsonSerializer);
+		// Register JSON codecs for Guilds
+		Json.AddCodec<GuildMember>(GuildMember.JsonDeserializer, GuildMember.JsonSerializer);
+		Json.AddCodec<GuildList>(GuildList.JsonDeserializer, GuildList.JsonSerializer);
 		
 		// Register JSON codecs for Artifacts
 		Json.AddCodec<Artifact>(Artifact.JsonDeserializer, Artifact.JsonSerializer);
@@ -63,14 +84,12 @@ public class GameDB {
 		Json.AddCodec<Inventory>(Inventory.JsonDeserializer, Inventory.JsonSerializer);
 		Json.AddCodec<ItemSlot>(ItemSlot.JsonDeserializer, ItemSlot.JsonSerializer);
 		
-		// Register JSON codecs for SkillBuilds
-		Json.AddCodec<SkillBuild>(SkillBuild.JsonDeserializer, SkillBuild.JsonSerializer);
-		Json.AddCodec<WeaponBuild>(WeaponBuild.JsonDeserializer, WeaponBuild.JsonSerializer);
-		Json.AddCodec<AttunementBuild>(AttunementBuild.JsonDeserializer, AttunementBuild.JsonSerializer);
-		
 		// Register JSON codecs for MapReduce entries
 		Json.AddCodec<RankEntry>(RankEntry.JsonDeserializer, RankEntry.JsonSerializer);
-		Json.AddCodec<KeyToValueEntry>(KeyToValueEntry.JsonDeserializer, KeyToValueEntry.JsonSerializer);
+		
+		// Register JSON codecs for integrated types
+		Json.AddCodec<Color>(ColorSerializer.JsonDeserializer, ColorSerializer.JsonSerializer);
+		Json.AddCodec<Texture2D>(Texture2DSerializer.JsonDeserializer, Texture2DSerializer.JsonSerializer);
 		
 		// BitStream codecs
 		uLink.BitStreamCodec.AddAndMakeArray<RankEntry>(RankEntry.ReadFromBitStream, RankEntry.WriteToBitStream);
@@ -80,9 +99,32 @@ public class GameDB {
 		uLink.BitStreamCodec.AddAndMakeArray<WeaponBuild>(WeaponBuild.ReadFromBitStream, WeaponBuild.WriteToBitStream);
 		uLink.BitStreamCodec.AddAndMakeArray<AttunementBuild>(AttunementBuild.ReadFromBitStream, AttunementBuild.WriteToBitStream);
 		uLink.BitStreamCodec.AddAndMakeArray<CharacterCustomization>(CharacterCustomization.ReadFromBitStream, CharacterCustomization.WriteToBitStream);
+		uLink.BitStreamCodec.AddAndMakeArray<KeyValue<TimeStamp>>(KeyValue<TimeStamp>.ReadFromBitStream, KeyValue<TimeStamp>.WriteToBitStream);
 		
 		// Flag
 		codecsInitialized = true;
+	}
+	
+	// GetAllTypesImplementingGenericType
+	public static IEnumerable<System.Type> GetAllTypesImplementingGenericType(System.Type genericType) {
+		return
+			genericType.Assembly.GetTypes().Where(
+				t =>
+					t.BaseType != null &&
+					t.BaseType.IsGenericType &&
+					t.BaseType.GetGenericTypeDefinition() == genericType
+			);
+	}
+	
+	// GetAllTypesUsingGenericType
+	public static IEnumerable<System.Type> GetAllTypesUsingGenericType(System.Type genericType) {
+		return
+			genericType.Assembly.GetTypes().Where(
+				t =>
+					t.FullName.Contains("KeyValue")
+					//t.IsGenericType &&
+					//t.GetGenericTypeDefinition() == genericType
+			);
 	}
 	
 	// Initializes ranking lists
@@ -301,24 +343,28 @@ public class GameDB {
 	public static string GetSearchMapFunction(string property) {
 		return @"
 			function(value, keydata, arg) {
-				var nameEntry = JSON.parse(value.values[0].data);
-				return [[value.key, nameEntry." + property + @"]];
+				var obj = JSON.parse(value.values[0].data);
+				
+				var generatedObject = new Object();
+				generatedObject.key = value.key;
+				generatedObject.val = obj." + property + @";
+				
+				return [generatedObject];
 			}
 		";
 	}
 	
 	// Search.Reduce
-	public static string GetSearchReduceFunction() {
+	public static string GetSearchReduceFunction(string condition = "obj.val == value") {
 		return @"
-			function(valueList, nameToFind) {
+			function(valueList, value) {
 				var length = valueList.length;
-				var element = null;
+				var obj = null;
 				
 				for(var i = 0; i < length; i++) {
-					element = valueList[i];
-					if(element[1] == nameToFind) {
-						return [element];
-					}
+					obj = valueList[i];
+					if(" + condition + @")
+						return [obj];
 				}
 				
 				return [];
@@ -327,18 +373,17 @@ public class GameDB {
 	}
 	
 	// SearchMultiple.Reduce
-	public static string GetSearchMultipleReduceFunction() {
+	public static string GetSearchMultipleReduceFunction(string condition = "obj.val == value") {
 		return @"
-			function(valueList, nameToFind) {
+			function(valueList, value) {
 				var length = valueList.length;
-				var element = null;
+				var obj = null;
 				var result = [];
 				
 				for(var i = 0; i < length; i++) {
-					element = valueList[i];
-					if(element[1] == nameToFind) {
-						result.push(element);
-					}
+					obj = valueList[i];
+					if(" + condition + @")
+						result.push(obj);
 				}
 				
 				return result;

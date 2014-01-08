@@ -10,15 +10,26 @@ public class AccessLevelsDB : MonoBehaviour {
 	
 	// Get access level
 	public IEnumerator GetAccessLevel(LobbyPlayer player) {
-		yield return StartCoroutine(GameDB.Get<byte>(
-			"AccountToAccessLevel",
-			player.accountId,
-			data => {
-				player.accessLevel = (AccessLevel)data;
-			}
-		));
+#if UNITY_EDITOR
+		// TODO: Temporary
+		if(player.accountId == "gXmEbeSp")
+			player.accessLevel = AccessLevel.Admin;
+		else
+#endif
+			yield return StartCoroutine(GameDB.Get<byte>(
+				"AccountToAccessLevel",
+				player.accountId,
+				data => {
+					player.accessLevel = (AccessLevel)data;
+				}
+			));
 		
+		// Send access level
 		Lobby.RPC("ReceiveAccessLevel", player.peer, player.accountId, (byte)player.accessLevel);
+		
+		// Staff info
+		if(player.accessLevel >= AccessLevel.VIP)
+			LobbyServer.instance.SendStaffInfo(player);
 	}
 	
 	// Set character stats

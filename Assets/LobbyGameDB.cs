@@ -189,7 +189,7 @@ public class LobbyGameDB : SingletonMonoBehaviour<LobbyGameDB> {
 	
 	// Get account ID by player name
 	public IEnumerator GetAccountIdByPlayerName(string playerName, GameDB.ActionOnResult<string> func) {
-		yield return StartCoroutine(GameDB.MapReduce<KeyToValueEntry>(
+		yield return StartCoroutine(GameDB.MapReduce<KeyValue<string>>(
 			"AccountToName",
 			GameDB.GetSearchMapFunction("v"),
 			GameDB.GetSearchReduceFunction(),
@@ -206,7 +206,7 @@ public class LobbyGameDB : SingletonMonoBehaviour<LobbyGameDB> {
 	
 	// Get account ID by Email
 	public IEnumerator GetAccountIdByEmail(string email, GameDB.ActionOnResult<string> func) {
-		yield return StartCoroutine(GameDB.MapReduce<KeyToValueEntry>(
+		yield return StartCoroutine(GameDB.MapReduce<KeyValue<string>>(
 			"AccountToEmail",
 			GameDB.GetSearchMapFunction("v"),
 			GameDB.GetSearchReduceFunction(),
@@ -220,4 +220,32 @@ public class LobbyGameDB : SingletonMonoBehaviour<LobbyGameDB> {
 			}
 		));
 	}
+	
+	// Get last logins
+	public IEnumerator GetLastLogins(uint numPlayers, GameDB.ActionOnResult<KeyValue<TimeStamp>[]> func) {
+		yield return StartCoroutine(GameDB.MapReduce<KeyValue<TimeStamp>>(
+			"AccountToLastLoginDate",
+			GameDB.keyValueMapFunction,
+			lastLoginsReduceFunction,
+			numPlayers,
+			func
+		));
+	}
+	
+	// Last logins: Reduce
+	private const string lastLoginsReduceFunction =
+		@"
+		function(valueList, maxPlayerCount) {
+			// Sort
+			valueList.sort(function(a, b) {
+				return b.val.unixTimeStamp - a.val.unixTimeStamp;
+			});
+			
+			// Shorten
+			if(valueList.length > maxPlayerCount)
+				valueList.length = maxPlayerCount;
+			
+			return valueList;
+		}
+		";
 }

@@ -162,7 +162,7 @@ public class GuildsDB : SingletonMonoBehaviour<GuildsDB> {
 	
 	// Get guild ID by guild name
 	public IEnumerator GetGuildIdByGuildName(string guildName, GameDB.ActionOnResult<string> func) {
-		yield return StartCoroutine(GameDB.MapReduce<KeyToValueEntry>(
+		yield return StartCoroutine(GameDB.MapReduce<KeyValue<string>>(
 			"Guilds",
 			GameDB.GetSearchMapFunction("name"),
 			GameDB.GetSearchReduceFunction(),

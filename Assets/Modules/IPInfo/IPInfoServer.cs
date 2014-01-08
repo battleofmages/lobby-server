@@ -7,7 +7,7 @@ public class IPInfoServer : MonoBehaviour {
 	public static Dictionary<string, string> ipToCountry = new Dictionary<string, string>();
 	public static Dictionary<string, string[]> ipToAccounts = new Dictionary<string, string[]>();
 	public static Dictionary<string, string> accountIdToCountry = new Dictionary<string, string>();
-	public static string ip2nationURL = "http://battle-of-mages.com/scripts/ip2nation.php?ip=";
+	public static string ip2nationURL = "http://battleofmages.com/scripts/ip2nation.php?ip=";
 	//private IPInfoDB ipInfoDB;
 	
 	// Start

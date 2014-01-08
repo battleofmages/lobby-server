@@ -5,17 +5,31 @@ using System.Collections.Generic;
 [System.Serializable]
 public class TimeStamp {
 	public double unixTimeStamp;
-	public string readableDateTime;
 	
+	// Constructor
 	public TimeStamp() {
-		var dt = System.DateTime.UtcNow;
-		unixTimeStamp = DateTimeToUnixTimeStamp(dt);
-		readableDateTime = dt.ToString("yyyy-MM-dd HH:mm:ss");
+		unixTimeStamp = DateTimeToUnixTimeStamp(System.DateTime.UtcNow);
 	}
 	
+	// Constructor
 	public TimeStamp(System.DateTime dt) {
 		unixTimeStamp = DateTimeToUnixTimeStamp(dt);
-		readableDateTime = dt.ToString("yyyy-MM-dd HH:mm:ss");
+	}
+	
+	// Readable datetime
+	public string readableDateTime {
+		get {
+			var dateTime = UnixTimeStampToDateTime(unixTimeStamp);
+			return dateTime.ToString("yyyy-MM-dd HH:mm:ss");
+		}
+	}
+	
+	// Datetime object
+	public System.DateTime dateTime {
+		get {
+			var dateTime = UnixTimeStampToDateTime(unixTimeStamp);
+			return dateTime;
+		}
 	}
 	
 	// Writer
@@ -34,7 +48,7 @@ public class TimeStamp {
 	// Unix Timestamp -> DateTime
 	public static System.DateTime UnixTimeStampToDateTime(double nUnixTimeStamp) {
 		// Unix timestamp is seconds past epoch
-		System.DateTime dtDateTime = new System.DateTime(1970, 1, 1, 0, 0, 0, 0);
+		System.DateTime dtDateTime = new System.DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
 		dtDateTime = dtDateTime.AddSeconds(nUnixTimeStamp).ToUniversalTime();
 		return dtDateTime;
 	}
@@ -43,5 +57,26 @@ public class TimeStamp {
 	public static double DateTimeToUnixTimeStamp(System.DateTime date) {
 		System.TimeSpan span = (date - new System.DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc));
 		return span.TotalSeconds;
+	}
+	
+	// BitStream Writer
+	public static void WriteToBitStream(uLink.BitStream stream, object val, params object[] args) {
+		var obj = (TimeStamp)val;
+		
+		stream.WriteDouble(obj.unixTimeStamp);
+	}
+	
+	// BitStream Reader
+	public static object ReadFromBitStream(uLink.BitStream stream, params object[] args) {
+		var obj = new TimeStamp();
+		
+		obj.unixTimeStamp = stream.ReadDouble();
+		
+		return obj;
+	}
+	
+	// ToString
+	public override string ToString() {
+		return readableDateTime;
 	}
 }

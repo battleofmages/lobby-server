@@ -13,17 +13,6 @@ public class GenericSerializer {
 			writer.WriteNumber((double)((long)val));
 		} else if(val is double) {
 			writer.WriteNumber((double)val);
-		//} else if(val is PlayerQueueStats) {
-		//	GenericSerializer.WriteJSONClassInstance<PlayerQueueStats>(writer, (PlayerQueueStats)val);
-		/*} else if(val is PlayerQueueStats[]) {
-			writer.WriteArrayStart();
-			
-			PlayerQueueStats[] valArray = (PlayerQueueStats[])val;
-			for(int i = 0; i < QueueSettings.queueCount; i++) {
-				GenericSerializer.WriteJSONClassInstance<PlayerQueueStats>(writer, valArray[i]);
-			}
-			
-			writer.WriteArrayEnd();*/
 		} else {
 			Jboy.Json.WriteObject(val, writer);
 		}
@@ -93,7 +82,7 @@ public class GenericSerializer {
 		} else if(fieldType == typeof(int[])) {
 			return Jboy.Json.ReadObject<int[]>(reader);
 		} else if(fieldType == typeof(Color)) {
-			return GenericSerializer.ColorJsonDeserializer(reader);
+			return ColorSerializer.JsonDeserializer(reader);
 		} else if(fieldType == typeof(PlayerQueueStats)) {
 			return GenericSerializer.ReadJSONClassInstance<PlayerQueueStats>(reader);
 		} else if(fieldType == typeof(PlayerQueueStats[])) {
@@ -157,7 +146,7 @@ public class GenericSerializer {
 		} else if(fieldType == typeof(List<FriendsGroup>)) {
 			return Jboy.Json.ReadObject<List<FriendsGroup>>(reader);
 		} else if(fieldType == typeof(Texture2D)) {
-			return GenericSerializer.Texture2DJsonDeserializer(reader);
+			return Texture2DSerializer.JsonDeserializer(reader);
 		} else {
 			LogManager.General.LogError("Unknown field type for GenericSerializer.ReadJSONValue: " + fieldType);
 			return (int)(reader.ReadNumber());
@@ -195,61 +184,5 @@ public class GenericSerializer {
 		reader.ReadObjectEnd();
 		
 		return instance;
-	}
-	
-	// Writer
-	public static void ColorJsonSerializer(Jboy.JsonWriter writer, object instance) {
-		Color col = (Color)instance;
-		
-		writer.WriteObjectStart();
-		writer.WritePropertyName("r");
-		writer.WriteNumber(col.r);
-		writer.WritePropertyName("g");
-		writer.WriteNumber(col.g);
-		writer.WritePropertyName("b");
-		writer.WriteNumber(col.b);
-		writer.WritePropertyName("a");
-		writer.WriteNumber(col.a);
-		writer.WriteObjectEnd();
-	}
-	
-	// Reader
-	public static object ColorJsonDeserializer(Jboy.JsonReader reader) {
-		reader.ReadObjectStart();
-		reader.ReadPropertyName("r");
-		var r = (float)reader.ReadNumber();
-		reader.ReadPropertyName("g");
-		var g = (float)reader.ReadNumber();
-		reader.ReadPropertyName("b");
-		var b = (float)reader.ReadNumber();
-		reader.ReadPropertyName("a");
-		var a = (float)reader.ReadNumber();
-		reader.ReadObjectEnd();
-		
-		return new Color(r, g, b, a);
-	}
-	
-	// Writer
-	public static void Texture2DJsonSerializer(Jboy.JsonWriter writer, object instance) {
-		writer.WriteNull();
-		/*var tex = (Texture2D)instance;
-		writer.WriteObjectStart();
-		
-		writer.WritePropertyName("width");
-		writer.WriteNumber(tex.width);
-		
-		writer.WritePropertyName("height");
-		writer.WriteNumber(tex.height);
-		
-		writer.WritePropertyName("data");
-		Jboy.Json.WriteObject(tex.EncodeToPNG(), writer);
-		
-		writer.WriteObjectEnd();*/
-	}
-	
-	// Reader
-	public static object Texture2DJsonDeserializer(Jboy.JsonReader reader) {
-		reader.ReadNull();
-		return null; //new Texture2D(64, 64);
 	}
 }

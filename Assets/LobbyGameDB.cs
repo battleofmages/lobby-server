@@ -226,14 +226,25 @@ public class LobbyGameDB : SingletonMonoBehaviour<LobbyGameDB> {
 		yield return StartCoroutine(GameDB.MapReduce<KeyValue<TimeStamp>>(
 			"AccountToLastLoginDate",
 			GameDB.keyValueMapFunction,
-			lastLoginsReduceFunction,
+			timeStampReduceFunction,
+			numPlayers,
+			func
+		));
+	}
+	
+	// Get last registrations
+	public IEnumerator GetLastRegistrations(uint numPlayers, GameDB.ActionOnResult<KeyValue<TimeStamp>[]> func) {
+		yield return StartCoroutine(GameDB.MapReduce<KeyValue<TimeStamp>>(
+			"AccountToRegistrationDate",
+			GameDB.keyValueMapFunction,
+			timeStampReduceFunction,
 			numPlayers,
 			func
 		));
 	}
 	
 	// Last logins: Reduce
-	private const string lastLoginsReduceFunction =
+	private const string timeStampReduceFunction =
 		@"
 		function(valueList, maxPlayerCount) {
 			// Sort

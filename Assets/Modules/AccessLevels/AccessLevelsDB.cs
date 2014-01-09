@@ -28,8 +28,8 @@ public class AccessLevelsDB : MonoBehaviour {
 		Lobby.RPC("ReceiveAccessLevel", player.peer, player.accountId, (byte)player.accessLevel);
 		
 		// Staff info
-		if(player.accessLevel >= AccessLevel.VIP)
-			LobbyServer.instance.SendStaffInfo(player);
+		//if(player.accessLevel >= AccessLevel.VIP)
+		//	LobbyServer.instance.SendStaffInfo(player);
 	}
 	
 	// Set character stats

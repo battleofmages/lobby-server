@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Linq;
 
 public static class StringExtensions {
+	// Capitalize
 	public static string Capitalize(this string input) {
 		if(input.Length > 0)
 			return System.Char.ToUpper(input[0]) + input.Substring(1);
@@ -9,6 +11,7 @@ public static class StringExtensions {
 		return input;
 	}
 	
+	// ReplaceCommands
 	public static string ReplaceCommands(this string input) {
 		if(input.Length >= 2 && input.StartsWith("-") && !char.IsDigit(input[1]))
 			return "//" + input.Substring(1);
@@ -16,14 +19,45 @@ public static class StringExtensions {
 		return input;
 	}
 	
+	// PrettifyPlayerName
 	public static string PrettifyPlayerName(this string playerNameRequest) {
-		var parts = playerNameRequest.Replace("  ", " ").ToLower().Split(' ');
+		var lowered = playerNameRequest.Replace("  ", " ").ToLower();
+		
+		// Forbid repeated characters
+		int repeatCount = 0;
+		for(int i = 1; i < lowered.Length; i++) {
+			if(lowered[i] == lowered[i - 1]) {
+				if(repeatCount == 1) {
+					// Remove character
+					lowered = lowered.Remove(i);
+					
+					// Fix the iteration index
+					i -= 1;
+				} else {
+					repeatCount++;
+				}
+			} else {
+				repeatCount = 0;
+			}
+		}
+		
+		// Capitalize parts
+		var parts = lowered.Split(' ');
 		for(int i = 0; i < parts.Length; i++) {
 			parts[i] = parts[i].Trim().Capitalize();
 		}
+		
 		return string.Join(" ", parts);
 	}
 	
+	// ContainsUnicodeCharacter
+	public static bool ContainsUnicodeCharacter(this string input) {
+		const int MaxAnsiCode = 255;
+		
+		return input.Any(c => c > MaxAnsiCode);
+	}
+	
+	// HumanReadableInteger
 	public static string HumanReadableInteger(this string number) {
 		bool isNegative = false;
 		

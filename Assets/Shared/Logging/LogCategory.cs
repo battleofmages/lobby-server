@@ -81,6 +81,7 @@ public class LogCategory {
 	public void GenerateReport() {
 		this.Log("Platform: " + Application.platform.ToString());
 		this.Log("Unity player version: " + Application.unityVersion);
+		this.Log("Device ID: " + SystemInfo.deviceUniqueIdentifier);
 		
 		if(Application.genuineCheckAvailable)
 			this.Log("Genuine: " + Application.genuine.ToString());

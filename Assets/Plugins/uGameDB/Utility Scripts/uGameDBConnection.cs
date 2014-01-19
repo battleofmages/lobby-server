@@ -44,13 +44,14 @@ public class uGameDBConnection : MonoBehaviour
 		Database.Connect(OnDBConnect, OnDBError);
 	}
 
-	void OnDBConnect() {
-		Debug.Log("OnDBConnect");
-		//this.GetComponent<LobbyServer>().OnDBConnect();
+	private void OnDBConnect()
+	{
+		Debug.Log("OnDBConnect successful");
 	}
 
-	private void OnDBError(string error) {
-		Debug.LogError("DB connection error: " + error);
+	private void OnDBError(string error)
+	{
+		Debug.LogError("Connect error: " + error);
 	}
 
 }

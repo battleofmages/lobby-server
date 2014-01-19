@@ -24,9 +24,9 @@ public class LogManager {
 		
 		// Create logs
 		LogManager.General = new LogCategory("General");
-		LogManager.Online = new LogCategory("Online");
 		LogManager.Chat = new LogCategory("Chat");
 		LogManager.DB = new LogCategory("DB");
+		LogManager.Online = new LogCategory("Online", false);
 		LogManager.System = new LogCategory("System", false);
 		LogManager.Spam = new LogCategory("Spam", false, false);
 #if !LOBBY_SERVER

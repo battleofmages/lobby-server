@@ -9,7 +9,7 @@ public class Version : MonoBehaviour {
 	public int versionNumber = 0;
 	
 	void Awake() {
-		WWW request = new WWW("http://battle-of-mages.com/download/game.ini");
+		WWW request = new WWW("http://battleofmages.com/download/game.ini");
 		
 		StartCoroutine(WaitForVersion(request));
 	}

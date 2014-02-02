@@ -155,6 +155,9 @@ MonoBehaviour:
   databasePort: 8087
   uZoneHost: 127.0.0.1
   uZonePort: 12345
+  frameRate: 20
+  webServerInfoURL: http://battleofmages.com/scripts/lobbyinfo.php
+  webServerInfoDelay: 10
 --- !u!114 &780800312
 MonoBehaviour:
   m_ObjectHideFlags: 0

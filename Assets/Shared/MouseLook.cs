@@ -33,13 +33,29 @@ public class MouseLook : MonoBehaviour {
 	
 	Quaternion originalRotation;
 
+	//float oldX;
+	//float oldY;
+
 	void Update ()
 	{
+		/*var mousePos = Input.mousePosition;
+		var mouseX = mousePos.x;
+		var mouseY = mousePos.y;
+		
+		var xMovement = (mouseX - oldX) * 0.1f + Input.GetAxis("Gamepad Mouse X");
+		var yMovement = (mouseY - oldY) * 0.1f + Input.GetAxis("Gamepad Mouse Y");
+
+		oldX = mouseX;
+		oldY = mouseY;*/
+
+		var xMovement = Input.GetAxis("Mouse X") + Input.GetAxis("Gamepad Mouse X");
+		var yMovement = Input.GetAxis("Mouse Y") + Input.GetAxis("Gamepad Mouse Y");
+
 		if (axes == RotationAxes.MouseXAndY)
 		{
 			// Read the mouse input axis
-			rotationX += (Input.GetAxis("Mouse X") + Input.GetAxis("Gamepad Mouse X")) * sensitivityX;
-			rotationY += (Input.GetAxis("Mouse Y") + Input.GetAxis("Gamepad Mouse Y")) * sensitivityY;
+			rotationX += xMovement * sensitivityX;
+			rotationY += yMovement * sensitivityY;
 
 			rotationX = ClampAngle (rotationX, minimumX, maximumX);
 			rotationY = ClampAngle (rotationY, minimumY, maximumY);
@@ -51,7 +67,7 @@ public class MouseLook : MonoBehaviour {
 		}
 		else if (axes == RotationAxes.MouseX)
 		{
-			rotationX += Input.GetAxis("Mouse X") * sensitivityX;
+			rotationX += xMovement * sensitivityX;
 			rotationX = ClampAngle (rotationX, minimumX, maximumX);
 
 			Quaternion xQuaternion = Quaternion.AngleAxis (rotationX, Vector3.up);
@@ -59,7 +75,7 @@ public class MouseLook : MonoBehaviour {
 		}
 		else
 		{
-			rotationY += Input.GetAxis("Mouse Y") * sensitivityY;
+			rotationY += yMovement * sensitivityY;
 			rotationY = ClampAngle (rotationY, minimumY, maximumY);
 
 			Quaternion yQuaternion = Quaternion.AngleAxis (rotationY, Vector3.left);

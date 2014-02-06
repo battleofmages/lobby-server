@@ -41,7 +41,7 @@ public class MapManager {
 		var mapPrefab = Resources.Load("Maps/" + mapName);
 		LogManager.General.Log("Map prefab loaded");
 		
-		mapInstance = (GameObject)GameObject.Instantiate(mapPrefab, Cache.vector3Zero, Cache.quaternionIdentity);
+		mapInstance = (GameObject)Object.Instantiate(mapPrefab, Cache.vector3Zero, Cache.quaternionIdentity);
 		LogManager.General.Log("Map instantiated: " + mapInstance);
 		
 		mapIntro = mapInstance.GetComponent<Intro>();
@@ -89,7 +89,7 @@ public class MapManager {
 		var npcList = GameObject.FindGameObjectsWithTag("NPC");
 		
 		foreach(var npc in npcList) {
-			GameObject.Destroy(npc);
+			Object.Destroy(npc);
 		}
 		
 		LogManager.General.Log("Finished deleting NPCs");

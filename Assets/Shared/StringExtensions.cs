@@ -49,6 +49,11 @@ public static class StringExtensions {
 		
 		return string.Join(" ", parts);
 	}
+
+	// ToCleanGameObjectName
+	public static string ToCleanGameObjectName(this string gameObjectName) {
+		return gameObjectName.Replace("(Clone)", "").Replace("@Proxy", "").Replace("@Creator", "").Replace("@Owner", "");
+	}
 	
 	// ContainsUnicodeCharacter
 	public static bool ContainsUnicodeCharacter(this string input) {

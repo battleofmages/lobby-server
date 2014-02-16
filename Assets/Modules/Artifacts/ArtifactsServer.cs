@@ -106,7 +106,7 @@ public class ArtifactsServer : MonoBehaviour {
 		
 		try {
 			player.artifactsEditingFlag = true;
-			player.artifactInventory.levels[level].RemoveItemSlot(slotId);
+			player.artifactInventory.bags[level].RemoveItemSlot(slotId);
 			Lobby.RPC("ArtifactDiscard", player.peer, level, slotId);
 			
 			// Save changes

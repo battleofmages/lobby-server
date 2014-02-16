@@ -3,38 +3,73 @@ using System.Collections.Generic;
 
 [System.Serializable]
 public class ItemSlot {
-	public int id;
-	public int count;
-	public object instance;
-	
+	public Item item;
+	public ulong count;
+
+	// Constructor
 	public ItemSlot() {
-		id = -1;
+		Reset();
+	}
+
+	// Constructor
+	public ItemSlot(Item nItem, ulong nCount = 1) {
+		item = nItem;
+		count = nCount;
+	}
+
+	// Constructor
+	public ItemSlot(int itemId, ulong nCount = 1) {
+		item = ItemFactory.CreateFromId(itemId);
+		count = nCount;
+	}
+
+	// Reset
+	public void Reset() {
+		item = null;
 		count = 0;
-		instance = null;
 	}
-	
-	public ItemSlot(int nID, int nCount = 1) {
-		id = nID;
-		count = nCount;
-		instance = null;
-	}
-	
-	public ItemSlot(int nID, int nCount, object nInstance) {
-		id = nID;
-		count = nCount;
-		instance = nInstance;
-	}
-	
+
 	// Writer
 	public static void JsonSerializer(Jboy.JsonWriter writer, object instance) {
-		var fieldExclude = new HashSet<string>() {
-			"instance",
-		};
-		GenericSerializer.WriteJSONClassInstance<ItemSlot>(writer, (ItemSlot)instance, null, fieldExclude);
+		if(instance == null) {
+			writer.WriteNull();
+			return;
+		}
+
+		var slot = (ItemSlot)instance;
+
+		writer.WriteObjectStart();
+
+		// ID
+		writer.WritePropertyName("item");
+		Jboy.Json.WriteObject(slot.item, writer);
+
+		// Count
+		writer.WritePropertyName("count");
+		writer.WriteNumber(slot.count);
+
+		writer.WriteObjectEnd();
 	}
 	
 	// Reader
 	public static object JsonDeserializer(Jboy.JsonReader reader) {
-		return GenericSerializer.ReadJSONClassInstance<ItemSlot>(reader);
+		if(reader.TryReadNull())
+			return null;
+		
+		var itemSlot = new ItemSlot();
+
+		reader.ReadObjectStart();
+
+		// ID
+		reader.ReadPropertyName("item");
+		itemSlot.item = Jboy.Json.ReadObject<Item>(reader);
+
+		// Count
+		reader.ReadPropertyName("count");
+		itemSlot.count = (ulong)reader.ReadNumber();
+
+		reader.ReadObjectEnd();
+		
+		return itemSlot;
 	}
 }

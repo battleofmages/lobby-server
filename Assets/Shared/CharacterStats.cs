@@ -139,7 +139,7 @@ public class CharacterStats : JsonSerializable<CharacterStats> {
 		get { return 1.0f - ((defense - 50) * 0.003333f); }
 	}
 	
-	public float blockMaxCapacityMultiplier {
+	public float energyMultiplier {
 		get {
 			return 1.0f + ((block - 50) * 0.0075f);
 		}

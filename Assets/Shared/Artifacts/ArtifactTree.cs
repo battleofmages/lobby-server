@@ -86,10 +86,7 @@ public class ArtifactTree {
 			writer.WriteArrayStart();
 			
 			for(int i = 0; i < slotLevel.Length; i++) {
-				if(slotLevel[i].artifact != null)
-					writer.WriteNumber(slotLevel[i].artifact.id);
-				else
-					writer.WriteNumber(-1);
+				Jboy.Json.WriteObject(slotLevel[i].artifact, writer);
 			}
 			
 			writer.WriteArrayEnd();
@@ -109,11 +106,10 @@ public class ArtifactTree {
 			reader.ReadArrayStart();
 			
 			for(int slotIndex = 0; slotIndex < numSlots; slotIndex++) {
-				int itemId = (int)reader.ReadNumber();
-				slotLevel[slotIndex] = new ArtifactSlot((byte)i);
+				var artifactSlot = new ArtifactSlot((byte)i);
+				artifactSlot.artifact = Jboy.Json.ReadObject<Artifact>(reader);
 				
-				if(itemId != -1)
-					slotLevel[slotIndex].artifact = new Artifact(itemId);
+				slotLevel[slotIndex] = artifactSlot;
 			}
 			
 			reader.ReadArrayEnd();

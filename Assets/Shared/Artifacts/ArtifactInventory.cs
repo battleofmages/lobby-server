@@ -1,49 +1,26 @@
-﻿using UnityEngine;
-using System.Collections;
-
 [System.Serializable]
-public class ArtifactInventory {
+public class ArtifactInventory : InventorySerializer<ArtifactInventory>, Inventory {
 	public static int defaultInventoryLimit = 15;
-	
-	public Inventory[] levels;
-	
+
+	// Bags
+	public Bag[] bags { get; set; }
+
+	// Constructor
 	public ArtifactInventory() {
-		levels = new Inventory[Artifact.maxLevel];
+		bags = new Bag[Artifact.maxLevel];
 		
 		for(int i = 0; i < Artifact.maxLevel; i++) {
-			levels[i] = new Inventory(defaultInventoryLimit);
+			bags[i] = new Bag(defaultInventoryLimit);
 		}
 	}
-	
+
+	// AddArtifact
 	public void AddArtifact(Artifact arti) {
-		levels[arti.level].AddItem(arti.id, 1, arti);
+		bags[arti.level].AddItem(arti, 1);
 	}
-	
+
+	// RemoveArtifact
 	public void RemoveArtifact(Artifact arti) {
-		levels[arti.level].RemoveItem(arti.id, 1);
-	}
-	
-	// Writer
-	public static void JsonSerializer(Jboy.JsonWriter writer, object instance) {
-		var inv = (ArtifactInventory)instance;
-		
-		writer.WriteArrayStart();
-		for(var i = 0; i < Artifact.maxLevel; i++) {
-			GenericSerializer.WriteJSONClassInstance<Inventory>(writer, inv.levels[i]);
-		}
-		writer.WriteArrayEnd();
-	}
-	
-	// Reader
-	public static object JsonDeserializer(Jboy.JsonReader reader) {
-		var inv = new ArtifactInventory();
-		
-		reader.ReadArrayStart();
-		for(var i = 0; i < Artifact.maxLevel; i++) {
-			inv.levels[i] = GenericSerializer.ReadJSONClassInstance<Inventory>(reader);
-		}
-		reader.ReadArrayEnd();
-		
-		return inv;
+		bags[arti.level].RemoveItem(arti.id, 1);
 	}
 }

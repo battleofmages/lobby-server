@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 [System.Serializable]
-public class Artifact {
+public class Artifact : Item {
 	public static string[] rarityColors = {"white", "green", "blue", "yellow", "orange"};
 	
 	public const int maxLevel = 5;
@@ -21,13 +21,15 @@ public class Artifact {
 		AttackSpeed,
 		MoveSpeed
 	}
-	
+
+	// Constructor
 	public Artifact() {
 		level = 0;
 		stats = new Artifact.Stat[maxStats];
 		_name = "";
 	}
-	
+
+	// Constructor
 	public Artifact(byte nLevel) {
 		level = nLevel;
 		stats = new Artifact.Stat[maxStats];
@@ -37,13 +39,15 @@ public class Artifact {
 			stats[i] = (Artifact.Stat)Random.Range(0, 6);
 		}
 	}
-	
+
+	// Constructor
 	public Artifact(int itemId) {
 		stats = new Artifact.Stat[maxStats];
 		this.id = itemId;
 		_name = "";
 	}
-	
+
+	// HasStat
 	public bool HasStat(Artifact.Stat nStat, int times = 1) {
 		int count = 0;
 		foreach(var stat in stats) {
@@ -56,7 +60,8 @@ public class Artifact {
 		
 		return false;
 	}
-	
+
+	// Rarity
 	public Rarity rarity {
 		get {
 			if(stats[0] == stats[1]) {
@@ -72,7 +77,8 @@ public class Artifact {
 			return Rarity.Common;
 		}
 	}
-	
+
+	// Icon
 	public Texture2D icon {
 		get {
 #if !LOBBY_SERVER
@@ -169,20 +175,24 @@ public class Artifact {
 			stats[0] = (Artifact.Stat)rest;
 		}
 	}
-	
+
+	// WriteItemMetaData
+	public void WriteItemMetaData(Jboy.JsonWriter writer) {
+		// TODO: Enchantments
+	}
+
+	// ReadItemMetaData
+	public void ReadItemMetaData(Jboy.JsonReader reader) {
+		// TODO: Enchantments
+	}
+
 	// Writer
 	public static void JsonSerializer(Jboy.JsonWriter writer, object instance) {
-		var arti = (Artifact)instance;
-		
-		writer.WriteNumber(arti.id);
+		ItemSerializer.JsonSerializer(writer, instance);
 	}
 	
 	// Reader
 	public static object JsonDeserializer(Jboy.JsonReader reader) {
-		var arti = new Artifact();
-		
-		arti.id = (int)reader.ReadNumber();
-		
-		return arti;
+		return ItemSerializer.JsonDeserializer(reader);
 	}
 }

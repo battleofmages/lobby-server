@@ -74,16 +74,18 @@ public class GameDB {
 		Json.AddCodec<GuildMember>(GuildMember.JsonDeserializer, GuildMember.JsonSerializer);
 		Json.AddCodec<GuildList>(GuildList.JsonDeserializer, GuildList.JsonSerializer);
 		
+		// Register JSON codecs for Inventory
+		Json.AddCodec<Bag>(Bag.JsonDeserializer, Bag.JsonSerializer);
+		Json.AddCodec<ItemSlot>(ItemSlot.JsonDeserializer, ItemSlot.JsonSerializer);
+		Json.AddCodec<Item>(ItemSerializer.JsonDeserializer, ItemSerializer.JsonSerializer);
+		Json.AddCodec<ItemInventory>(ItemInventory.JsonDeserializer, ItemInventory.JsonSerializer);
+
 		// Register JSON codecs for Artifacts
 		Json.AddCodec<Artifact>(Artifact.JsonDeserializer, Artifact.JsonSerializer);
 		Json.AddCodec<ArtifactSlot>(ArtifactSlot.JsonDeserializer, ArtifactSlot.JsonSerializer);
 		Json.AddCodec<ArtifactTree>(ArtifactTree.JsonDeserializer, ArtifactTree.JsonSerializer);
 		Json.AddCodec<ArtifactInventory>(ArtifactInventory.JsonDeserializer, ArtifactInventory.JsonSerializer);
-		
-		// Register JSON codecs for Inventory
-		Json.AddCodec<Inventory>(Inventory.JsonDeserializer, Inventory.JsonSerializer);
-		Json.AddCodec<ItemSlot>(ItemSlot.JsonDeserializer, ItemSlot.JsonSerializer);
-		
+
 		// Register JSON codecs for MapReduce entries
 		Json.AddCodec<RankEntry>(RankEntry.JsonDeserializer, RankEntry.JsonSerializer);
 		

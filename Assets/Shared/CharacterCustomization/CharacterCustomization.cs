@@ -6,7 +6,7 @@ public class CharacterCustomization {
 	public const float baseHeight = 1f;
 	public const float baseVoicePitch = 1f;//1.12f;
 	
-	public const float heightMultiplier = 0.35f;
+	public const float heightStatMultiplier = 0.35f;
 	public const float voicePitchMultiplier = 0.15f;//0.12f;
 	
 	public float height;
@@ -50,20 +50,27 @@ public class CharacterCustomization {
 		var skirtMaterial = charDefinition.legWear.renderer.material;
 		var stockingsMaterial = charDefinition.boots.renderer.material;
 		
-		hairMaterial.color = this.hairColor;
-		eyesMaterial.color = this.eyeColor;
-		eyesMaterial.SetColor("_BackgroundColor", this.eyeBackgroundColor);
-		clothesMaterial.color = this.cloakColor;
-		topWearMaterial.color = this.topWearColor;
-		skirtMaterial.color = this.legWearColor;
-		stockingsMaterial.color = this.bootsColor;
+		hairMaterial.color = hairColor;
+		eyesMaterial.color = eyeColor;
+		eyesMaterial.SetColor("_BackgroundColor", eyeBackgroundColor);
+		clothesMaterial.color = cloakColor;
+		topWearMaterial.color = topWearColor;
+		skirtMaterial.color = legWearColor;
+		stockingsMaterial.color = bootsColor;
 	}
 	
 	// Scale vector
 	public Vector3 scaleVector {
 		get {
-			float newScale = CharacterCustomization.baseHeight + (height - 0.5f) * CharacterCustomization.heightMultiplier;
+			var newScale = heightMultiplier;
 			return new Vector3(newScale, newScale, newScale);
+		}
+	}
+
+	// Height multiplier
+	public float heightMultiplier {
+		get {
+			return CharacterCustomization.baseHeight + (height - 0.5f) * CharacterCustomization.heightStatMultiplier;
 		}
 	}
 	

@@ -19,6 +19,7 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 	public CharacterStats charStats;
 	public ArtifactTree artifactTree;
 	public ArtifactInventory artifactInventory;
+	public ItemInventory itemInventory;
 	public bool artifactsEditingFlag;
 	public GuildList guildList;
 	public List<string> guildInvitations;

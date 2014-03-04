@@ -1,5 +1,5 @@
 #if UNITY_STANDALONE_WIN
-//#define FIX_APPLICAION_TARGETFRAMERATE
+//#define FIX_APPLICATION_TARGETFRAMERATE
 #endif
 
 using System;
@@ -116,7 +116,7 @@ public class uLinkTargetFrameRateFix : MonoBehaviour
 #endif
 }
 
-#if FIX_APPLICAION_TARGETFRAMERATE
+#if FIX_APPLICATION_TARGETFRAMERATE
 public static class Application
 {
 	static int _targetFrameRate;

@@ -15,8 +15,8 @@ public class MapManager {
 	
 	// Arenas
 	public static string[] arenas = new string[] {
-		"Alpha Tester Grounds",
-		//"Ruins"
+		//"Alpha Tester Grounds",
+		"Ruins"
 	};
 	
 	// FFA maps

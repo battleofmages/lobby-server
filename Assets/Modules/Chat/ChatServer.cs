@@ -80,7 +80,7 @@ public class ChatServer : MonoBehaviour {
 					return;
 				}
 				
-				var postfix = instance.ip + ":" + instance.port;
+				var postfix = instance.node.publicAddress + ":" + instance.port;
 				channelName += "@" + postfix;
 			} else {
 				LogManager.Chat.LogError("Player tries to use map chat while not being in an instance [" + channelName + "][" + player.name + "] '" + msg + "'");

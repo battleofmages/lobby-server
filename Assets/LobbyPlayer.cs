@@ -250,7 +250,7 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 	}
 	
 	// Instance
-	public uZone.GameInstance instance {
+	public uZone.InstanceProcess instance {
 		get {
 			if(inMatch)
 				return match.instance;
@@ -411,9 +411,9 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 	}
 	
 	// Helper function
-	private void ConnectToGameServer(uZone.GameInstance instance) {
+	private void ConnectToGameServer(uZone.InstanceProcess instance) {
 		LogManager.General.Log("Connecting player '" + name + "' to " + this.gameInstance.ToString());
-		Lobby.RPC("ConnectToGameServer", peer, instance.ip, instance.port);
+		Lobby.RPC("ConnectToGameServer", peer, instance.node.publicAddress, instance.port);
 	}
 	
 	// Account is online

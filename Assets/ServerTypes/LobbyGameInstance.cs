@@ -9,7 +9,7 @@ public interface LobbyGameInstanceInterface {
 	LobbyChatChannel mapChannel { get; }
 	
 	//void StartInstanceAsync();
-	void StartPlayingOn(uZone.GameInstance newInstance);
+	void StartPlayingOn(uZone.InstanceProcess newInstance);
 	void Register();
 	void Unregister();
 	//void OnRegister();
@@ -20,8 +20,8 @@ public interface LobbyGameInstanceInterface {
 public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 	public static List<LobbyGameInstance<T>> waitingForServer = new List<LobbyGameInstance<T>>();
 	public static List<LobbyGameInstance<T>> running = new List<LobbyGameInstance<T>>();
-	public static Dictionary<string, LobbyGameInstance<T>> idToInstance = new Dictionary<string, LobbyGameInstance<T>>();
-	public static Dictionary<int, LobbyGameInstance<T>> requestIdToInstance = new Dictionary<int, LobbyGameInstance<T>>();
+	public static Dictionary<uZone.InstanceID, LobbyGameInstance<T>> idToInstance = new Dictionary<uZone.InstanceID, LobbyGameInstance<T>>();
+	public static Dictionary<uZone.InstanceID, LobbyGameInstance<T>> requestIdToInstance = new Dictionary<uZone.InstanceID, LobbyGameInstance<T>>();
 	public static Dictionary<string, List<LobbyGameInstance<T>>> mapNameToInstances = new Dictionary<string, List<LobbyGameInstance<T>>>();
 	public static string[] mapPool = null;
 	
@@ -36,16 +36,17 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 		get { return _mapChannel; }
 	}
 	
-	public uZone.GameInstance instance = null;
-	public int requestId;
+	public uZone.InstanceProcess instance = null;
+	public uZone.InstanceID requestId;
 	public List<string> args = new List<string>();
 	protected string mapName;
 	protected ServerType serverType;
+	private uZone.InstanceOptions options;
 	
 	// Requests uZone to start a new instance
 	protected virtual void StartInstanceAsync() {
 		args.Add("-type" + serverType.ToString());
-		args.Add("-map" + mapName);
+		args.Add("\"-map" + mapName + "\"");
 		
 		// Add to list by map name
 		if(!mapNameToInstances.ContainsKey(mapName)) {
@@ -55,12 +56,26 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 		mapNameToInstances[mapName].Add(this);
 		
 		waitingForServer.Add(this);
-		requestId = uZone.InstanceManager.StartGameInstance(LobbyServer.gameName, args);
-		requestIdToInstance[requestId] = this;
+		options = new uZone.InstanceOptions(LobbyServer.gameName, args);
+		
+		var node = uZone.InstanceManager.nodes.FirstOrDefault();
+		node.StartInstance(options, (request) => {
+			instance = request.GetInstance();
+			requestId = instance.id;
+			requestIdToInstance[requestId] = this;
+		}, (request) => {
+			
+		});
+		
+		/*yield return startRequest.WaitUntilDone();
+		startRequest.TryGetInstance(out instance);*/
+		
+		//requestId = uZone.InstanceManager.StartGameInstance(LobbyServer.gameName, args);
+		//requestIdToInstance[requestId] = this;
 	}
 	
 	// Starts playing on game server instance
-	public virtual void StartPlayingOn(uZone.GameInstance newInstance) {
+	public virtual void StartPlayingOn(uZone.InstanceProcess newInstance) {
 		instance = newInstance;
 		
 		// Log after the instance has been assigned, so we see the IP
@@ -70,7 +85,7 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 		waitingForServer.Remove(this);
 		
 		// Create a map channel
-		_mapChannel = new LobbyChatChannel("Map@" + instance.ip + ":" + instance.port);
+		_mapChannel = new LobbyChatChannel("Map@" + instance.node.publicAddress + ":" + instance.port);
 		
 		// Callback
 		this.OnInstanceAvailable();
@@ -140,7 +155,7 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 		var playerListString = string.Join(", ", playerList.ToArray());
 		
 		if(instance != null) {
-			return string.Format("[{0}] {1}\n * {2}:{3}\n * Players: [{4}]", serverType.ToString(), mapName, instance.ip, instance.port, playerListString);
+			return string.Format("[{0}] {1}\n * {2}:{3}\n * Players: [{4}]", serverType.ToString(), mapName, instance.node.publicAddress, instance.port, playerListString);
 		}
 		
 		return string.Format("[{0}] {1}\n * Players: [{2}]", serverType.ToString(), mapName, playerListString);

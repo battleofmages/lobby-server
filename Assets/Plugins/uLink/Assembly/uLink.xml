@@ -1354,7 +1354,6 @@
             this feature can not be used. Instead you have to store the database
             userID in one of the player's game objects on the server.
             </remarks>
-      <exception cref="T:uLink.NetworkException">If trying to assign a manual playerID during a P2P handover.</exception>
     </member>
     <member name="M:uLink.NetworkPlayerApproval.Deny">
       <summary>
@@ -2306,6 +2305,20 @@
             used to handle more data types (all data types supported by uLink), but we
             recommend that you use the generic read/write methods whenever possible. </para></remarks>
     </member>
+    <member name="F:uLink.BitStream.isTypeSafe">
+      <summary>
+            Used to make this stream serialize the type of data types and check all
+            data types when deserializing. 
+            </summary>
+      <remarks>Set this value to <c>true</c> if you want extra validations
+            when reading incoming data. This is good for debugging and it is
+            also good for detecting clients sending wrong data to a 
+            server or vice versa. Be aware that the serialized data will become longer when
+            the data types has to be stored.</remarks>
+      <exception cref="T:System.Exception">If expected data type does not match the
+            data type in the stream when reading it.</exception>
+      <value>Default is <c>false</c></value>
+    </member>
     <member name="M:uLink.BitStream.Read``1(System.Object[])">
       <summary>
             Deserializes different types of variables. Recommended for C# code and javascript code.
@@ -2402,21 +2415,11 @@
             Returns a <see cref="T:System.String" /> that shows a list of all bytes in the BitStream.
             </summary>
     </member>
-    <member name="P:uLink.BitStream.isTypeSafe">
+    <member name="P:uLink.BitStream.isWriting">
       <summary>
-            Used to make this stream serialize the type of data types and check all
-            data types when deserializing. 
+            Gets a value indicating whether the BitStream is currently being written to.
             </summary>
-      <remarks>Set this value to <c>true</c> if you want extra validations
-            when reading incoming data. This is good for debugging and it is
-            also good for detecting clients sending wrong data to a 
-            server or vice versa. Be aware that the serialized data will become longer when
-            the data types has to be stored.</remarks>
-      <exception cref="T:System.Exception">If expected data type does not match the
-            data type in the stream when reading it.</exception>
-      <value>Default is <c>false</c></value>
     </member>
-    <!-- Badly formed XML comment ignored for member "P:uLink.BitStream.isWriting" -->
     <member name="P:uLink.BitStream.isReading">
       <summary>
             Gets a value indicating whether the BitStream is currently being read.

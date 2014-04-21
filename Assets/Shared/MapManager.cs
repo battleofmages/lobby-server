@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.IO;
 
 public class MapManager {
 	// Starting town
@@ -36,11 +35,15 @@ public class MapManager {
 	public static GameObject LoadMap(string mapName) {
 		DeleteOldMap();
 		
-		LogManager.General.Log("Loading map: " + mapName);
+		LogManager.General.Log("Loading map: '" + mapName + "'");
 		
 		var mapPrefab = Resources.Load("Maps/" + mapName);
-		LogManager.General.Log("Map prefab loaded");
-		
+		if(mapPrefab != null)
+			LogManager.General.Log("Map prefab loaded");
+		else
+			LogManager.General.LogError("Map prefab '" + mapName + "' could not be loaded");
+
+		LogManager.General.Log("Instantiating map '" + mapName + "'...");
 		mapInstance = (GameObject)Object.Instantiate(mapPrefab, Cache.vector3Zero, Cache.quaternionIdentity);
 		LogManager.General.Log("Map instantiated: " + mapInstance);
 		

@@ -1,7 +1,4 @@
-﻿using uLobby;
-using UnityEngine;
-using System.Linq;
-using System.Collections;
+﻿using System.Linq;
 using System.Collections.Generic;
 
 public interface LobbyGameInstanceInterface {
@@ -45,8 +42,23 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 	
 	// Requests uZone to start a new instance
 	protected virtual void StartInstanceAsync() {
-		args.Add("-type" + serverType.ToString());
+		args.Add("-type" + serverType);
 		args.Add("\"-map" + mapName + "\"");
+		
+		// Number of parties
+		int partyCount = 1;
+		
+		switch(serverType) {
+			case ServerType.Arena:
+				partyCount = 2;
+				break;
+				
+			case ServerType.FFA:
+				partyCount = 10;
+				break;
+		}
+		
+		args.Add("-partycount" + partyCount);
 		
 		// Add to list by map name
 		if(!mapNameToInstances.ContainsKey(mapName)) {

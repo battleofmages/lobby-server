@@ -1,14 +1,13 @@
-﻿using UnityEngine;
-using System.Collections;
-
-[System.Serializable]
+﻿[System.Serializable]
 public class SkillBuild : JsonSerializable<SkillBuild> {
 	public WeaponBuild[] weapons;
-	
+
+	// Constructor
 	public SkillBuild() {
 		
 	}
-	
+
+	// HasSkill
 	public bool HasSkill(int findSkillId) {
 		foreach(var weaponBuild in weapons) {
 			foreach(var attunementBuild in weaponBuild.attunements) {
@@ -21,7 +20,8 @@ public class SkillBuild : JsonSerializable<SkillBuild> {
 		
 		return false;
 	}
-	
+
+	// GetWeaponBuildById
 	public WeaponBuild GetWeaponBuildById(int id) {
 		foreach(var weaponBuild in weapons) {
 			if(weaponBuild.weaponId == id) {
@@ -31,7 +31,8 @@ public class SkillBuild : JsonSerializable<SkillBuild> {
 		
 		return null;
 	}
-	
+
+	// GetStarterBuild
 	public static SkillBuild GetStarterBuild() {
 		var build = new SkillBuild();
 		

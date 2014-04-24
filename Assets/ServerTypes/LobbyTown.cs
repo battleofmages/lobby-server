@@ -1,9 +1,4 @@
-﻿using uLobby;
-using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
-
-public class LobbyTown : LobbyGameInstance<LobbyTown> {
+﻿public class LobbyTown : LobbyGameInstance<LobbyTown> {
 	// Constructor
 	public LobbyTown(string nMapName) {
 		// Set map pool

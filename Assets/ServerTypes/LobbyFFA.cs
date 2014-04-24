@@ -1,7 +1,4 @@
-﻿using uLobby;
-using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
+﻿using UnityEngine;
 
 public class LobbyFFA : LobbyGameInstance<LobbyFFA> {
 	public const int maxPlayerCount = 10;

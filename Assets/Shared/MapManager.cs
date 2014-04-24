@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class MapManager {
 	// Starting town
-	public static string defaultTown = "Alpha Tester Grounds";
+	public static string defaultTown = "Nubek Outskirts";
 	
 	// Towns
 	public static string[] towns = new string[] {
-		"Alpha Tester Grounds",
+		"Nubek Outskirts",
 		//"Nubek"
 		//"El Thea",
 		//"Tamburin",
@@ -15,12 +15,12 @@ public class MapManager {
 	// Arenas
 	public static string[] arenas = new string[] {
 		//"Alpha Tester Grounds",
-		"Ruins"
+		"Nubek Outskirts"
 	};
 	
 	// FFA maps
 	public static string[] ffaMaps = new string[] {
-		"Alpha Tester Grounds",
+		"Nubek Outskirts",
 		//"Nubek",
 	};
 	

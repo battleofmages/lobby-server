@@ -3,13 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using uLobby;
 
-public class IPInfoDB : SingletonMonoBehaviour<IPInfoDB> {
+public static class IPInfoDB {
 	// --------------------------------------------------------------------------------
 	// IPToAccounts
 	// --------------------------------------------------------------------------------
 	
 	// Set accounts
-	public Coroutine SetAccounts(string ip, string[] accounts, GameDB.ActionOnResult<string[]> func) {
+	public static Coroutine SetAccounts(string ip, string[] accounts, GameDB.ActionOnResult<string[]> func) {
 		return GameDB.instance.StartCoroutine(GameDB.Set<string[]>(
 			"IPToAccounts",
 			ip,
@@ -19,7 +19,7 @@ public class IPInfoDB : SingletonMonoBehaviour<IPInfoDB> {
 	}
 	
 	// Get accounts
-	public Coroutine GetAccounts(string ip, GameDB.ActionOnResult<string[]> func) {
+	public static Coroutine GetAccounts(string ip, GameDB.ActionOnResult<string[]> func) {
 		return GameDB.instance.StartCoroutine(GameDB.Get<string[]>(
 			"IPToAccounts",
 			ip,
@@ -32,7 +32,7 @@ public class IPInfoDB : SingletonMonoBehaviour<IPInfoDB> {
 	// --------------------------------------------------------------------------------
 	
 	// Set country
-	public Coroutine SetCountry(string accountId, string countryCode, GameDB.ActionOnResult<string> func) {
+	public static Coroutine SetCountry(string accountId, string countryCode, GameDB.ActionOnResult<string> func) {
 		return GameDB.instance.StartCoroutine(GameDB.Set<string>(
 			"AccountToCountry",
 			accountId,
@@ -42,7 +42,7 @@ public class IPInfoDB : SingletonMonoBehaviour<IPInfoDB> {
 	}
 	
 	// Get country
-	public Coroutine GetCountry(string accountId, GameDB.ActionOnResult<string> func) {
+	public static Coroutine GetCountry(string accountId, GameDB.ActionOnResult<string> func) {
 		return GameDB.instance.StartCoroutine(GameDB.Get<string>(
 			"AccountToCountry",
 			accountId,

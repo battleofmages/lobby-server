@@ -1,14 +1,10 @@
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 using uLobby;
 
 public class DonationsServer : MonoBehaviour {
-	private DonationsDB donationsDB;
-	
-	void Start () {
-		donationsDB = this.GetComponent<DonationsDB>();
-		
+	// Start
+	void Start() {
 		// Make this class listen to lobby events
 		Lobby.AddListener(this);
 	}
@@ -21,7 +17,7 @@ public class DonationsServer : MonoBehaviour {
 	IEnumerator CrystalBalanceRequest(LobbyMessageInfo info) {
 		LobbyPlayer player = LobbyServer.GetLobbyPlayer(info);
 		
-		yield return donationsDB.GetPaymentsList(player.accountId, data => {
+		yield return DonationsDB.GetPaymentsList(player.accountId, data => {
 			if(data == null) {
 				Lobby.RPC("ReceiveCrystalBalance", player.peer, player.accountId, 0);
 			} else {

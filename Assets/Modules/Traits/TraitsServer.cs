@@ -1,14 +1,9 @@
 using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 using uLobby;
 
 public class TraitsServer : MonoBehaviour {
-	private TraitsDB traitsDB;
-	
-	void Start () {
-		traitsDB = this.GetComponent<TraitsDB>();
-		
+	// Start
+	void Start() {
 		// Make this class listen to lobby events
 		Lobby.AddListener(this);
 	}
@@ -27,6 +22,6 @@ public class TraitsServer : MonoBehaviour {
 		}
 		
 		//LogManager.General.Log("Player '" + player.name + "' sent new character stats " + charStats.ToString());
-		traitsDB.SetCharacterStats(player, charStats);
+		TraitsDB.SetCharacterStats(player, charStats);
 	}
 }

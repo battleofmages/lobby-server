@@ -1,13 +1,13 @@
 using UnityEngine;
 using uLobby;
 
-public class SettingsDB : SingletonMonoBehaviour<SettingsDB> {
+public static class SettingsDB {
 	// --------------------------------------------------------------------------------
 	// AccountToInputSettings
 	// --------------------------------------------------------------------------------
 	
 	// Get input settings
-	public Coroutine GetInputSettings(LobbyPlayer player) {
+	public static Coroutine GetInputSettings(LobbyPlayer player) {
 		return GameDB.instance.StartCoroutine(GameDB.Get<InputSettings>(
 			"AccountToInputSettings",
 			player.accountId,
@@ -23,7 +23,7 @@ public class SettingsDB : SingletonMonoBehaviour<SettingsDB> {
 	}
 	
 	// Set input settings
-	public Coroutine SetInputSettings(LobbyPlayer player, InputSettings inputMgr) {
+	public static Coroutine SetInputSettings(LobbyPlayer player, InputSettings inputMgr) {
 		return GameDB.instance.StartCoroutine(GameDB.Set<InputSettings>(
 			"AccountToInputSettings",
 			player.accountId,

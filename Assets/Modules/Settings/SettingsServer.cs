@@ -4,11 +4,8 @@ using System.Collections.Generic;
 using uLobby;
 
 public class SettingsServer : MonoBehaviour {
-	private SettingsDB settingsDB;
-	
+	// Start
 	void Start () {
-		settingsDB = this.GetComponent<SettingsDB>();
-		
 		// Make this class listen to lobby events
 		Lobby.AddListener(this);
 	}
@@ -23,6 +20,6 @@ public class SettingsServer : MonoBehaviour {
 		
 		//LogManager.General.Log("Player '" + player.name + "' sent new input settings");
 		InputSettings inputSettings = Jboy.Json.ReadObject<InputSettings>(inputSettingsString);
-		settingsDB.SetInputSettings(player, inputSettings);
+		SettingsDB.SetInputSettings(player, inputSettings);
 	}
 }

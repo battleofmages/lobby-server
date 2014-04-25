@@ -1,11 +1,9 @@
-using UnityEngine;
-using uLobby;
 using uGameDB;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
-public class RankingsDB : MonoBehaviour {
+public static class RankingsDB {
 	public static string[] pageToPropertyName = {
 		"bestRanking",
 		"total.ranking",
@@ -17,7 +15,7 @@ public class RankingsDB : MonoBehaviour {
 	};
 	
 	// Get top ranks
-	public IEnumerator GetTopRanks(byte subject, byte page, uint maxPlayerCount, GameDB.ActionOnResult<RankEntry[]> func = null) {
+	public static IEnumerator GetTopRanks(byte subject, byte page, uint maxPlayerCount, GameDB.ActionOnResult<RankEntry[]> func = null) {
 		// TODO: Use GameDB.MapReduce
 		
 		// Retrieve the highscore list from the database by using MapReduce. The MapReduce request consists of a

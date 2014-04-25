@@ -3,13 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using uLobby;
 
-public class DonationsDB : MonoBehaviour {
+public static class DonationsDB {
 	// --------------------------------------------------------------------------------
 	// AccountToPayments
 	// --------------------------------------------------------------------------------
 	
 	// Set payments list
-	public Coroutine SetPaymentsList(string accountId, PaymentsList list, GameDB.ActionOnResult<PaymentsList> func) {
+	public static Coroutine SetPaymentsList(string accountId, PaymentsList list, GameDB.ActionOnResult<PaymentsList> func) {
 		return GameDB.instance.StartCoroutine(GameDB.Set<PaymentsList>(
 			"AccountToPayments",
 			accountId,
@@ -19,7 +19,7 @@ public class DonationsDB : MonoBehaviour {
 	}
 	
 	// Get payments list
-	public Coroutine GetPaymentsList(string accountId, GameDB.ActionOnResult<PaymentsList> func) {
+	public static Coroutine GetPaymentsList(string accountId, GameDB.ActionOnResult<PaymentsList> func) {
 		return GameDB.instance.StartCoroutine(GameDB.Get<PaymentsList>(
 			"AccountToPayments",
 			accountId,

@@ -3,13 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using uLobby;
 
-public class TraitsDB : SingletonMonoBehaviour<TraitsDB> {
+public static class TraitsDB {
 	// --------------------------------------------------------------------------------
 	// AccountToCharacterStats
 	// --------------------------------------------------------------------------------
 	
 	// Get character stats
-	public Coroutine GetCharacterStats(LobbyPlayer player) {
+	public static Coroutine GetCharacterStats(LobbyPlayer player) {
 		return GameDB.instance.StartCoroutine(GameDB.Get<CharacterStats>(
 			"AccountToCharacterStats",
 			player.accountId,
@@ -25,7 +25,7 @@ public class TraitsDB : SingletonMonoBehaviour<TraitsDB> {
 	}
 	
 	// Get character stats
-	public Coroutine GetCharacterStats(string accountId, GameDB.ActionOnResult<CharacterStats> func) {
+	public static Coroutine GetCharacterStats(string accountId, GameDB.ActionOnResult<CharacterStats> func) {
 		return GameDB.instance.StartCoroutine(GameDB.Get<CharacterStats>(
 			"AccountToCharacterStats",
 			accountId,
@@ -34,7 +34,7 @@ public class TraitsDB : SingletonMonoBehaviour<TraitsDB> {
 	}
 	
 	// Set character stats
-	public Coroutine SetCharacterStats(LobbyPlayer player, CharacterStats charStats) {
+	public static Coroutine SetCharacterStats(LobbyPlayer player, CharacterStats charStats) {
 		return GameDB.instance.StartCoroutine(GameDB.Set<CharacterStats>(
 			"AccountToCharacterStats",
 			player.accountId,

@@ -7,11 +7,8 @@ public class RankingsServer : SingletonMonoBehaviour<RankingsServer> {
 	// Players per page
 	private static uint maxPlayerCount = 10;
 	
-	private RankingsDB rankingsDB;
-	
-	void Start () {
-		rankingsDB = this.GetComponent<RankingsDB>();
-		
+	// Start
+	void Start() {
 		// Init ranking lists
 		GameDB.InitRankingLists();
 		
@@ -29,7 +26,7 @@ public class RankingsServer : SingletonMonoBehaviour<RankingsServer> {
 		for(byte page = 0; page < GameDB.numRankingPages; page++) {
 			byte pageSaved = page;
 			
-			StartCoroutine(rankingsDB.GetTopRanks(
+			StartCoroutine(RankingsDB.GetTopRanks(
 				subject,
 				page,
 				maxPlayerCount,
@@ -64,7 +61,7 @@ public class RankingsServer : SingletonMonoBehaviour<RankingsServer> {
 		var peer = info.sender;
 		
 		//LogManager.General.Log("Retrieving top " + maxPlayerCount + " ranks");
-		StartCoroutine(rankingsDB.GetTopRanks(
+		StartCoroutine(RankingsDB.GetTopRanks(
 			subject,
 			page,
 			maxPlayerCount,

@@ -4,12 +4,8 @@ using System.Linq;
 using uLobby;
 
 public class FriendsServer : MonoBehaviour {
-	private FriendsDB friendsDB;
-
 	// Start
 	void Start() {
-		friendsDB = GetComponent<FriendsDB>();
-		
 		// Make this class listen to lobby events
 		Lobby.AddListener(this);
 	}
@@ -59,7 +55,7 @@ public class FriendsServer : MonoBehaviour {
 		player.OnFriendsListLoaded();
 		
 		// Save friends list in database
-		yield return friendsDB.SetFriends(
+		yield return FriendsDB.SetFriends(
 			player.accountId,
 			player.friends,
 			null
@@ -94,7 +90,7 @@ public class FriendsServer : MonoBehaviour {
 		player.OnFriendsListLoaded();
 		
 		// Save friends list in database
-		yield return friendsDB.SetFriends(
+		yield return FriendsDB.SetFriends(
 			player.accountId,
 			player.friends,
 			null
@@ -126,7 +122,7 @@ public class FriendsServer : MonoBehaviour {
 		selectedGroup.friends.Find(friend => friend.accountId == friendAccountId).note = note;
 		
 		// Save friends list in database
-		yield return friendsDB.SetFriends(
+		yield return FriendsDB.SetFriends(
 			player.accountId,
 			player.friends,
 			null
@@ -142,7 +138,7 @@ public class FriendsServer : MonoBehaviour {
 		player.friends.AddGroup(groupName);
 		
 		// Save friends list in database
-		yield return friendsDB.SetFriends(
+		yield return FriendsDB.SetFriends(
 			player.accountId,
 			player.friends,
 			null
@@ -158,7 +154,7 @@ public class FriendsServer : MonoBehaviour {
 		player.friends.RemoveGroup(groupName);
 		
 		// Save friends list in database
-		yield return friendsDB.SetFriends(
+		yield return FriendsDB.SetFriends(
 			player.accountId,
 			player.friends,
 			null

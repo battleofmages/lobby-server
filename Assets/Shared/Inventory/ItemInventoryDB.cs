@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class ItemInventoryDB : SingletonMonoBehaviour<ItemInventoryDB> {
+public static class ItemInventoryDB {
 	// --------------------------------------------------------------------------------
 	// AccountToItemInventory
 	// --------------------------------------------------------------------------------
 	
 	// Get item inventory
-	public Coroutine GetItemInventory(string accountId, GameDB.ActionOnResult<ItemInventory> func) {
+	public static Coroutine GetItemInventory(string accountId, GameDB.ActionOnResult<ItemInventory> func) {
 		return GameDB.instance.StartCoroutine(GameDB.Get<ItemInventory>(
 			"AccountToItemInventory",
 			accountId,

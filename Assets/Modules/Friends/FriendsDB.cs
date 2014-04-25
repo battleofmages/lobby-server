@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 
-public class FriendsDB : SingletonMonoBehaviour<FriendsDB> {
+public static class FriendsDB {
 	// --------------------------------------------------------------------------------
 	// AccountToFriends
 	// --------------------------------------------------------------------------------
 
 	// Get friends
-	public Coroutine GetFriends(LobbyPlayer player) {
+	public static Coroutine GetFriends(LobbyPlayer player) {
 		return GameDB.instance.StartCoroutine(GameDB.Get<FriendsList>(
 			"AccountToFriends",
 			player.accountId,
@@ -23,7 +23,7 @@ public class FriendsDB : SingletonMonoBehaviour<FriendsDB> {
 	}
 
 	// Get friends
-	public Coroutine GetFriends(string accountId, GameDB.ActionOnResult<FriendsList> func) {
+	public static Coroutine GetFriends(string accountId, GameDB.ActionOnResult<FriendsList> func) {
 		return GameDB.instance.StartCoroutine(GameDB.Get<FriendsList>(
 			"AccountToFriends",
 			accountId,
@@ -32,7 +32,7 @@ public class FriendsDB : SingletonMonoBehaviour<FriendsDB> {
 	}
 
 	// Set friends
-	public Coroutine SetFriends(string accountId, FriendsList friends, GameDB.ActionOnResult<FriendsList> func = null) {
+	public static Coroutine SetFriends(string accountId, FriendsList friends, GameDB.ActionOnResult<FriendsList> func = null) {
 		return GameDB.instance.StartCoroutine(GameDB.Set<FriendsList>(
 			"AccountToFriends",
 			accountId,
@@ -46,7 +46,7 @@ public class FriendsDB : SingletonMonoBehaviour<FriendsDB> {
 	// --------------------------------------------------------------------------------
 	
 	// Get followers
-	public Coroutine GetFollowers(LobbyPlayer player) {
+	public static Coroutine GetFollowers(LobbyPlayer player) {
 		return GameDB.instance.StartCoroutine(GameDB.MapReduce<string>(
 			"AccountToFriends",
 			GameDB.GetSearchMapFunction("groups"),

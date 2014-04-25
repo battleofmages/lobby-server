@@ -1,15 +1,13 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 using uLobby;
 
-public class AccessLevelsDB : SingletonMonoBehaviour<AccessLevelsDB> {
+public static class AccessLevelsDB {
 	// --------------------------------------------------------------------------------
 	// AccountToAccessLevel
 	// --------------------------------------------------------------------------------
 	
 	// Get access level
-	public Coroutine GetAccessLevel(LobbyPlayer player) {
+	public static Coroutine GetAccessLevel(LobbyPlayer player) {
 		return GameDB.instance.StartCoroutine(GameDB.Get<byte>(
 			"AccountToAccessLevel",
 			player.accountId,
@@ -27,7 +25,7 @@ public class AccessLevelsDB : SingletonMonoBehaviour<AccessLevelsDB> {
 	}
 	
 	// Set character stats
-	public Coroutine SetAccessLevel(LobbyPlayer player, AccessLevel level) {
+	public static Coroutine SetAccessLevel(LobbyPlayer player, AccessLevel level) {
 		return GameDB.instance.StartCoroutine(GameDB.Set<byte>(
 			"AccountToAccessLevel",
 			player.accountId,

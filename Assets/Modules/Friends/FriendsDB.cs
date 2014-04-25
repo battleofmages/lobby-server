@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using UnityEngine;
 
 public class FriendsDB : SingletonMonoBehaviour<FriendsDB> {
 	// --------------------------------------------------------------------------------
@@ -6,8 +6,8 @@ public class FriendsDB : SingletonMonoBehaviour<FriendsDB> {
 	// --------------------------------------------------------------------------------
 
 	// Get friends
-	public IEnumerator GetFriends(LobbyPlayer player) {
-		yield return StartCoroutine(GameDB.Get<FriendsList>(
+	public Coroutine GetFriends(LobbyPlayer player) {
+		return GameDB.instance.StartCoroutine(GameDB.Get<FriendsList>(
 			"AccountToFriends",
 			player.accountId,
 			data => {
@@ -15,16 +15,16 @@ public class FriendsDB : SingletonMonoBehaviour<FriendsDB> {
 					player.friends = data;
 				else
 					player.friends = new FriendsList();
+				
+				// Send new friends list
+				player.OnFriendsListLoaded();
 			}
 		));
-		
-		// Send new friends list
-		player.OnFriendsListLoaded();
 	}
 
 	// Get friends
-	public IEnumerator GetFriends(string accountId, GameDB.ActionOnResult<FriendsList> func) {
-		yield return StartCoroutine(GameDB.Get<FriendsList>(
+	public Coroutine GetFriends(string accountId, GameDB.ActionOnResult<FriendsList> func) {
+		return GameDB.instance.StartCoroutine(GameDB.Get<FriendsList>(
 			"AccountToFriends",
 			accountId,
 			func
@@ -32,8 +32,8 @@ public class FriendsDB : SingletonMonoBehaviour<FriendsDB> {
 	}
 
 	// Set friends
-	public IEnumerator SetFriends(string accountId, FriendsList friends, GameDB.ActionOnResult<FriendsList> func = null) {
-		yield return StartCoroutine(GameDB.Set<FriendsList>(
+	public Coroutine SetFriends(string accountId, FriendsList friends, GameDB.ActionOnResult<FriendsList> func = null) {
+		return GameDB.instance.StartCoroutine(GameDB.Set<FriendsList>(
 			"AccountToFriends",
 			accountId,
 			friends,
@@ -46,19 +46,19 @@ public class FriendsDB : SingletonMonoBehaviour<FriendsDB> {
 	// --------------------------------------------------------------------------------
 	
 	// Get followers
-	public IEnumerator GetFollowers(LobbyPlayer player) {
-		yield return StartCoroutine(GameDB.MapReduce<string>(
+	public Coroutine GetFollowers(LobbyPlayer player) {
+		return GameDB.instance.StartCoroutine(GameDB.MapReduce<string>(
 			"AccountToFriends",
 			GameDB.GetSearchMapFunction("groups"),
 			followersReduceFunction,
 			player.accountId,
 			data => {
 				player.followers = data;
+			
+				// Send new followers list
+				player.OnFollowersListLoaded();
 			}
 		));
-		
-		// Send new followers list
-		player.OnFollowersListLoaded();
 	}
 	
 	// Reduce

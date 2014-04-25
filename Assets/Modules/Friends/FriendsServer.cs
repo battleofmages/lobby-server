@@ -30,9 +30,9 @@ public class FriendsServer : MonoBehaviour {
 		// Get account ID
 		string friendAccountId = null;
 		
-		yield return StartCoroutine(LobbyGameDB.GetAccountIdByPlayerName(friendName, data => {
+		yield return LobbyGameDB.GetAccountIdByPlayerName(friendName, data => {
 			friendAccountId = data;
-		}));
+		});
 		
 		// Error getting account ID?
 		if(friendAccountId == null) {
@@ -59,11 +59,11 @@ public class FriendsServer : MonoBehaviour {
 		player.OnFriendsListLoaded();
 		
 		// Save friends list in database
-		yield return StartCoroutine(friendsDB.SetFriends(
+		yield return friendsDB.SetFriends(
 			player.accountId,
 			player.friends,
 			null
-		));
+		);
 	}
 	
 	[RPC]
@@ -77,9 +77,9 @@ public class FriendsServer : MonoBehaviour {
 		// Get account ID
 		string friendAccountId = null;
 		
-		yield return StartCoroutine(LobbyGameDB.GetAccountIdByPlayerName(friendName, data => {
+		yield return LobbyGameDB.GetAccountIdByPlayerName(friendName, data => {
 			friendAccountId = data;
-		}));
+		});
 		
 		// Error getting account ID?
 		if(friendAccountId == null) {
@@ -94,11 +94,11 @@ public class FriendsServer : MonoBehaviour {
 		player.OnFriendsListLoaded();
 		
 		// Save friends list in database
-		yield return StartCoroutine(friendsDB.SetFriends(
+		yield return friendsDB.SetFriends(
 			player.accountId,
 			player.friends,
 			null
-		));
+		);
 	}
 	
 	[RPC]
@@ -112,9 +112,9 @@ public class FriendsServer : MonoBehaviour {
 		// Get account ID
 		string friendAccountId = null;
 		
-		yield return StartCoroutine(LobbyGameDB.GetAccountIdByPlayerName(friendName, data => {
+		yield return LobbyGameDB.GetAccountIdByPlayerName(friendName, data => {
 			friendAccountId = data;
-		}));
+		});
 		
 		// Error getting account ID?
 		if(friendAccountId == null) {
@@ -126,11 +126,11 @@ public class FriendsServer : MonoBehaviour {
 		selectedGroup.friends.Find(friend => friend.accountId == friendAccountId).note = note;
 		
 		// Save friends list in database
-		yield return StartCoroutine(friendsDB.SetFriends(
+		yield return friendsDB.SetFriends(
 			player.accountId,
 			player.friends,
 			null
-		));
+		);
 	}
 	
 	[RPC]
@@ -142,11 +142,11 @@ public class FriendsServer : MonoBehaviour {
 		player.friends.AddGroup(groupName);
 		
 		// Save friends list in database
-		yield return StartCoroutine(friendsDB.SetFriends(
+		yield return friendsDB.SetFriends(
 			player.accountId,
 			player.friends,
 			null
-		));
+		);
 	}
 	
 	[RPC]
@@ -158,11 +158,11 @@ public class FriendsServer : MonoBehaviour {
 		player.friends.RemoveGroup(groupName);
 		
 		// Save friends list in database
-		yield return StartCoroutine(friendsDB.SetFriends(
+		yield return friendsDB.SetFriends(
 			player.accountId,
 			player.friends,
 			null
-		));
+		);
 	}
 #endregion
 }

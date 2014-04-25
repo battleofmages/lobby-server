@@ -27,6 +27,6 @@ public class TraitsServer : MonoBehaviour {
 		}
 		
 		//LogManager.General.Log("Player '" + player.name + "' sent new character stats " + charStats.ToString());
-		StartCoroutine(traitsDB.SetCharacterStats(player, charStats));
+		traitsDB.SetCharacterStats(player, charStats);
 	}
 }

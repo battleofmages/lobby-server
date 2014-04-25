@@ -1,4 +1,4 @@
-using System.Collections;
+using UnityEngine;
 using System.Collections.Generic;
 
 public static class GuildsDB {
@@ -7,8 +7,8 @@ public static class GuildsDB {
 	// --------------------------------------------------------------------------------
 	
 	// Put guild
-	public static IEnumerator PutGuild(Guild guild, GameDB.PutActionOnResult<Guild> func) {
-		yield return GameDB.instance.StartCoroutine(GameDB.Put<Guild>(
+	public static Coroutine PutGuild(Guild guild, GameDB.PutActionOnResult<Guild> func) {
+		return GameDB.instance.StartCoroutine(GameDB.Put<Guild>(
 			"Guilds",
 			guild,
 			func
@@ -16,8 +16,8 @@ public static class GuildsDB {
 	}
 	
 	// Set guild
-	public static IEnumerator SetGuild(string guildId, Guild guild) {
-		yield return GameDB.instance.StartCoroutine(GameDB.Set<Guild>(
+	public static Coroutine SetGuild(string guildId, Guild guild) {
+		return GameDB.instance.StartCoroutine(GameDB.Set<Guild>(
 			"Guilds",
 			guildId,
 			guild,
@@ -28,8 +28,8 @@ public static class GuildsDB {
 	}
 	
 	// Get guild
-	public static IEnumerator GetGuild(string guildId) {
-		yield return GameDB.instance.StartCoroutine(GameDB.Get<Guild>(
+	public static Coroutine GetGuild(string guildId) {
+		return GameDB.instance.StartCoroutine(GameDB.Get<Guild>(
 			"Guilds",
 			guildId,
 			data => {
@@ -43,8 +43,8 @@ public static class GuildsDB {
 	}
 	
 	// Get guild
-	public static IEnumerator GetGuild(string guildId, GameDB.ActionOnResult<Guild> func) {
-		yield return GameDB.instance.StartCoroutine(GameDB.Get<Guild>(
+	public static Coroutine GetGuild(string guildId, GameDB.ActionOnResult<Guild> func) {
+		return GameDB.instance.StartCoroutine(GameDB.Get<Guild>(
 			"Guilds",
 			guildId,
 			func
@@ -52,8 +52,8 @@ public static class GuildsDB {
 	}
 	
 	// Remove guild members
-	public static IEnumerator RemoveGuild(string guildId) {
-		yield return GameDB.instance.StartCoroutine(GameDB.Remove(
+	public static Coroutine RemoveGuild(string guildId) {
+		return GameDB.instance.StartCoroutine(GameDB.Remove(
 			"Guilds",
 			guildId,
 			success => {
@@ -69,8 +69,8 @@ public static class GuildsDB {
 	// --------------------------------------------------------------------------------
 	
 	// Get guild list
-	public static IEnumerator GetGuildList(string accountId, GameDB.ActionOnResult<GuildList> func) {
-		yield return GameDB.instance.StartCoroutine(GameDB.Get<GuildList>(
+	public static Coroutine GetGuildList(string accountId, GameDB.ActionOnResult<GuildList> func) {
+		return GameDB.instance.StartCoroutine(GameDB.Get<GuildList>(
 			"AccountToGuilds",
 			accountId,
 			func
@@ -78,8 +78,8 @@ public static class GuildsDB {
 	}
 	
 	// Set guild list
-	public static IEnumerator SetGuildList(string accountId, GuildList guildIdList, GameDB.ActionOnResult<GuildList> func = null) {
-		yield return GameDB.instance.StartCoroutine(GameDB.Set<GuildList>(
+	public static Coroutine SetGuildList(string accountId, GuildList guildIdList, GameDB.ActionOnResult<GuildList> func = null) {
+		return GameDB.instance.StartCoroutine(GameDB.Set<GuildList>(
 			"AccountToGuilds",
 			accountId,
 			guildIdList,
@@ -92,8 +92,8 @@ public static class GuildsDB {
 	// --------------------------------------------------------------------------------
 	
 	// Set guild members
-	public static IEnumerator SetGuildMembers(string guildId, List<GuildMember> members) {
-		yield return GameDB.instance.StartCoroutine(GameDB.Set<List<GuildMember>>(
+	public static Coroutine SetGuildMembers(string guildId, List<GuildMember> members) {
+		return GameDB.instance.StartCoroutine(GameDB.Set<List<GuildMember>>(
 			"GuildToMembers",
 			guildId,
 			members,
@@ -104,8 +104,8 @@ public static class GuildsDB {
 	}
 	
 	// Get guild members
-	public static IEnumerator GetGuildMembers(string guildId) {
-		yield return GameDB.instance.StartCoroutine(GameDB.Get<List<GuildMember>>(
+	public static Coroutine GetGuildMembers(string guildId) {
+		return GameDB.instance.StartCoroutine(GameDB.Get<List<GuildMember>>(
 			"GuildToMembers",
 			guildId,
 			data => {
@@ -119,8 +119,8 @@ public static class GuildsDB {
 	}
 	
 	// Remove guild members
-	public static IEnumerator RemoveGuildMembers(string guildId) {
-		yield return GameDB.instance.StartCoroutine(GameDB.Remove(
+	public static Coroutine RemoveGuildMembers(string guildId) {
+		return GameDB.instance.StartCoroutine(GameDB.Remove(
 			"GuildToMembers",
 			guildId,
 			success => {
@@ -136,8 +136,8 @@ public static class GuildsDB {
 	// --------------------------------------------------------------------------------
 	
 	// Set guild invitations
-	public static IEnumerator SetGuildInvitations(string accountId, List<string> gInvitations, GameDB.ActionOnResult<List<string>> func) {
-		yield return GameDB.instance.StartCoroutine(GameDB.Set<List<string>>(
+	public static Coroutine SetGuildInvitations(string accountId, List<string> gInvitations, GameDB.ActionOnResult<List<string>> func) {
+		return GameDB.instance.StartCoroutine(GameDB.Set<List<string>>(
 			"AccountToGuildInvitations",
 			accountId,
 			gInvitations,
@@ -146,8 +146,8 @@ public static class GuildsDB {
 	}
 	
 	// Get guild invitations
-	public static IEnumerator GetGuildInvitations(string accountId, GameDB.ActionOnResult<List<string>> func) {
-		yield return GameDB.instance.StartCoroutine(GameDB.Get<List<string>>(
+	public static Coroutine GetGuildInvitations(string accountId, GameDB.ActionOnResult<List<string>> func) {
+		return GameDB.instance.StartCoroutine(GameDB.Get<List<string>>(
 			"AccountToGuildInvitations",
 			accountId,
 			func
@@ -159,8 +159,8 @@ public static class GuildsDB {
 	// --------------------------------------------------------------------------------
 	
 	// Get guild ID by guild name
-	public static IEnumerator GetGuildIdByGuildName(string guildName, GameDB.ActionOnResult<string> func) {
-		yield return GameDB.instance.StartCoroutine(GameDB.MapReduce<KeyValue<string>>(
+	public static Coroutine GetGuildIdByGuildName(string guildName, GameDB.ActionOnResult<string> func) {
+		return GameDB.instance.StartCoroutine(GameDB.MapReduce<KeyValue<string>>(
 			"Guilds",
 			GameDB.GetSearchMapFunction("name"),
 			GameDB.GetSearchReduceFunction(),

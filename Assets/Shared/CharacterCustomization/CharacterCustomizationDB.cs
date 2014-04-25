@@ -1,4 +1,4 @@
-using System.Collections;
+using UnityEngine;
 
 public static class CharacterCustomizationDB {
 	// --------------------------------------------------------------------------------
@@ -6,8 +6,8 @@ public static class CharacterCustomizationDB {
 	// --------------------------------------------------------------------------------
 	
 	// Get character customization
-	public static void GetCharacterCustomization(string accountId, GameDB.ActionOnResult<CharacterCustomization> func) {
-		GameDB.instance.StartCoroutine(GameDB.Get<CharacterCustomization>(
+	public static Coroutine GetCharacterCustomization(string accountId, GameDB.ActionOnResult<CharacterCustomization> func) {
+		return GameDB.instance.StartCoroutine(GameDB.Get<CharacterCustomization>(
 			"AccountToCharacterCustomization",
 			accountId,
 			func

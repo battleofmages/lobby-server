@@ -9,8 +9,8 @@ public class DonationsDB : MonoBehaviour {
 	// --------------------------------------------------------------------------------
 	
 	// Set payments list
-	public IEnumerator SetPaymentsList(string accountId, PaymentsList list, GameDB.ActionOnResult<PaymentsList> func) {
-		yield return StartCoroutine(GameDB.Set<PaymentsList>(
+	public Coroutine SetPaymentsList(string accountId, PaymentsList list, GameDB.ActionOnResult<PaymentsList> func) {
+		return GameDB.instance.StartCoroutine(GameDB.Set<PaymentsList>(
 			"AccountToPayments",
 			accountId,
 			list,
@@ -19,8 +19,8 @@ public class DonationsDB : MonoBehaviour {
 	}
 	
 	// Get payments list
-	public IEnumerator GetPaymentsList(string accountId, GameDB.ActionOnResult<PaymentsList> func) {
-		yield return StartCoroutine(GameDB.Get<PaymentsList>(
+	public Coroutine GetPaymentsList(string accountId, GameDB.ActionOnResult<PaymentsList> func) {
+		return GameDB.instance.StartCoroutine(GameDB.Get<PaymentsList>(
 			"AccountToPayments",
 			accountId,
 			func

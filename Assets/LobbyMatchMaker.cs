@@ -176,10 +176,10 @@ public class LobbyMatchMaker : SingletonMonoBehaviour<LobbyMatchMaker> {
 			
 			if(gameEnded) {
 				// Send him his new stats
-				StartCoroutine(LobbyGameDB.GetPlayerStats(player));
+				LobbyGameDB.GetPlayerStats(player);
 				
 				// Send him his new artifact inventory
-				StartCoroutine(ArtifactsDB.GetArtifactInventory(player));
+				ArtifactsDB.GetArtifactInventory(player);
 				
 				// Update ranking list cache
 				if(!player.match.updatedRankingList) {

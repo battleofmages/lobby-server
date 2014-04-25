@@ -21,7 +21,7 @@ public class ArtifactsServer : MonoBehaviour {
 		ArtifactTree tree = Jboy.Json.ReadObject<ArtifactTree>(jsonTree);
 		
 		LogManager.General.Log("Player '" + player.name + "' sent new artifact tree " + tree.ToString());
-		StartCoroutine(ArtifactsDB.SetArtifactTree(player, tree));
+		ArtifactsDB.SetArtifactTree(player, tree);
 	}
 	
 	[RPC]
@@ -42,15 +42,15 @@ public class ArtifactsServer : MonoBehaviour {
 				Lobby.RPC("ArtifactEquip", player.peer, itemId);
 				
 				// Save changes
-				yield return StartCoroutine(ArtifactsDB.SetArtifactTree(
+				yield return ArtifactsDB.SetArtifactTree(
 					player,
 					player.artifactTree
-				));
+				);
 				
-				yield return StartCoroutine(ArtifactsDB.SetArtifactInventory(
+				yield return ArtifactsDB.SetArtifactInventory(
 					player,
 					player.artifactInventory
-				));
+				);
 			}
 		} finally {
 			player.artifactsEditingFlag = false;
@@ -77,15 +77,15 @@ public class ArtifactsServer : MonoBehaviour {
 			Lobby.RPC("ArtifactUnequip", player.peer, level, slotIndex);
 			
 			// Save changes
-			yield return StartCoroutine(ArtifactsDB.SetArtifactTree(
+			yield return ArtifactsDB.SetArtifactTree(
 				player,
 				player.artifactTree
-			));
+			);
 			
-			yield return StartCoroutine(ArtifactsDB.SetArtifactInventory(
+			yield return ArtifactsDB.SetArtifactInventory(
 				player,
 				player.artifactInventory
-			));
+			);
 		} finally {
 			player.artifactsEditingFlag = false;
 		}
@@ -106,15 +106,15 @@ public class ArtifactsServer : MonoBehaviour {
 			Lobby.RPC("ArtifactDiscard", player.peer, level, slotId);
 			
 			// Save changes
-			yield return StartCoroutine(ArtifactsDB.SetArtifactTree(
+			yield return ArtifactsDB.SetArtifactTree(
 				player,
 				player.artifactTree
-			));
+			);
 			
-			yield return StartCoroutine(ArtifactsDB.SetArtifactInventory(
+			yield return ArtifactsDB.SetArtifactInventory(
 				player,
 				player.artifactInventory
-			));
+			);
 		} finally {
 			player.artifactsEditingFlag = false;
 		}

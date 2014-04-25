@@ -1,5 +1,5 @@
 ﻿using uLobby;
-using System.Collections;
+using UnityEngine;
 
 public static class ArtifactsDB {
 	// --------------------------------------------------------------------------------
@@ -7,8 +7,8 @@ public static class ArtifactsDB {
 	// --------------------------------------------------------------------------------
 	
 	// Get artifact tree
-	public static IEnumerator GetArtifactTree(string accountId, GameDB.ActionOnResult<ArtifactTree> func) {
-		yield return GameDB.instance.StartCoroutine(GameDB.Get<ArtifactTree>(
+	public static Coroutine GetArtifactTree(string accountId, GameDB.ActionOnResult<ArtifactTree> func) {
+		return GameDB.instance.StartCoroutine(GameDB.Get<ArtifactTree>(
 			"AccountToArtifactTree",
 			accountId,
 			func
@@ -20,8 +20,8 @@ public static class ArtifactsDB {
 	// --------------------------------------------------------------------------------
 	
 	// Get artifact inventory
-	public static IEnumerator GetArtifactInventory(string accountId, GameDB.ActionOnResult<ArtifactInventory> func) {
-		yield return GameDB.instance.StartCoroutine(GameDB.Get<ArtifactInventory>(
+	public static Coroutine GetArtifactInventory(string accountId, GameDB.ActionOnResult<ArtifactInventory> func) {
+		return GameDB.instance.StartCoroutine(GameDB.Get<ArtifactInventory>(
 			"AccountToArtifactInventory",
 			accountId,
 			func
@@ -30,8 +30,8 @@ public static class ArtifactsDB {
 	
 #if LOBBY_SERVER
 	// Get artifact tree
-	public static IEnumerator GetArtifactTree(LobbyPlayer player) {
-		yield return GameDB.instance.StartCoroutine(GameDB.Get<ArtifactTree>(
+	public static Coroutine GetArtifactTree(LobbyPlayer player) {
+		return GameDB.instance.StartCoroutine(GameDB.Get<ArtifactTree>(
 			"AccountToArtifactTree",
 			player.accountId,
 			data => {
@@ -47,8 +47,8 @@ public static class ArtifactsDB {
 	}
 	
 	// Set artifact tree
-	public static IEnumerator SetArtifactTree(LobbyPlayer player, ArtifactTree tree) {
-		yield return GameDB.instance.StartCoroutine(GameDB.Set<ArtifactTree>(
+	public static Coroutine SetArtifactTree(LobbyPlayer player, ArtifactTree tree) {
+		return GameDB.instance.StartCoroutine(GameDB.Set<ArtifactTree>(
 			"AccountToArtifactTree",
 			player.accountId,
 			tree,
@@ -66,8 +66,8 @@ public static class ArtifactsDB {
 	// --------------------------------------------------------------------------------
 	
 	// Get artifact inventory
-	public static IEnumerator GetArtifactInventory(LobbyPlayer player) {
-		yield return GameDB.instance.StartCoroutine(GameDB.Get<ArtifactInventory>(
+	public static Coroutine GetArtifactInventory(LobbyPlayer player) {
+		return GameDB.instance.StartCoroutine(GameDB.Get<ArtifactInventory>(
 			"AccountToArtifactInventory",
 			player.accountId,
 			data => {
@@ -83,8 +83,8 @@ public static class ArtifactsDB {
 	}
 	
 	// Set artifact tree
-	public static IEnumerator SetArtifactInventory(LobbyPlayer player, ArtifactInventory inv) {
-		yield return GameDB.instance.StartCoroutine(GameDB.Set<ArtifactInventory>(
+	public static Coroutine SetArtifactInventory(LobbyPlayer player, ArtifactInventory inv) {
+		return GameDB.instance.StartCoroutine(GameDB.Set<ArtifactInventory>(
 			"AccountToArtifactInventory",
 			player.accountId,
 			inv,

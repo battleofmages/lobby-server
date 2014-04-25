@@ -58,9 +58,9 @@ public class LobbyAccountManager : MonoBehaviour {
 		
 		// Set email for the account
 		Account account = registerReq.result;
-		yield return StartCoroutine(LobbyGameDB.SetEmail(account.id.value, email, data => {
+		yield return LobbyGameDB.SetEmail(account.id.value, email, data => {
 			// ...
-		}));
+		});
 		
 		// Bug in uLobby: We need to call this explicitly on the client
 		Lobby.RPC("_RPCOnAccountRegistered", info.sender, account);
@@ -70,12 +70,12 @@ public class LobbyAccountManager : MonoBehaviour {
 		
 		// Activation mail
 		if(!GameDB.IsTestAccount(email)) {
-			StartCoroutine(LobbyGameDB.PutAccountAwaitingActivation(
+			LobbyGameDB.PutAccountAwaitingActivation(
 				email,
 				(data) => {
-				SendActivationMail(email, data);
-			}
-			));
+					SendActivationMail(email, data);
+				}
+			);
 		}
 	}
 	
@@ -85,15 +85,15 @@ public class LobbyAccountManager : MonoBehaviour {
 		bool activated = false;
 		
 		if(!GameDB.IsTestAccount(email)) {
-			yield return StartCoroutine(LobbyGameDB.GetAccountAwaitingActivation(
+			yield return LobbyGameDB.GetAccountAwaitingActivation(
 				email,
 				(data) => {
-				if(string.IsNullOrEmpty(data))
-					activated = true;
-				else
-					activated = false;
-			}
-			));
+					if(string.IsNullOrEmpty(data))
+						activated = true;
+					else
+						activated = false;
+				}
+			);
 		} else {
 			activated = true;
 		}
@@ -152,15 +152,15 @@ public class LobbyAccountManager : MonoBehaviour {
 	
 	[RPC]
 	void ResendActivationMail(string email, LobbyMessageInfo info) {
-		StartCoroutine(LobbyGameDB.GetAccountAwaitingActivation(
+		LobbyGameDB.GetAccountAwaitingActivation(
 			email,
 			(token) => {
-			if(!string.IsNullOrEmpty(token)) {
-				SendActivationMail(email, token);
-				Lobby.RPC("ActivationMailSent", info.sender);
+				if(!string.IsNullOrEmpty(token)) {
+					SendActivationMail(email, token);
+					Lobby.RPC("ActivationMailSent", info.sender);
+				}
 			}
-		}
-		));
+		);
 	}
 #endregion
 }

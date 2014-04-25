@@ -7,8 +7,8 @@ public class ItemInventoryDB : SingletonMonoBehaviour<ItemInventoryDB> {
 	// --------------------------------------------------------------------------------
 	
 	// Get item inventory
-	public IEnumerator GetItemInventory(string accountId, GameDB.ActionOnResult<ItemInventory> func) {
-		yield return StartCoroutine(GameDB.Get<ItemInventory>(
+	public Coroutine GetItemInventory(string accountId, GameDB.ActionOnResult<ItemInventory> func) {
+		return GameDB.instance.StartCoroutine(GameDB.Get<ItemInventory>(
 			"AccountToItemInventory",
 			accountId,
 			func

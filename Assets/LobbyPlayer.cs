@@ -144,14 +144,12 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 			} else {
 				string lambdaAccountId = friendAccountId;
 				
-				LobbyServer.instance.StartCoroutine(
-					LobbyGameDB.GetPlayerName(lambdaAccountId, data => {
-						if(data != null) {
-							GameDB.accountIdToName[lambdaAccountId] = data;
-							Lobby.RPC("ReceivePlayerName", this.peer, lambdaAccountId, data);
-						}
-					})
-				);
+				LobbyGameDB.GetPlayerName(lambdaAccountId, data => {
+					if(data != null) {
+						GameDB.accountIdToName[lambdaAccountId] = data;
+						Lobby.RPC("ReceivePlayerName", this.peer, lambdaAccountId, data);
+					}
+				});
 			}
 			
 			// Send initial online status

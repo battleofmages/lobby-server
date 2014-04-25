@@ -23,6 +23,6 @@ public class SettingsServer : MonoBehaviour {
 		
 		//LogManager.General.Log("Player '" + player.name + "' sent new input settings");
 		InputSettings inputSettings = Jboy.Json.ReadObject<InputSettings>(inputSettingsString);
-		StartCoroutine(settingsDB.SetInputSettings(player, inputSettings));
+		settingsDB.SetInputSettings(player, inputSettings);
 	}
 }

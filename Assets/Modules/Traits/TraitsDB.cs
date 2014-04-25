@@ -9,8 +9,8 @@ public class TraitsDB : SingletonMonoBehaviour<TraitsDB> {
 	// --------------------------------------------------------------------------------
 	
 	// Get character stats
-	public IEnumerator GetCharacterStats(LobbyPlayer player) {
-		yield return StartCoroutine(GameDB.Get<CharacterStats>(
+	public Coroutine GetCharacterStats(LobbyPlayer player) {
+		return GameDB.instance.StartCoroutine(GameDB.Get<CharacterStats>(
 			"AccountToCharacterStats",
 			player.accountId,
 			data => {
@@ -25,8 +25,8 @@ public class TraitsDB : SingletonMonoBehaviour<TraitsDB> {
 	}
 	
 	// Get character stats
-	public IEnumerator GetCharacterStats(string accountId, GameDB.ActionOnResult<CharacterStats> func) {
-		yield return StartCoroutine(GameDB.Get<CharacterStats>(
+	public Coroutine GetCharacterStats(string accountId, GameDB.ActionOnResult<CharacterStats> func) {
+		return GameDB.instance.StartCoroutine(GameDB.Get<CharacterStats>(
 			"AccountToCharacterStats",
 			accountId,
 			func
@@ -34,8 +34,8 @@ public class TraitsDB : SingletonMonoBehaviour<TraitsDB> {
 	}
 	
 	// Set character stats
-	public IEnumerator SetCharacterStats(LobbyPlayer player, CharacterStats charStats) {
-		yield return StartCoroutine(GameDB.Set<CharacterStats>(
+	public Coroutine SetCharacterStats(LobbyPlayer player, CharacterStats charStats) {
+		return GameDB.instance.StartCoroutine(GameDB.Set<CharacterStats>(
 			"AccountToCharacterStats",
 			player.accountId,
 			charStats,

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using uLobby;
 
-public class TraitsDB : MonoBehaviour {
+public class TraitsDB : SingletonMonoBehaviour<TraitsDB> {
 	// --------------------------------------------------------------------------------
 	// AccountToCharacterStats
 	// --------------------------------------------------------------------------------

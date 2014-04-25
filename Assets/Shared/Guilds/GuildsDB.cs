@@ -1,16 +1,14 @@
-using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using uLobby;
 
-public class GuildsDB : SingletonMonoBehaviour<GuildsDB> {
+public static class GuildsDB {
 	// --------------------------------------------------------------------------------
 	// Guilds
 	// --------------------------------------------------------------------------------
 	
 	// Put guild
-	public IEnumerator PutGuild(Guild guild, GameDB.PutActionOnResult<Guild> func) {
-		yield return StartCoroutine(GameDB.Put<Guild>(
+	public static IEnumerator PutGuild(Guild guild, GameDB.PutActionOnResult<Guild> func) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Put<Guild>(
 			"Guilds",
 			guild,
 			func
@@ -18,8 +16,8 @@ public class GuildsDB : SingletonMonoBehaviour<GuildsDB> {
 	}
 	
 	// Set guild
-	public IEnumerator SetGuild(string guildId, Guild guild) {
-		yield return StartCoroutine(GameDB.Set<Guild>(
+	public static IEnumerator SetGuild(string guildId, Guild guild) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Set<Guild>(
 			"Guilds",
 			guildId,
 			guild,
@@ -30,8 +28,8 @@ public class GuildsDB : SingletonMonoBehaviour<GuildsDB> {
 	}
 	
 	// Get guild
-	public IEnumerator GetGuild(string guildId) {
-		yield return StartCoroutine(GameDB.Get<Guild>(
+	public static IEnumerator GetGuild(string guildId) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Get<Guild>(
 			"Guilds",
 			guildId,
 			data => {
@@ -45,8 +43,8 @@ public class GuildsDB : SingletonMonoBehaviour<GuildsDB> {
 	}
 	
 	// Get guild
-	public IEnumerator GetGuild(string guildId, GameDB.ActionOnResult<Guild> func) {
-		yield return StartCoroutine(GameDB.Get<Guild>(
+	public static IEnumerator GetGuild(string guildId, GameDB.ActionOnResult<Guild> func) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Get<Guild>(
 			"Guilds",
 			guildId,
 			func
@@ -54,8 +52,8 @@ public class GuildsDB : SingletonMonoBehaviour<GuildsDB> {
 	}
 	
 	// Remove guild members
-	public IEnumerator RemoveGuild(string guildId) {
-		yield return StartCoroutine(GameDB.Remove(
+	public static IEnumerator RemoveGuild(string guildId) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Remove(
 			"Guilds",
 			guildId,
 			success => {
@@ -71,8 +69,8 @@ public class GuildsDB : SingletonMonoBehaviour<GuildsDB> {
 	// --------------------------------------------------------------------------------
 	
 	// Get guild list
-	public IEnumerator GetGuildList(string accountId, GameDB.ActionOnResult<GuildList> func) {
-		yield return StartCoroutine(GameDB.Get<GuildList>(
+	public static IEnumerator GetGuildList(string accountId, GameDB.ActionOnResult<GuildList> func) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Get<GuildList>(
 			"AccountToGuilds",
 			accountId,
 			func
@@ -80,8 +78,8 @@ public class GuildsDB : SingletonMonoBehaviour<GuildsDB> {
 	}
 	
 	// Set guild list
-	public IEnumerator SetGuildList(string accountId, GuildList guildIdList, GameDB.ActionOnResult<GuildList> func = null) {
-		yield return StartCoroutine(GameDB.Set<GuildList>(
+	public static IEnumerator SetGuildList(string accountId, GuildList guildIdList, GameDB.ActionOnResult<GuildList> func = null) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Set<GuildList>(
 			"AccountToGuilds",
 			accountId,
 			guildIdList,
@@ -94,8 +92,8 @@ public class GuildsDB : SingletonMonoBehaviour<GuildsDB> {
 	// --------------------------------------------------------------------------------
 	
 	// Set guild members
-	public IEnumerator SetGuildMembers(string guildId, List<GuildMember> members) {
-		yield return StartCoroutine(GameDB.Set<List<GuildMember>>(
+	public static IEnumerator SetGuildMembers(string guildId, List<GuildMember> members) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Set<List<GuildMember>>(
 			"GuildToMembers",
 			guildId,
 			members,
@@ -106,8 +104,8 @@ public class GuildsDB : SingletonMonoBehaviour<GuildsDB> {
 	}
 	
 	// Get guild members
-	public IEnumerator GetGuildMembers(string guildId) {
-		yield return StartCoroutine(GameDB.Get<List<GuildMember>>(
+	public static IEnumerator GetGuildMembers(string guildId) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Get<List<GuildMember>>(
 			"GuildToMembers",
 			guildId,
 			data => {
@@ -121,8 +119,8 @@ public class GuildsDB : SingletonMonoBehaviour<GuildsDB> {
 	}
 	
 	// Remove guild members
-	public IEnumerator RemoveGuildMembers(string guildId) {
-		yield return StartCoroutine(GameDB.Remove(
+	public static IEnumerator RemoveGuildMembers(string guildId) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Remove(
 			"GuildToMembers",
 			guildId,
 			success => {
@@ -138,8 +136,8 @@ public class GuildsDB : SingletonMonoBehaviour<GuildsDB> {
 	// --------------------------------------------------------------------------------
 	
 	// Set guild invitations
-	public IEnumerator SetGuildInvitations(string accountId, List<string> gInvitations, GameDB.ActionOnResult<List<string>> func) {
-		yield return StartCoroutine(GameDB.Set<List<string>>(
+	public static IEnumerator SetGuildInvitations(string accountId, List<string> gInvitations, GameDB.ActionOnResult<List<string>> func) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Set<List<string>>(
 			"AccountToGuildInvitations",
 			accountId,
 			gInvitations,
@@ -148,8 +146,8 @@ public class GuildsDB : SingletonMonoBehaviour<GuildsDB> {
 	}
 	
 	// Get guild invitations
-	public IEnumerator GetGuildInvitations(string accountId, GameDB.ActionOnResult<List<string>> func) {
-		yield return StartCoroutine(GameDB.Get<List<string>>(
+	public static IEnumerator GetGuildInvitations(string accountId, GameDB.ActionOnResult<List<string>> func) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Get<List<string>>(
 			"AccountToGuildInvitations",
 			accountId,
 			func
@@ -161,8 +159,8 @@ public class GuildsDB : SingletonMonoBehaviour<GuildsDB> {
 	// --------------------------------------------------------------------------------
 	
 	// Get guild ID by guild name
-	public IEnumerator GetGuildIdByGuildName(string guildName, GameDB.ActionOnResult<string> func) {
-		yield return StartCoroutine(GameDB.MapReduce<KeyValue<string>>(
+	public static IEnumerator GetGuildIdByGuildName(string guildName, GameDB.ActionOnResult<string> func) {
+		yield return GameDB.instance.StartCoroutine(GameDB.MapReduce<KeyValue<string>>(
 			"Guilds",
 			GameDB.GetSearchMapFunction("name"),
 			GameDB.GetSearchReduceFunction(),

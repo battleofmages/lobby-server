@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using uLobby;
 
-public class SettingsDB : MonoBehaviour {
+public class SettingsDB : SingletonMonoBehaviour<SettingsDB> {
 	// --------------------------------------------------------------------------------
 	// AccountToInputSettings
 	// --------------------------------------------------------------------------------

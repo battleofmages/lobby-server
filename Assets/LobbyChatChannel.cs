@@ -21,11 +21,13 @@ public class LobbyChatChannel {
 	public void Unregister() {
 		var copiedMemberList = new List<LobbyPlayer>(members);
 		foreach(var member in copiedMemberList) {
-			this.RemovePlayer(member);
+			RemovePlayer(member);
 		}
 		
-		if(channels.ContainsKey(name))
+		if(channels.ContainsKey(name)) {
+			LogManager.Chat.Log("Removing chat channel: " + name);
 			LobbyChatChannel.channels.Remove(name);
+		}
 	}
 	
 	// Is game channel
@@ -35,12 +37,12 @@ public class LobbyChatChannel {
 	
 	// BroadcastMessage
 	public void BroadcastMessage(string msg) {
-		this.Broadcast(p => Lobby.RPC("Chat", p.peer, this.name, "", msg));
+		Broadcast(p => Lobby.RPC("Chat", p.peer, this.name, "", msg));
 	}
 	
 	// BroadcastMessage
 	public void BroadcastMessage(string playerName, string msg) {
-		this.Broadcast(p => Lobby.RPC("Chat", p.peer, this.name, playerName, msg));
+		Broadcast(p => Lobby.RPC("Chat", p.peer, this.name, playerName, msg));
 	}
 	
 	// Delegate type
@@ -62,12 +64,12 @@ public class LobbyChatChannel {
 	
 	// AddPlayer
 	public void AddPlayer(LobbyPlayer player) {
-		this.SendMemberListToPlayer(player);
+		SendMemberListToPlayer(player);
 		
 		members.Add(player);
 		player.channels.Add(this);
 		
-		this.Broadcast(p => Lobby.RPC("ChatJoin", p.peer, this.name, player.chatMember, player.name));
+		Broadcast(p => Lobby.RPC("ChatJoin", p.peer, name, player.chatMember, player.name));
 	}
 	
 	// RemovePlayer

@@ -1,14 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 using uLobby;
 
 public class ArtifactsServer : MonoBehaviour {
-	private ArtifactsDB artifactsDB;
-	
+	// Start
 	void Start () {
-		artifactsDB = this.GetComponent<ArtifactsDB>();
-		
 		// Make this class listen to lobby events
 		Lobby.AddListener(this);
 	}
@@ -25,7 +21,7 @@ public class ArtifactsServer : MonoBehaviour {
 		ArtifactTree tree = Jboy.Json.ReadObject<ArtifactTree>(jsonTree);
 		
 		LogManager.General.Log("Player '" + player.name + "' sent new artifact tree " + tree.ToString());
-		StartCoroutine(artifactsDB.SetArtifactTree(player, tree));
+		StartCoroutine(ArtifactsDB.SetArtifactTree(player, tree));
 	}
 	
 	[RPC]
@@ -46,12 +42,12 @@ public class ArtifactsServer : MonoBehaviour {
 				Lobby.RPC("ArtifactEquip", player.peer, itemId);
 				
 				// Save changes
-				yield return StartCoroutine(artifactsDB.SetArtifactTree(
+				yield return StartCoroutine(ArtifactsDB.SetArtifactTree(
 					player,
 					player.artifactTree
 				));
 				
-				yield return StartCoroutine(artifactsDB.SetArtifactInventory(
+				yield return StartCoroutine(ArtifactsDB.SetArtifactInventory(
 					player,
 					player.artifactInventory
 				));
@@ -81,12 +77,12 @@ public class ArtifactsServer : MonoBehaviour {
 			Lobby.RPC("ArtifactUnequip", player.peer, level, slotIndex);
 			
 			// Save changes
-			yield return StartCoroutine(artifactsDB.SetArtifactTree(
+			yield return StartCoroutine(ArtifactsDB.SetArtifactTree(
 				player,
 				player.artifactTree
 			));
 			
-			yield return StartCoroutine(artifactsDB.SetArtifactInventory(
+			yield return StartCoroutine(ArtifactsDB.SetArtifactInventory(
 				player,
 				player.artifactInventory
 			));
@@ -110,12 +106,12 @@ public class ArtifactsServer : MonoBehaviour {
 			Lobby.RPC("ArtifactDiscard", player.peer, level, slotId);
 			
 			// Save changes
-			yield return StartCoroutine(artifactsDB.SetArtifactTree(
+			yield return StartCoroutine(ArtifactsDB.SetArtifactTree(
 				player,
 				player.artifactTree
 			));
 			
-			yield return StartCoroutine(artifactsDB.SetArtifactInventory(
+			yield return StartCoroutine(ArtifactsDB.SetArtifactInventory(
 				player,
 				player.artifactInventory
 			));

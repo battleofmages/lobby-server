@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using uLobby;
 
-public class AccessLevelsDB : MonoBehaviour {
+public class AccessLevelsDB : SingletonMonoBehaviour<AccessLevelsDB> {
 	// --------------------------------------------------------------------------------
 	// AccountToAccessLevel
 	// --------------------------------------------------------------------------------

@@ -145,7 +145,7 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 				string lambdaAccountId = friendAccountId;
 				
 				LobbyServer.instance.StartCoroutine(
-					LobbyGameDB.instance.GetPlayerName(lambdaAccountId, data => {
+					LobbyGameDB.GetPlayerName(lambdaAccountId, data => {
 						if(data != null) {
 							GameDB.accountIdToName[lambdaAccountId] = data;
 							Lobby.RPC("ReceivePlayerName", this.peer, lambdaAccountId, data);
@@ -297,6 +297,57 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 		}
 	}
 	
+	// Removes a player - This function can be called from logout, disconnect and SendQueueStats!
+	public void Remove() {
+		// Remove the player from the queue he was in
+		if(queue != null)
+			queue.RemovePlayer(this);
+		
+		// Remove game instance associations
+		gameInstance = null;
+		
+		// Broadcast offline status
+		onlineStatus = OnlineStatus.Offline;
+		
+		// Remove the reference from the dictionary
+		LobbyPlayer.accountIdToLobbyPlayer.Remove(accountId);
+		
+		// Remove the player from the global list
+		LobbyPlayer.list.Remove(this);
+		
+		// TODO: When we save parties, this shouldn't exist
+		// Leave party
+		var pty = GetParty();
+		if(pty != null)
+			pty.RemoveMember(this);
+		
+		// Remove the player from all chat channels.
+		// The list is copied because channels could be deleted after removing players.
+		foreach(var channel in new List<LobbyChatChannel>(channels)) {
+			channel.RemovePlayer(this);
+		}
+	}
+	
+	// Returns a player to his world location
+	public void ReturnToWorld() {
+		// Map name
+		string playerMap = MapManager.defaultTown;
+		
+		// Start new town server if needed
+		LobbyTown townInstance;
+		List<LobbyGameInstance<LobbyTown>> townList;
+		if(!LobbyTown.mapNameToInstances.TryGetValue(playerMap, out townList) || townList.Count == 0) {
+			townInstance = new LobbyTown(playerMap);
+			townInstance.Register();
+		} else {
+			var lobbyGameInstance = LobbyTown.mapNameToInstances[playerMap][0];
+			townInstance = (LobbyTown)lobbyGameInstance;
+		}
+		
+		// Connect the player once the instance is ready
+		LobbyServer.instance.StartCoroutine(ConnectToGameInstanceDelayed(townInstance));
+	}
+	
 	// Broadcast status
 	void BroadcastStatus() {
 		playersReceivedStatus = new HashSet<LobbyPlayer>();
@@ -400,14 +451,14 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 			yield break;
 		
 		// Connect player to server
-		this.ConnectToGameInstance(lobbyGameInstance);
+		ConnectToGameInstance(lobbyGameInstance);
 	}
 	
 	// Connects the player to a game server instance
 	public void ConnectToGameInstance<T>(LobbyGameInstance<T> lobbyGameInstance) {
-		this.gameInstance = lobbyGameInstance;
+		gameInstance = lobbyGameInstance;
 		
-		this.ConnectToGameServer(lobbyGameInstance.instance);
+		ConnectToGameServer(lobbyGameInstance.instance);
 	}
 	
 	// Helper function

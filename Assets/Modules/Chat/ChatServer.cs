@@ -1,9 +1,8 @@
 using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 using uLobby;
 
 public class ChatServer : MonoBehaviour {
+	// Start
 	void Start () {
 		// Make this class listen to lobby events
 		Lobby.AddListener(this);

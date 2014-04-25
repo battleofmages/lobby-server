@@ -5,20 +5,14 @@ public interface LobbyGameInstanceInterface {
 	List<LobbyPlayer> players{ get; }
 	LobbyChatChannel mapChannel { get; }
 	
-	//void StartInstanceAsync();
-	void StartPlayingOn(uZone.InstanceProcess newInstance);
 	void Register();
 	void Unregister();
-	//void OnRegister();
-	//void OnUnregister();
-	//void OnInstanceAvailable();
 }
 
 public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 	public static List<LobbyGameInstance<T>> waitingForServer = new List<LobbyGameInstance<T>>();
 	public static List<LobbyGameInstance<T>> running = new List<LobbyGameInstance<T>>();
 	public static Dictionary<uZone.InstanceID, LobbyGameInstance<T>> idToInstance = new Dictionary<uZone.InstanceID, LobbyGameInstance<T>>();
-	public static Dictionary<uZone.InstanceID, LobbyGameInstance<T>> requestIdToInstance = new Dictionary<uZone.InstanceID, LobbyGameInstance<T>>();
 	public static Dictionary<string, List<LobbyGameInstance<T>>> mapNameToInstances = new Dictionary<string, List<LobbyGameInstance<T>>>();
 	public static string[] mapPool = null;
 	
@@ -34,7 +28,6 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 	}
 	
 	public uZone.InstanceProcess instance = null;
-	public uZone.InstanceID requestId;
 	public List<string> args = new List<string>();
 	protected string mapName;
 	protected ServerType serverType;
@@ -68,28 +61,25 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 		mapNameToInstances[mapName].Add(this);
 		
 		waitingForServer.Add(this);
-		options = new uZone.InstanceOptions(LobbyServer.gameName, args);
+		options = new uZone.InstanceOptions(LobbyInstanceManager.gameName, args);
 		
+		// Pick a node
 		var node = uZone.InstanceManager.nodes.FirstOrDefault();
+		
+		// Request uZone to start a new instance
 		node.StartInstance(options, (request) => {
+			// Success
 			instance = request.GetInstance();
-			requestId = instance.id;
-			requestIdToInstance[requestId] = this;
+			idToInstance[instance.id] = this;
+			StartPlaying();
 		}, (request) => {
-			
+			// Failure
+			LogManager.General.LogError("Couldn't start instance: " + request);
 		});
-		
-		/*yield return startRequest.WaitUntilDone();
-		startRequest.TryGetInstance(out instance);*/
-		
-		//requestId = uZone.InstanceManager.StartGameInstance(LobbyServer.gameName, args);
-		//requestIdToInstance[requestId] = this;
 	}
 	
 	// Starts playing on game server instance
-	public virtual void StartPlayingOn(uZone.InstanceProcess newInstance) {
-		instance = newInstance;
-		
+	void StartPlaying() {
 		// Log after the instance has been assigned, so we see the IP
 		LogManager.General.Log("Instance started: " + this.ToString());
 		
@@ -97,39 +87,38 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 		waitingForServer.Remove(this);
 		
 		// Create a map channel
-		_mapChannel = new LobbyChatChannel("Map@" + instance.node.publicAddress + ":" + instance.port);
+		var channelName = "Map@" + instance.node.publicAddress + ":" + instance.port;
+		
+		LogManager.Chat.Log("Creating chat channel: " + channelName);
+		_mapChannel = new LobbyChatChannel(channelName);
 		
 		// Callback
-		this.OnInstanceAvailable();
+		OnInstanceAvailable();
 		
 		// Add this to the list of running instances
-		idToInstance[instance.id] = this;
 		running.Add(this);
 	}
 	
 	// Register
 	public virtual void Register() {
 		// Custom callback
-		this.OnRegister();
+		OnRegister();
 		
 		// Async: Start game server instance for this match
-		this.StartInstanceAsync();
+		StartInstanceAsync();
 	}
 	
 	// Unregister
 	public virtual void Unregister() {
-		LogManager.General.Log("Instance stopped running: " + this.ToString());
+		LogManager.General.Log("Unregistering instance: " + this.ToString());
 		
 		//this.OnUnregister();
 		
 		_mapChannel.Unregister();
 		_mapChannel = null;
 		
-		if(!requestIdToInstance.Remove(requestId))
-			LogManager.General.LogError("Could not unregister request id " + requestId);
-		
 		if(!idToInstance.Remove(instance.id))
-			LogManager.General.LogError("Could not unregister instance id " + requestId);
+			LogManager.General.LogError("Could not unregister instance id " + instance.id);
 		
 		if(!mapNameToInstances[mapName].Remove(this))
 			LogManager.General.LogError("Could not unregister instance from map name list: " + mapName + ", " + this.ToString());
@@ -144,7 +133,7 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 			if(player.gameInstance == this) {
 				if(player.inTown) {
 					player.gameInstance = null;
-					LobbyServer.instance.ReturnPlayerToTown(player);
+					player.ReturnToWorld();
 					reconnectCount++;
 				} else {
 					// ...
@@ -162,7 +151,7 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 	// ToString
 	public override string ToString() {
 		var playerList =
-			from p in this.players
+			from p in players
 			select p.ToString();
 		var playerListString = string.Join(", ", playerList.ToArray());
 		

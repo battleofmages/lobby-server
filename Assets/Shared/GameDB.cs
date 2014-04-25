@@ -1,13 +1,12 @@
 using UnityEngine;
 using uGameDB;
 using Jboy;
-using uLobby;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
 
-public class GameDB {
+public class GameDB : SingletonMonoBehaviour<GameDB> {
 	public static bool codecsInitialized = false;
 	public static Dictionary<string, string> accountIdToName = new Dictionary<string, string>();
 	public static Dictionary<string, Guild> guildIdToGuild = new Dictionary<string, Guild>();

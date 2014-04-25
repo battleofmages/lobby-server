@@ -1,18 +1,14 @@
-using UnityEngine;
 using uLobby;
-using uGameDB;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 
-public class LobbyGameDB : SingletonMonoBehaviour<LobbyGameDB> {
+public static class LobbyGameDB {
 	// --------------------------------------------------------------------------------
 	// Player
 	// --------------------------------------------------------------------------------
 	
 	// Get the player name
-	public IEnumerator GetPlayerName(string accountId, GameDB.ActionOnResult<string> func) {
-		yield return StartCoroutine(GameDB.Get<string>(
+	public static IEnumerator GetPlayerName(string accountId, GameDB.ActionOnResult<string> func) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Get<string>(
 			"AccountToName",
 			accountId,
 			func
@@ -20,8 +16,8 @@ public class LobbyGameDB : SingletonMonoBehaviour<LobbyGameDB> {
 	}
 	
 	// Sets the player name
-	public IEnumerator SetPlayerName(LobbyPlayer player, string playerName) {
-		yield return StartCoroutine(GameDB.Set<string>(
+	public static IEnumerator SetPlayerName(LobbyPlayer player, string playerName) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Set<string>(
 			"AccountToName",
 			player.accountId,
 			playerName,
@@ -38,8 +34,8 @@ public class LobbyGameDB : SingletonMonoBehaviour<LobbyGameDB> {
 	}
 	
 	// Get stats for a single player
-	public IEnumerator GetPlayerStats(string accountId, GameDB.ActionOnResult<PlayerStats> func) {
-		yield return StartCoroutine(GameDB.Get<PlayerStats>(
+	public static IEnumerator GetPlayerStats(string accountId, GameDB.ActionOnResult<PlayerStats> func) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Get<PlayerStats>(
 			"AccountToStats",
 			accountId,
 			func
@@ -47,8 +43,8 @@ public class LobbyGameDB : SingletonMonoBehaviour<LobbyGameDB> {
 	}
 	
 	// Get stats for a single player
-	public IEnumerator GetPlayerStats(LobbyPlayer player) {
-		yield return StartCoroutine(GameDB.Get<PlayerStats>(
+	public static IEnumerator GetPlayerStats(LobbyPlayer player) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Get<PlayerStats>(
 			"AccountToStats",
 			player.accountId,
 			data => {
@@ -68,8 +64,8 @@ public class LobbyGameDB : SingletonMonoBehaviour<LobbyGameDB> {
 	}
 	
 	// Get FFA stats for a single player
-	public IEnumerator GetPlayerFFAStats(string accountId, GameDB.ActionOnResult<PlayerStats> func) {
-		yield return StartCoroutine(GameDB.Get<PlayerStats>(
+	public static IEnumerator GetPlayerFFAStats(string accountId, GameDB.ActionOnResult<PlayerStats> func) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Get<PlayerStats>(
 			"AccountToFFAStats",
 			accountId,
 			func
@@ -77,8 +73,8 @@ public class LobbyGameDB : SingletonMonoBehaviour<LobbyGameDB> {
 	}
 	
 	// Sets last login date
-	public IEnumerator SetLastLoginDate(LobbyPlayer player, System.DateTime timestamp) {
-		yield return StartCoroutine(GameDB.Set<TimeStamp>(
+	public static IEnumerator SetLastLoginDate(LobbyPlayer player, System.DateTime timestamp) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Set<TimeStamp>(
 			"AccountToLastLoginDate",
 			player.accountId,
 			new TimeStamp(timestamp),
@@ -89,8 +85,8 @@ public class LobbyGameDB : SingletonMonoBehaviour<LobbyGameDB> {
 	}
 	
 	// Sets account registration date
-	public IEnumerator SetAccountRegistrationDate(string accountId, System.DateTime timestamp) {
-		yield return StartCoroutine(GameDB.Set<TimeStamp>(
+	public static IEnumerator SetAccountRegistrationDate(string accountId, System.DateTime timestamp) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Set<TimeStamp>(
 			"AccountToRegistrationDate",
 			accountId,
 			new TimeStamp(timestamp),
@@ -101,8 +97,8 @@ public class LobbyGameDB : SingletonMonoBehaviour<LobbyGameDB> {
 	}
 	
 	// Gets account registration date
-	public IEnumerator GetAccountRegistrationDate(LobbyPlayer player) {
-		/*yield return StartCoroutine(GameDB.Get<TimeStamp>(
+	public static IEnumerator GetAccountRegistrationDate(LobbyPlayer player) {
+		/*yield return GameDB.instance.StartCoroutine(GameDB.Get<TimeStamp>(
 		"AccountToRegistrationDate",
 		player.accountId,
 		data => {
@@ -119,8 +115,8 @@ public class LobbyGameDB : SingletonMonoBehaviour<LobbyGameDB> {
 	// --------------------------------------------------------------------------------
 	
 	// Set email
-	public IEnumerator SetEmail(string accountId, string email, GameDB.ActionOnResult<string> func) {
-		yield return StartCoroutine(GameDB.Set<string>(
+	public static IEnumerator SetEmail(string accountId, string email, GameDB.ActionOnResult<string> func) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Set<string>(
 			"AccountToEmail",
 			accountId,
 			email,
@@ -129,8 +125,8 @@ public class LobbyGameDB : SingletonMonoBehaviour<LobbyGameDB> {
 	}
 	
 	// Get email
-	public IEnumerator GetEmail(string accountId, GameDB.ActionOnResult<string> func) {
-		yield return StartCoroutine(GameDB.Get<string>(
+	public static IEnumerator GetEmail(string accountId, GameDB.ActionOnResult<string> func) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Get<string>(
 			"AccountToEmail",
 			accountId,
 			func
@@ -142,7 +138,7 @@ public class LobbyGameDB : SingletonMonoBehaviour<LobbyGameDB> {
 	// --------------------------------------------------------------------------------
 	
 	// Set password hash
-	public IEnumerator SetPassword(LobbyPlayer player, string newPassword) {
+	public static IEnumerator SetPassword(LobbyPlayer player, string newPassword) {
 		var req = AccountManager.Master.UpdateAccount(player.account, new AccountUpdate() {
 			password = newPassword
 		});
@@ -163,10 +159,10 @@ public class LobbyGameDB : SingletonMonoBehaviour<LobbyGameDB> {
 	// --------------------------------------------------------------------------------
 	
 	// Adds an account to the activation waiting list
-	public IEnumerator PutAccountAwaitingActivation(string email, GameDB.ActionOnResult<string> func) {
+	public static IEnumerator PutAccountAwaitingActivation(string email, GameDB.ActionOnResult<string> func) {
 		var token = GameDB.GetUniqueKey();
 		
-		yield return StartCoroutine(GameDB.Set<string>(
+		yield return GameDB.instance.StartCoroutine(GameDB.Set<string>(
 			"AccountsAwaitingActivation",
 			email,
 			token,
@@ -175,8 +171,8 @@ public class LobbyGameDB : SingletonMonoBehaviour<LobbyGameDB> {
 	}
 	
 	// Is the account in the activation wait list?
-	public IEnumerator GetAccountAwaitingActivation(string email, GameDB.ActionOnResult<string> func) {
-		yield return StartCoroutine(GameDB.Get<string>(
+	public static IEnumerator GetAccountAwaitingActivation(string email, GameDB.ActionOnResult<string> func) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Get<string>(
 			"AccountsAwaitingActivation",
 			email,
 			func
@@ -188,8 +184,8 @@ public class LobbyGameDB : SingletonMonoBehaviour<LobbyGameDB> {
 	// --------------------------------------------------------------------------------
 	
 	// Get account ID by player name
-	public IEnumerator GetAccountIdByPlayerName(string playerName, GameDB.ActionOnResult<string> func) {
-		yield return StartCoroutine(GameDB.MapReduce<KeyValue<string>>(
+	public static IEnumerator GetAccountIdByPlayerName(string playerName, GameDB.ActionOnResult<string> func) {
+		yield return GameDB.instance.StartCoroutine(GameDB.MapReduce<KeyValue<string>>(
 			"AccountToName",
 			GameDB.GetSearchMapFunction("v"),
 			GameDB.GetSearchReduceFunction(),
@@ -205,8 +201,8 @@ public class LobbyGameDB : SingletonMonoBehaviour<LobbyGameDB> {
 	}
 	
 	// Get account ID by Email
-	public IEnumerator GetAccountIdByEmail(string email, GameDB.ActionOnResult<string> func) {
-		yield return StartCoroutine(GameDB.MapReduce<KeyValue<string>>(
+	public static IEnumerator GetAccountIdByEmail(string email, GameDB.ActionOnResult<string> func) {
+		yield return GameDB.instance.StartCoroutine(GameDB.MapReduce<KeyValue<string>>(
 			"AccountToEmail",
 			GameDB.GetSearchMapFunction("v"),
 			GameDB.GetSearchReduceFunction(),
@@ -222,8 +218,8 @@ public class LobbyGameDB : SingletonMonoBehaviour<LobbyGameDB> {
 	}
 	
 	// Get last logins
-	public IEnumerator GetLastLogins(uint numPlayers, GameDB.ActionOnResult<KeyValue<TimeStamp>[]> func) {
-		yield return StartCoroutine(GameDB.MapReduce<KeyValue<TimeStamp>>(
+	public static IEnumerator GetLastLogins(uint numPlayers, GameDB.ActionOnResult<KeyValue<TimeStamp>[]> func) {
+		yield return GameDB.instance.StartCoroutine(GameDB.MapReduce<KeyValue<TimeStamp>>(
 			"AccountToLastLoginDate",
 			GameDB.keyValueMapFunction,
 			timeStampReduceFunction,
@@ -233,8 +229,8 @@ public class LobbyGameDB : SingletonMonoBehaviour<LobbyGameDB> {
 	}
 	
 	// Get last registrations
-	public IEnumerator GetLastRegistrations(uint numPlayers, GameDB.ActionOnResult<KeyValue<TimeStamp>[]> func) {
-		yield return StartCoroutine(GameDB.MapReduce<KeyValue<TimeStamp>>(
+	public static IEnumerator GetLastRegistrations(uint numPlayers, GameDB.ActionOnResult<KeyValue<TimeStamp>[]> func) {
+		yield return GameDB.instance.StartCoroutine(GameDB.MapReduce<KeyValue<TimeStamp>>(
 			"AccountToRegistrationDate",
 			GameDB.keyValueMapFunction,
 			timeStampReduceFunction,

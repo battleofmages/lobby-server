@@ -1,8 +1,6 @@
-﻿using uLobby;
-using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
 
-public class FriendsDB : MonoBehaviour {
+public class FriendsDB : SingletonMonoBehaviour<FriendsDB> {
 	// --------------------------------------------------------------------------------
 	// AccountToFriends
 	// --------------------------------------------------------------------------------

@@ -1,16 +1,13 @@
-using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
-using uLobby;
 
-public class CharacterCustomizationDB : MonoBehaviour {
+public static class CharacterCustomizationDB {
 	// --------------------------------------------------------------------------------
 	// AccountToCharacterCustomization
 	// --------------------------------------------------------------------------------
 	
 	// Get character customization
-	public IEnumerator GetCharacterCustomization(string accountId, GameDB.ActionOnResult<CharacterCustomization> func) {
-		yield return StartCoroutine(GameDB.Get<CharacterCustomization>(
+	public static void GetCharacterCustomization(string accountId, GameDB.ActionOnResult<CharacterCustomization> func) {
+		GameDB.instance.StartCoroutine(GameDB.Get<CharacterCustomization>(
 			"AccountToCharacterCustomization",
 			accountId,
 			func
@@ -18,8 +15,8 @@ public class CharacterCustomizationDB : MonoBehaviour {
 	}
 	
 	// Set character customization
-	public IEnumerator SetCharacterCustomization(string accountId, CharacterCustomization custom, GameDB.ActionOnResult<CharacterCustomization> func = null) {
-		yield return StartCoroutine(GameDB.Set<CharacterCustomization>(
+	public static void SetCharacterCustomization(string accountId, CharacterCustomization custom, GameDB.ActionOnResult<CharacterCustomization> func = null) {
+		GameDB.instance.StartCoroutine(GameDB.Set<CharacterCustomization>(
 			"AccountToCharacterCustomization",
 			accountId,
 			custom,

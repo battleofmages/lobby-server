@@ -1,13 +1,9 @@
 ﻿using uLobby;
 using UnityEngine;
-using System.Collections;
 
 public class SkillBuildsServer : MonoBehaviour {
-	private SkillBuildsDB skillBuildsDB;
-	
+	// Start
 	void Start () {
-		skillBuildsDB = this.GetComponent<SkillBuildsDB>();
-		
 		// Make this class listen to lobby events
 		Lobby.AddListener(this);
 	}
@@ -22,13 +18,13 @@ public class SkillBuildsServer : MonoBehaviour {
 		
 		// TODO: Check the build for hacks
 		
-		StartCoroutine(skillBuildsDB.SetSkillBuild(
+		SkillBuildsDB.SetSkillBuild(
 			player.accountId,
 			build,
 			data => {
 				if(data == null)
 					Lobby.RPC("SkillBuildSaveError", info.sender);
 			}
-		));
+		);
 	}
 }

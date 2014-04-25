@@ -1,15 +1,9 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 using uLobby;
 
 public class CharacterCustomizationServer : MonoBehaviour {
-	private CharacterCustomizationDB characterCustomizationDB;
-
 	// Start
 	void Start() {
-		characterCustomizationDB = this.GetComponent<CharacterCustomizationDB>();
-		
 		// Make this class listen to lobby events
 		Lobby.AddListener(this);
 	}
@@ -23,7 +17,7 @@ public class CharacterCustomizationServer : MonoBehaviour {
 		LobbyPlayer player = LobbyServer.GetLobbyPlayer(info);
 		LogManager.General.Log(string.Format("Account '{0}' sent character customization!", player.account.name));
 		
-		StartCoroutine(characterCustomizationDB.SetCharacterCustomization(
+		CharacterCustomizationDB.SetCharacterCustomization(
 			player.accountId,
 			custom,
 			data => {
@@ -32,6 +26,6 @@ public class CharacterCustomizationServer : MonoBehaviour {
 					Lobby.RPC("ReceiveCharacterCustomization", player.peer, player.accountId, player.custom);
 				}
 			}
-		));
+		);
 	}
 }

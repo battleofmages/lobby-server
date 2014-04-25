@@ -5,12 +5,10 @@ using uLobby;
 
 public class FriendsServer : MonoBehaviour {
 	private FriendsDB friendsDB;
-	private LobbyGameDB lobbyGameDB;
 
 	// Start
 	void Start() {
 		friendsDB = GetComponent<FriendsDB>();
-		lobbyGameDB = GetComponent<LobbyGameDB>();
 		
 		// Make this class listen to lobby events
 		Lobby.AddListener(this);
@@ -32,7 +30,7 @@ public class FriendsServer : MonoBehaviour {
 		// Get account ID
 		string friendAccountId = null;
 		
-		yield return StartCoroutine(lobbyGameDB.GetAccountIdByPlayerName(friendName, data => {
+		yield return StartCoroutine(LobbyGameDB.GetAccountIdByPlayerName(friendName, data => {
 			friendAccountId = data;
 		}));
 		
@@ -79,7 +77,7 @@ public class FriendsServer : MonoBehaviour {
 		// Get account ID
 		string friendAccountId = null;
 		
-		yield return StartCoroutine(lobbyGameDB.GetAccountIdByPlayerName(friendName, data => {
+		yield return StartCoroutine(LobbyGameDB.GetAccountIdByPlayerName(friendName, data => {
 			friendAccountId = data;
 		}));
 		
@@ -114,7 +112,7 @@ public class FriendsServer : MonoBehaviour {
 		// Get account ID
 		string friendAccountId = null;
 		
-		yield return StartCoroutine(lobbyGameDB.GetAccountIdByPlayerName(friendName, data => {
+		yield return StartCoroutine(LobbyGameDB.GetAccountIdByPlayerName(friendName, data => {
 			friendAccountId = data;
 		}));
 		

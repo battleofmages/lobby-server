@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using uLobby;
 
-public class IPInfoDB : MonoBehaviour {
+public class IPInfoDB : SingletonMonoBehaviour<IPInfoDB> {
 	// --------------------------------------------------------------------------------
 	// IPToAccounts
 	// --------------------------------------------------------------------------------

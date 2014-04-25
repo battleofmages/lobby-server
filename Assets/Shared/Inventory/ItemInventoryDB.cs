@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class ItemInventoryDB : MonoBehaviour {
+public class ItemInventoryDB : SingletonMonoBehaviour<ItemInventoryDB> {
 	// --------------------------------------------------------------------------------
 	// AccountToItemInventory
 	// --------------------------------------------------------------------------------

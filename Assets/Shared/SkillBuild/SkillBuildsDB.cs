@@ -1,16 +1,13 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
-using uLobby;
+﻿using System.Collections;
 
-public class SkillBuildsDB : MonoBehaviour {
+public static class SkillBuildsDB {
 	// --------------------------------------------------------------------------------
 	// AccountToSkillBuild
 	// --------------------------------------------------------------------------------
 	
 	// Get skill build
-	public IEnumerator GetSkillBuild(string accountId, GameDB.ActionOnResult<SkillBuild> func) {
-		yield return StartCoroutine(GameDB.Get<SkillBuild>(
+	public static void GetSkillBuild(string accountId, GameDB.ActionOnResult<SkillBuild> func) {
+		GameDB.instance.StartCoroutine(GameDB.Get<SkillBuild>(
 			"AccountToSkillBuild",
 			accountId,
 			func
@@ -18,8 +15,8 @@ public class SkillBuildsDB : MonoBehaviour {
 	}
 	
 	// Set skill build
-	public IEnumerator SetSkillBuild(string accountId, SkillBuild skillBuild, GameDB.ActionOnResult<SkillBuild> func = null) {
-		yield return StartCoroutine(GameDB.Set<SkillBuild>(
+	public static void SetSkillBuild(string accountId, SkillBuild skillBuild, GameDB.ActionOnResult<SkillBuild> func = null) {
+		GameDB.instance.StartCoroutine(GameDB.Set<SkillBuild>(
 			"AccountToSkillBuild",
 			accountId,
 			skillBuild,

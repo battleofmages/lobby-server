@@ -5,14 +5,8 @@ using System.Linq;
 using uLobby;
 
 public class GuildsServer : MonoBehaviour {
-	private LobbyGameDB lobbyGameDB;
-	private GuildsDB guildsDB;
-	
 	// Start
 	void Start () {
-		lobbyGameDB = this.GetComponent<LobbyGameDB>();
-		guildsDB = this.GetComponent<GuildsDB>();
-		
 		// Make this class listen to lobby events
 		Lobby.AddListener(this);
 	}
@@ -47,7 +41,7 @@ public class GuildsServer : MonoBehaviour {
 		LobbyPlayer player = LobbyServer.GetLobbyPlayer(info);
 		
 		if(player.guildList == null) {
-			StartCoroutine(guildsDB.GetGuildList(player.accountId, data => {
+			StartCoroutine(GuildsDB.GetGuildList(player.accountId, data => {
 				if(data == null) {
 					player.guildList = new GuildList();
 				} else {
@@ -65,7 +59,7 @@ public class GuildsServer : MonoBehaviour {
 	IEnumerator GuildInfoRequest(string guildId, LobbyMessageInfo info) {
 		// Get guild info from database
 		if(!GameDB.guildIdToGuild.ContainsKey(guildId)) {
-			yield return StartCoroutine(guildsDB.GetGuild(guildId));
+			yield return StartCoroutine(GuildsDB.GetGuild(guildId));
 		}
 		
 		// Send guild info to player
@@ -81,7 +75,7 @@ public class GuildsServer : MonoBehaviour {
 	IEnumerator GuildMembersRequest(string guildId, LobbyMessageInfo info) {
 		// Get guild members from database
 		if(!GameDB.guildIdToGuildMembers.ContainsKey(guildId)) {
-			yield return StartCoroutine(guildsDB.GetGuildMembers(guildId));
+			yield return StartCoroutine(GuildsDB.GetGuildMembers(guildId));
 		}
 		
 		// Send guild info to player
@@ -91,7 +85,7 @@ public class GuildsServer : MonoBehaviour {
 			// Member names
 			foreach(var member in guildMembers) {
 				if(!GameDB.accountIdToName.TryGetValue(member.accountId, out member.name)) {
-					yield return StartCoroutine(lobbyGameDB.GetPlayerName(member.accountId, data => {
+					yield return StartCoroutine(LobbyGameDB.GetPlayerName(member.accountId, data => {
 						if(data != null) {
 							member.name = data;
 							GameDB.accountIdToName[member.accountId] = data;
@@ -122,7 +116,7 @@ public class GuildsServer : MonoBehaviour {
 		string accountIdToInvite = null;
 		
 		// Get account ID
-		yield return StartCoroutine(lobbyGameDB.GetAccountIdByPlayerName(playerName, data => {
+		yield return StartCoroutine(LobbyGameDB.GetAccountIdByPlayerName(playerName, data => {
 			accountIdToInvite = data;
 		}));
 		
@@ -133,7 +127,7 @@ public class GuildsServer : MonoBehaviour {
 		
 		// Get guild members
 		if(!GameDB.guildIdToGuildMembers.ContainsKey(guildId)) {
-			yield return StartCoroutine(guildsDB.GetGuildMembers(guildId));
+			yield return StartCoroutine(GuildsDB.GetGuildMembers(guildId));
 		}
 		
 		// Already a member?
@@ -149,7 +143,7 @@ public class GuildsServer : MonoBehaviour {
 		}
 		
 		if(guildInvitations == null) {
-			yield return StartCoroutine(guildsDB.GetGuildInvitations(accountIdToInvite, data => {
+			yield return StartCoroutine(GuildsDB.GetGuildInvitations(accountIdToInvite, data => {
 				if(data == null) {
 					guildInvitations = new List<string>();
 				} else {
@@ -173,7 +167,7 @@ public class GuildsServer : MonoBehaviour {
 		guildInvitations.Add(guildId);
 		
 		// Set guild invitations
-		yield return StartCoroutine(guildsDB.SetGuildInvitations(accountIdToInvite, guildInvitations, data => {
+		yield return StartCoroutine(GuildsDB.SetGuildInvitations(accountIdToInvite, guildInvitations, data => {
 			if(data == null) {
 				Lobby.RPC("GuildInvitationError", info.sender, playerName);
 			} else {
@@ -195,7 +189,7 @@ public class GuildsServer : MonoBehaviour {
 		
 		// Get guild invitations
 		if(player.guildInvitations == null) {
-			yield return StartCoroutine(guildsDB.GetGuildInvitations(player.accountId, data => {
+			yield return StartCoroutine(GuildsDB.GetGuildInvitations(player.accountId, data => {
 				if(data == null) {
 					player.guildInvitations = new List<string>();
 				} else {
@@ -213,7 +207,7 @@ public class GuildsServer : MonoBehaviour {
 		
 		// Get guild invitations
 		if(player.guildInvitations == null) {
-			yield return StartCoroutine(guildsDB.GetGuildInvitations(player.accountId, data => {
+			yield return StartCoroutine(GuildsDB.GetGuildInvitations(player.accountId, data => {
 				if(data == null) {
 					player.guildInvitations = new List<string>();
 				} else {
@@ -237,18 +231,18 @@ public class GuildsServer : MonoBehaviour {
 		if(accepted) {
 			// Get guild members from database
 			if(!GameDB.guildIdToGuildMembers.ContainsKey(guildId)) {
-				yield return StartCoroutine(guildsDB.GetGuildMembers(guildId));
+				yield return StartCoroutine(GuildsDB.GetGuildMembers(guildId));
 			}
 			
 			var guildMembers = GameDB.guildIdToGuildMembers[guildId];
 			guildMembers.Add(new GuildMember(player.accountId, player.name, (byte)GuildMember.Rank.Default));
 			
 			// Set guild members
-			yield return StartCoroutine(guildsDB.SetGuildMembers(guildId, guildMembers));
+			yield return StartCoroutine(GuildsDB.SetGuildMembers(guildId, guildMembers));
 			
 			// Get guild ID list
 			if(player.guildList == null) {
-				yield return StartCoroutine(guildsDB.GetGuildList(player.accountId, data => {
+				yield return StartCoroutine(GuildsDB.GetGuildList(player.accountId, data => {
 					if(data == null) {
 						player.guildList = new GuildList();
 					} else {
@@ -261,7 +255,7 @@ public class GuildsServer : MonoBehaviour {
 			player.guildList.Add(guildId);
 			
 			// Set guild ID list
-			yield return StartCoroutine(guildsDB.SetGuildList(player.accountId, player.guildList));
+			yield return StartCoroutine(GuildsDB.SetGuildList(player.accountId, player.guildList));
 			
 			// Notify all guild members
 			SendGuildMemberList(guildId, guildMembers);
@@ -271,7 +265,7 @@ public class GuildsServer : MonoBehaviour {
 		player.guildInvitations.Remove(guildId);
 		
 		// Set guild invitations
-		yield return StartCoroutine(guildsDB.SetGuildInvitations(player.accountId, player.guildInvitations, data => {
+		yield return StartCoroutine(GuildsDB.SetGuildInvitations(player.accountId, player.guildInvitations, data => {
 			if(data == null) {
 				Lobby.RPC("GuildInvitationResponseError", info.sender, guildId);
 			} else {
@@ -290,7 +284,7 @@ public class GuildsServer : MonoBehaviour {
 		
 		// Get guild members from database
 		if(!GameDB.guildIdToGuildMembers.ContainsKey(guildId)) {
-			yield return StartCoroutine(guildsDB.GetGuildMembers(guildId));
+			yield return StartCoroutine(GuildsDB.GetGuildMembers(guildId));
 		}
 		
 		var guildMembers = GameDB.guildIdToGuildMembers[guildId];
@@ -303,7 +297,7 @@ public class GuildsServer : MonoBehaviour {
 		
 		// Get guild ID list
 		if(player.guildList == null) {
-			yield return StartCoroutine(guildsDB.GetGuildList(accountId, data => {
+			yield return StartCoroutine(GuildsDB.GetGuildList(accountId, data => {
 				if(data == null) {
 					player.guildList = new GuildList();
 				} else {
@@ -324,7 +318,7 @@ public class GuildsServer : MonoBehaviour {
 		}
 		
 		// Set guild ID list
-		yield return StartCoroutine(guildsDB.SetGuildList(accountId, player.guildList));
+		yield return StartCoroutine(GuildsDB.SetGuildList(accountId, player.guildList));
 		
 		Lobby.RPC("GuildRepresentSuccess", info.sender, guildId, represent);
 	}
@@ -347,7 +341,7 @@ public class GuildsServer : MonoBehaviour {
 	IEnumerator GuildLeaveRequest(string guildId, string accountId, LobbyMessageInfo info) {
 		// Get guild members from database
 		if(!GameDB.guildIdToGuildMembers.ContainsKey(guildId)) {
-			yield return StartCoroutine(guildsDB.GetGuildMembers(guildId));
+			yield return StartCoroutine(GuildsDB.GetGuildMembers(guildId));
 		}
 		
 		var guildMembers = GameDB.guildIdToGuildMembers[guildId];
@@ -367,7 +361,7 @@ public class GuildsServer : MonoBehaviour {
 		guildMembers.RemoveAt(index);
 		
 		// Set guild members
-		yield return StartCoroutine(guildsDB.SetGuildMembers(guildId, guildMembers));
+		yield return StartCoroutine(GuildsDB.SetGuildMembers(guildId, guildMembers));
 		
 		// Update guild ID list
 		yield return StartCoroutine(this.RemoveGuildFromGuildList(guildId, accountId, info.sender));
@@ -384,7 +378,7 @@ public class GuildsServer : MonoBehaviour {
 			
 			// Get guild ID list
 			if(playerKicked.guildList == null) {
-				yield return StartCoroutine(guildsDB.GetGuildList(accountId, data => {
+				yield return StartCoroutine(GuildsDB.GetGuildList(accountId, data => {
 					if(data == null) {
 						playerKicked.guildList = new GuildList();
 					} else {
@@ -397,7 +391,7 @@ public class GuildsServer : MonoBehaviour {
 			playerKicked.guildList.Remove(guildId);
 			
 			// Set guild ID list
-			yield return StartCoroutine(guildsDB.SetGuildList(accountId, playerKicked.guildList));
+			yield return StartCoroutine(GuildsDB.SetGuildList(accountId, playerKicked.guildList));
 			
 			// Send the kicked player the new guild ID list
 			SendGuildList(playerKicked);
@@ -406,7 +400,7 @@ public class GuildsServer : MonoBehaviour {
 			GuildList guildList = null;
 			
 			// Get guild ID list
-			yield return StartCoroutine(guildsDB.GetGuildList(accountId, data => {
+			yield return StartCoroutine(GuildsDB.GetGuildList(accountId, data => {
 				guildList = data;
 			}));
 			
@@ -420,7 +414,7 @@ public class GuildsServer : MonoBehaviour {
 			guildList.Remove(guildId);
 			
 			// Set guild ID list
-			yield return StartCoroutine(guildsDB.SetGuildList(accountId, guildList));
+			yield return StartCoroutine(GuildsDB.SetGuildList(accountId, guildList));
 		}
 	}
 	
@@ -440,7 +434,7 @@ public class GuildsServer : MonoBehaviour {
 		// Check if guild name has already been registered
 		bool guildNameExists = false;
 		
-		yield return StartCoroutine(guildsDB.GetGuildIdByGuildName(name, data => {
+		yield return StartCoroutine(GuildsDB.GetGuildIdByGuildName(name, data => {
 			if(data != null) {
 				guildNameExists = true;
 			}
@@ -455,7 +449,7 @@ public class GuildsServer : MonoBehaviour {
 		string guildId = null;
 		var guild = new Guild(name, tag, founder.accountId);
 		
-		yield return StartCoroutine(guildsDB.PutGuild(
+		yield return StartCoroutine(GuildsDB.PutGuild(
 			guild,
 			(key, data) => {
 				if(key != null) {
@@ -475,12 +469,12 @@ public class GuildsServer : MonoBehaviour {
 		// Founder joins the guild automatically
 		var memberList = new List<GuildMember>(); //GameDB.guildIdToGuildMembers[guildId];
 		memberList.Add(new GuildMember(founder.accountId, (byte)GuildMember.Rank.Leader));
-		yield return StartCoroutine(guildsDB.SetGuildMembers(guildId, memberList));
+		yield return StartCoroutine(GuildsDB.SetGuildMembers(guildId, memberList));
 		
 		founder.guildList.Add(guildId);
 		
 		// Store new guild membership in database
-		yield return StartCoroutine(guildsDB.SetGuildList(founder.accountId, founder.guildList));
+		yield return StartCoroutine(GuildsDB.SetGuildList(founder.accountId, founder.guildList));
 		
 		// Let the player know that it worked
 		Lobby.RPC("GuildCreationSuccess", info.sender);
@@ -497,7 +491,7 @@ public class GuildsServer : MonoBehaviour {
 		
 		// Get guild members from database
 		if(!GameDB.guildIdToGuildMembers.ContainsKey(guildId)) {
-			yield return StartCoroutine(guildsDB.GetGuildMembers(guildId));
+			yield return StartCoroutine(GuildsDB.GetGuildMembers(guildId));
 		}
 		
 		// Does the player have rights to disband?
@@ -521,10 +515,10 @@ public class GuildsServer : MonoBehaviour {
 		}
 		
 		// 2.) Remove the member list for that guild (GuildToMembers)
-		yield return StartCoroutine(guildsDB.RemoveGuildMembers(guildId));
+		yield return StartCoroutine(GuildsDB.RemoveGuildMembers(guildId));
 		
 		// 3.) Remove the guild entry itself (Guilds)
-		yield return StartCoroutine(guildsDB.RemoveGuild(guildId));
+		yield return StartCoroutine(GuildsDB.RemoveGuild(guildId));
 		
 		// Notify the player who requested it
 		Lobby.RPC("GuildDisbandSuccess", info.sender, guildId);

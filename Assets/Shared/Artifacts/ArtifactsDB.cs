@@ -1,16 +1,14 @@
-﻿using UnityEngine;
+﻿using uLobby;
 using System.Collections;
-using System.Collections.Generic;
-using uLobby;
 
-public class ArtifactsDB : MonoBehaviour {
+public static class ArtifactsDB {
 	// --------------------------------------------------------------------------------
 	// AccountToArtifactTree
 	// --------------------------------------------------------------------------------
 	
 	// Get artifact tree
-	public IEnumerator GetArtifactTree(string accountId, GameDB.ActionOnResult<ArtifactTree> func) {
-		yield return StartCoroutine(GameDB.Get<ArtifactTree>(
+	public static IEnumerator GetArtifactTree(string accountId, GameDB.ActionOnResult<ArtifactTree> func) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Get<ArtifactTree>(
 			"AccountToArtifactTree",
 			accountId,
 			func
@@ -22,8 +20,8 @@ public class ArtifactsDB : MonoBehaviour {
 	// --------------------------------------------------------------------------------
 	
 	// Get artifact inventory
-	public IEnumerator GetArtifactInventory(string accountId, GameDB.ActionOnResult<ArtifactInventory> func) {
-		yield return StartCoroutine(GameDB.Get<ArtifactInventory>(
+	public static IEnumerator GetArtifactInventory(string accountId, GameDB.ActionOnResult<ArtifactInventory> func) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Get<ArtifactInventory>(
 			"AccountToArtifactInventory",
 			accountId,
 			func
@@ -32,8 +30,8 @@ public class ArtifactsDB : MonoBehaviour {
 	
 #if LOBBY_SERVER
 	// Get artifact tree
-	public IEnumerator GetArtifactTree(LobbyPlayer player) {
-		yield return StartCoroutine(GameDB.Get<ArtifactTree>(
+	public static IEnumerator GetArtifactTree(LobbyPlayer player) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Get<ArtifactTree>(
 			"AccountToArtifactTree",
 			player.accountId,
 			data => {
@@ -49,8 +47,8 @@ public class ArtifactsDB : MonoBehaviour {
 	}
 	
 	// Set artifact tree
-	public IEnumerator SetArtifactTree(LobbyPlayer player, ArtifactTree tree) {
-		yield return StartCoroutine(GameDB.Set<ArtifactTree>(
+	public static IEnumerator SetArtifactTree(LobbyPlayer player, ArtifactTree tree) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Set<ArtifactTree>(
 			"AccountToArtifactTree",
 			player.accountId,
 			tree,
@@ -68,8 +66,8 @@ public class ArtifactsDB : MonoBehaviour {
 	// --------------------------------------------------------------------------------
 	
 	// Get artifact inventory
-	public IEnumerator GetArtifactInventory(LobbyPlayer player) {
-		yield return StartCoroutine(GameDB.Get<ArtifactInventory>(
+	public static IEnumerator GetArtifactInventory(LobbyPlayer player) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Get<ArtifactInventory>(
 			"AccountToArtifactInventory",
 			player.accountId,
 			data => {
@@ -85,8 +83,8 @@ public class ArtifactsDB : MonoBehaviour {
 	}
 	
 	// Set artifact tree
-	public IEnumerator SetArtifactInventory(LobbyPlayer player, ArtifactInventory inv) {
-		yield return StartCoroutine(GameDB.Set<ArtifactInventory>(
+	public static IEnumerator SetArtifactInventory(LobbyPlayer player, ArtifactInventory inv) {
+		yield return GameDB.instance.StartCoroutine(GameDB.Set<ArtifactInventory>(
 			"AccountToArtifactInventory",
 			player.accountId,
 			inv,

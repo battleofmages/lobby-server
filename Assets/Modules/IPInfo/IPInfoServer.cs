@@ -1,33 +1,39 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using uLobby;
 
-public class IPInfoServer : MonoBehaviour {
+public class IPInfoServer : SingletonMonoBehaviour<IPInfoServer> {
 	public static Dictionary<string, string> ipToCountry = new Dictionary<string, string>();
 	public static Dictionary<string, string[]> ipToAccounts = new Dictionary<string, string[]>();
 	public static Dictionary<string, string> accountIdToCountry = new Dictionary<string, string>();
-	public static string ip2nationURL = "http://battleofmages.com/scripts/ip2nation.php?ip=";
-	//private IPInfoDB ipInfoDB;
+	
+	// Settings
+	public string scriptURL = "http://battleofmages.com/scripts/ip2nation.php";
+	public string scriptParamaterPrefix = "?ip=";
 	
 	// Start
 	void Start () {
-		//ipInfoDB = this.GetComponent<IPInfoDB>();
-		
 		// Make this class listen to lobby events
 		//Lobby.AddListener(this);
 	}
 	
 	// GetCountryByIP
-	public static IEnumerator GetCountryByIP(string ip) {
-		var request = new WWW(ip2nationURL + ip);
+	public static Coroutine GetCountryByIP(string ip, GameDB.ActionOnResult<string> func) {
+		return IPInfoServer.instance.StartCoroutine(
+			IPInfoServer.GetCountryByIPEnumerator(ip, func)
+		);
+	}
+	
+	// GetCountryByIPEnumerator
+	public static IEnumerator GetCountryByIPEnumerator(string ip, GameDB.ActionOnResult<string> func) {
+		var request = new WWW(IPInfoServer.instance.scriptURL + IPInfoServer.instance.scriptParamaterPrefix + ip);
 		
 		yield return request;
 		
 		if(request.error == null) {
-			string country = request.text;
-			ipToCountry[ip] = country;
-			LogManager.Online.Log("IP '" + ip + "' comes from '" + country + "'");
+			func(request.text);
+		} else {
+			func(default(string));
 		}
 	}
 	

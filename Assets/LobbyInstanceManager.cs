@@ -38,7 +38,7 @@ public class LobbyInstanceManager : MonoBehaviour {
 	
 	// uZone connection established
 	void uZone_OnConnected(Request request) {
-		LogManager.General.Log("Connected to  " + request);
+		LogManager.General.Log("Connected to uZone: " + request);
 		
 		LobbyInstanceManager.uZoneConnected = true;
 		//InstanceManager.ListAvailableNodes();

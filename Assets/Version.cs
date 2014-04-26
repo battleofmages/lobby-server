@@ -1,19 +1,17 @@
 using UnityEngine;
 using System.Collections;
 
-public class Version : MonoBehaviour {
-#if !LOBBY_SERVER
-	public int versionNumber = 0;
-#else
-	[HideInInspector]
-	public int versionNumber = 0;
+public class Version : SingletonMonoBehaviour<Version> {
+	public string versionURL;
 	
-	void Awake() {
-		WWW request = new WWW("http://battleofmages.com/download/game.ini");
+	// Start
+	void Start() {
+		WWW request = new WWW(versionURL);
 		
 		StartCoroutine(WaitForVersion(request));
 	}
 	
+	// WaitForVersion
 	IEnumerator WaitForVersion(WWW request) {
 		yield return request;
 		
@@ -24,5 +22,12 @@ public class Version : MonoBehaviour {
 			LogManager.General.LogError("Couldn't download game version information: " + request.error);
 		}
 	}
-#endif
+	
+#region Properties
+	// Version number
+	public int versionNumber {
+		get;
+		protected set;
+	}
+#endregion
 }

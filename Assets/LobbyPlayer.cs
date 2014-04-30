@@ -192,16 +192,16 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 					_gameInstance.mapChannel.AddPlayer(this);
 				
 				if(inMatch || inFFA)
-					this.onlineStatus = OnlineStatus.InMatch;
+					onlineStatus = OnlineStatus.InMatch;
 			// Value is null
 			} else {
 				OnLeaveInstance();
 				
-				this.onlineStatus = OnlineStatus.Online;
+				onlineStatus = OnlineStatus.Online;
 				_gameInstance = value;
 			}
 			
-			this.BroadcastStatus();
+			BroadcastStatus();
 		}
 	}
 	
@@ -285,6 +285,23 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 	public string accountId {
 		get {
 			return account.id.value;
+		}
+	}
+	
+	// IP
+	public string ip {
+		get {
+			return peer.endpoint.Address.ToString();
+		}
+	}
+	
+	// Disconnected
+	public bool disconnected {
+		get {
+			if(peer == null)
+				return true;
+			
+			return peer.type == LobbyPeerType.Disconnected;
 		}
 	}
 	
@@ -440,12 +457,12 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 		// TODO: Add a timeout
 		
 		// Wait for instance to be online
-		while(lobbyGameInstance.instance == null && this.peer.type != LobbyPeerType.Disconnected) {
+		while(lobbyGameInstance.instance == null && !disconnected) {
 			yield return new WaitForSeconds(0.01f);
 		}
 		
-		// Still null, player disconnected?
-		if(lobbyGameInstance.instance == null)
+		// Still null, or player disconnected?
+		if(lobbyGameInstance.instance == null || disconnected)
 			yield break;
 		
 		// Connect player to server
@@ -461,8 +478,23 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 	
 	// Helper function
 	private void ConnectToGameServer(uZone.InstanceProcess instance) {
-		LogManager.General.Log("Connecting player '" + name + "' to " + this.gameInstance.ToString());
+		LogManager.General.Log("Connecting player '" + name + "' to " + gameInstance);
 		Lobby.RPC("ConnectToGameServer", peer, instance.node.publicAddress, instance.port);
+	}
+	
+	// UpdateCountry
+	public void UpdateCountry() {
+		if(IPInfoServer.ipToCountry.ContainsKey(ip)) {
+			IPInfoDB.SetCountry(
+				accountId,
+				IPInfoServer.ipToCountry[ip],
+				data => {
+					if(data != null) {
+						IPInfoServer.accountIdToCountry[accountId] = data;
+					}
+				}
+			);
+		}
 	}
 	
 	// Account is online

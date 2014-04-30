@@ -162,5 +162,15 @@ public class LobbyAccountManager : MonoBehaviour {
 			}
 		);
 	}
+	
+	[RPC]
+	IEnumerator ChangePassword(string newPassword, LobbyMessageInfo info) {
+		// Get the account
+		var player = LobbyServer.GetLobbyPlayer(info);
+		
+		// Change name
+		LogManager.General.Log("Player '" + player.name + "' has requested to change its password.");
+		yield return StartCoroutine(LobbyGameDB.SetPassword(player, newPassword));
+	}
 #endregion
 }

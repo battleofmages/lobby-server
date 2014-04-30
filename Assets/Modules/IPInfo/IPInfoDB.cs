@@ -27,6 +27,32 @@ public static class IPInfoDB {
 		));
 	}
 	
+	// RegisterAccountAccess
+	public static Coroutine RegisterAccountAccess(string ip, string accountId) {
+		return IPInfoDB.GetAccounts(
+			ip,
+			data => {
+				List<string> accounts;
+				
+				if(data == null) {
+					accounts = new List<string>();
+				} else {
+					accounts = new List<string>(data);
+				}
+				
+				// Save new account id
+				if(accounts.IndexOf(accountId) == -1)
+					accounts.Add(accountId);
+				
+				IPInfoDB.SetAccounts(
+					ip,
+					accounts.ToArray(),
+					ignore => {}
+				);
+			}
+		);
+	}
+	
 	// --------------------------------------------------------------------------------
 	// AccountToCountry
 	// --------------------------------------------------------------------------------

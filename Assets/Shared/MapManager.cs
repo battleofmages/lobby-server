@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class MapManager {
 	// Starting town
@@ -32,21 +33,23 @@ public class MapManager {
 	public static Transform occlusionArea = null;
 	
 	// Loads a new map
-	public static GameObject LoadMap(string mapName) {
+	public static IEnumerator LoadMapAsync(string mapName, CallBack func = null) {
 		DeleteOldMap();
 		
-		LogManager.General.Log("Loading map: '" + mapName + "'");
-		
-		var mapPrefab = Resources.Load("Maps/" + mapName);
-		if(mapPrefab != null)
-			LogManager.General.Log("Map prefab loaded");
-		else
-			LogManager.General.LogError("Map prefab '" + mapName + "' could not be loaded");
+		LogManager.General.Log("Checking scene: '" + mapName + "'");
 
-		LogManager.General.Log("Instantiating map '" + mapName + "'...");
-		mapInstance = (GameObject)Object.Instantiate(mapPrefab, Cache.vector3Zero, Cache.quaternionIdentity);
-		LogManager.General.Log("Map instantiated: " + mapInstance);
-		
+		if(Application.CanStreamedLevelBeLoaded(mapName))
+			LogManager.General.Log("Scene can be loaded");
+		else
+			LogManager.General.LogError("Scene '" + mapName + "' can not be loaded");
+
+		LogManager.General.Log("Loading map '" + mapName + "'...");
+		var asyncLoadLevel = Application.LoadLevelAdditiveAsync(mapName);
+		yield return asyncLoadLevel;
+
+		LogManager.General.Log("Map loaded: " + mapName);
+		mapInstance = GameObject.FindGameObjectWithTag("Map");
+
 		mapIntro = mapInstance.GetComponent<Intro>();
 		LogManager.General.Log("Map intro: " + mapIntro);
 		
@@ -82,8 +85,10 @@ public class MapManager {
 				LogManager.General.LogWarning("Couldn't find sun (did you use the 'Sun' tag?)");
 			}
 		}*/
-		
-		return mapInstance;
+
+		// Custom callback function
+		if(func != null)
+			func();
 	}
 	
 	// Deletes NPCs
@@ -106,7 +111,7 @@ public class MapManager {
 			return;
 		
 		LogManager.General.Log("Deleting old map");
-		GameObject.Destroy(mapInstance);
+		Object.Destroy(mapInstance);
 		mapInstance = null;
 	}
 	

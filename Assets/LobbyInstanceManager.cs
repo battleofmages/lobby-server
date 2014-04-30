@@ -1,4 +1,4 @@
-﻿using uZone;
+using uZone;
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -107,7 +107,7 @@ public class LobbyInstanceManager : MonoBehaviour {
 		if(UnregisterGameInstance<LobbyTown>(instance.id, LobbyTown.idToInstance))
 			return;
 		
-		if(UnregisterGameInstance<LobbyPvE>(instance.id, LobbyPvE.idToInstance))
+		if(UnregisterGameInstance<LobbyWorld>(instance.id, LobbyWorld.idToInstance))
 			return;
 	}
 }

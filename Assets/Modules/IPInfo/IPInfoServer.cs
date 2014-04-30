@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using uLobby;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -15,6 +16,23 @@ public class IPInfoServer : SingletonMonoBehaviour<IPInfoServer> {
 	void Start () {
 		// Make this class listen to lobby events
 		//Lobby.AddListener(this);
+	}
+	
+	// GetCountry
+	public static Coroutine GetCountry(LobbyPeer peer) {
+		var ip = peer.endpoint.Address.ToString();
+		
+		return IPInfoServer.GetCountryByIP(
+			ip,
+			(country) => {
+				if(country != null) {
+					LogManager.Online.Log("IP '" + ip + "' comes from '" + country + "'");
+					IPInfoServer.ipToCountry[ip] = country;
+				} else {
+					LogManager.Online.LogWarning("Failed to request country of IP '" + ip + "'");
+				}
+			}
+		);
 	}
 	
 	// GetCountryByIP

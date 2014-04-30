@@ -2,5 +2,5 @@
 	Arena,
 	FFA,
 	Town,
-	PvE
+	World
 }

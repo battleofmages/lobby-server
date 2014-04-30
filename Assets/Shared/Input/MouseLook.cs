@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections;
 
 /// MouseLook rotates the transform based on the mouse delta.
 /// Minimum and Maximum values can be used to constrain the possible rotation
@@ -16,7 +15,6 @@ using System.Collections;
 ///   -> Set the mouse look to use LookY. (You want the camera to tilt up and down like a head. The character already turns.)
 [AddComponentMenu("Camera-Control/Mouse Look")]
 public class MouseLook : MonoBehaviour {
-
 	public enum RotationAxes { MouseXAndY = 0, MouseX = 1, MouseY = 2 }
 	public RotationAxes axes = RotationAxes.MouseXAndY;
 	public float sensitivityX = 15F;
@@ -32,12 +30,14 @@ public class MouseLook : MonoBehaviour {
 	float rotationY = 0F;
 	
 	Quaternion originalRotation;
+	Quaternion xQuaternion;
+	Quaternion yQuaternion;
 
 	//float oldX;
 	//float oldY;
 
-	void Update ()
-	{
+	// Update
+	void Update() {
 		/*var mousePos = Input.mousePosition;
 		var mouseX = mousePos.x;
 		var mouseY = mousePos.y;
@@ -51,8 +51,7 @@ public class MouseLook : MonoBehaviour {
 		var xMovement = Input.GetAxis("Mouse X") + Input.GetAxis("Gamepad Mouse X");
 		var yMovement = Input.GetAxis("Mouse Y") + Input.GetAxis("Gamepad Mouse Y");
 
-		if (axes == RotationAxes.MouseXAndY)
-		{
+		if(axes == RotationAxes.MouseXAndY) {
 			// Read the mouse input axis
 			rotationX += xMovement * sensitivityX;
 			rotationY += yMovement * sensitivityY;
@@ -60,43 +59,41 @@ public class MouseLook : MonoBehaviour {
 			rotationX = ClampAngle (rotationX, minimumX, maximumX);
 			rotationY = ClampAngle (rotationY, minimumY, maximumY);
 			
-			Quaternion xQuaternion = Quaternion.AngleAxis (rotationX, Vector3.up);
-			Quaternion yQuaternion = Quaternion.AngleAxis (rotationY, Vector3.left);
+			xQuaternion = Quaternion.AngleAxis(rotationX, Vector3.up);
+			yQuaternion = Quaternion.AngleAxis(rotationY, Vector3.left);
 			
 			transform.localRotation = originalRotation * xQuaternion * yQuaternion;
-		}
-		else if (axes == RotationAxes.MouseX)
-		{
+		} else if(axes == RotationAxes.MouseX) {
 			rotationX += xMovement * sensitivityX;
 			rotationX = ClampAngle (rotationX, minimumX, maximumX);
 
-			Quaternion xQuaternion = Quaternion.AngleAxis (rotationX, Vector3.up);
+			xQuaternion = Quaternion.AngleAxis(rotationX, Vector3.up);
 			transform.localRotation = originalRotation * xQuaternion;
-		}
-		else
-		{
+		} else {
 			rotationY += yMovement * sensitivityY;
 			rotationY = ClampAngle (rotationY, minimumY, maximumY);
 
-			Quaternion yQuaternion = Quaternion.AngleAxis (rotationY, Vector3.left);
+			yQuaternion = Quaternion.AngleAxis(rotationY, Vector3.left);
 			transform.localRotation = originalRotation * yQuaternion;
 		}
 	}
-	
-	void Start ()
-	{
+
+	// Start
+	void Start() {
 		// Make the rigid body not change rotation
-		if (rigidbody)
+		if(rigidbody)
 			rigidbody.freezeRotation = true;
 		originalRotation = transform.localRotation;
 	}
-	
-	public static float ClampAngle (float angle, float min, float max)
-	{
-		if (angle < -360F)
+
+	// ClampAngle
+	public static float ClampAngle(float angle, float min, float max) {
+		if(angle < -360F)
 			angle += 360F;
-		if (angle > 360F)
+
+		if(angle > 360F)
 			angle -= 360F;
-		return Mathf.Clamp (angle, min, max);
+
+		return Mathf.Clamp(angle, min, max);
 	}
 }

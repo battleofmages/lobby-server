@@ -2,13 +2,14 @@ using uZone;
 using UnityEngine;
 using System.Collections.Generic;
 
-public class LobbyInstanceManager : MonoBehaviour {
+public class LobbyInstanceManager : SingletonMonoBehaviour<LobbyInstanceManager> {
 	public static bool uZoneConnected;
 	public static int uZoneNodeCount;
 	public static string gameName = "bom";
 	
 	public string uZoneHost = "127.0.0.1";
 	public int uZonePort = 12345;
+	public NodeSelectionMode nodeSelectionMode;
 	
 	// Start
 	void Start () {

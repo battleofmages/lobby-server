@@ -180,6 +180,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   uZoneHost: 127.0.0.1
   uZonePort: 12345
+  nodeSelectionMode: 1
 --- !u!4 &654090321
 Transform:
   m_ObjectHideFlags: 0

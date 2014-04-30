@@ -63,25 +63,26 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 		waitingForServer.Add(this);
 		options = new uZone.InstanceOptions(LobbyInstanceManager.gameName, args);
 		
-		// Pick a node
-		var node = uZone.InstanceManager.nodes.FirstOrDefault();
-		
 		// Request uZone to start a new instance
-		node.StartInstance(options, (request) => {
-			// Success
-			instance = request.GetInstance();
-			idToInstance[instance.id] = this;
-			StartPlaying();
-		}, (request) => {
-			// Failure
-			LogManager.General.LogError("Couldn't start instance: " + request);
-		});
+		uZone.InstanceManager.StartInstance(
+			options,
+			LobbyInstanceManager.instance.nodeSelectionMode,
+			(request) => {
+				// Success
+				instance = request.GetInstance();
+				idToInstance[instance.id] = this;
+				StartPlaying();
+			}, (request) => {
+				// Failure
+				LogManager.General.LogError("Couldn't start instance: " + request);
+			}
+		);
 	}
 	
 	// Starts playing on game server instance
 	void StartPlaying() {
 		// Log after the instance has been assigned, so we see the IP
-		LogManager.General.Log("Instance started: " + this.ToString());
+		LogManager.General.Log("Instance started: " + this);
 		
 		// Remove this from the waiting list so we don't get selected for a server again
 		waitingForServer.Remove(this);
@@ -110,7 +111,7 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 	
 	// Unregister
 	public virtual void Unregister() {
-		LogManager.General.Log("Unregistering instance: " + this.ToString());
+		LogManager.General.Log("Unregistering instance: " + this);
 		
 		//this.OnUnregister();
 		

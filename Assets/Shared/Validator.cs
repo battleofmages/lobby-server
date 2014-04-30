@@ -1,4 +1,3 @@
-using UnityEngine;
 using System.Text.RegularExpressions;
 
 public class Validator {

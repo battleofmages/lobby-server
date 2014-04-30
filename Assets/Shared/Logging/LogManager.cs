@@ -25,7 +25,7 @@ public class LogManager {
 		// Create logs
 		LogManager.General = new LogCategory("General");
 		LogManager.Chat = new LogCategory("Chat");
-		LogManager.DB = new LogCategory("DB");
+		LogManager.DB = new LogCategory("DB", false);
 		LogManager.Online = new LogCategory("Online", false);
 		LogManager.System = new LogCategory("System", false);
 		LogManager.Spam = new LogCategory("Spam", false, false);

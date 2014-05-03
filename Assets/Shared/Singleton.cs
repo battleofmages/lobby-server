@@ -1,7 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
-
-/*
+﻿/*
  * ==============================================
  * http://en.wikipedia.org/wiki/Singleton_pattern
  * ==============================================
@@ -26,9 +23,9 @@ public abstract class SingletonMonoBehaviour<T> : uLink.MonoBehaviour where T : 
 	protected virtual void Awake() {
 		if(instance == null) {
 			instance = (T)this;
-			DontDestroyOnLoad(this.gameObject);
+			DontDestroyOnLoad(gameObject);
 		} else {
-			Destroy(this.gameObject);
+			Destroy(gameObject);
 		}
 	}
 }

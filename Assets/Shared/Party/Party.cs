@@ -1,5 +1,3 @@
-using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
 public class Party<T> where T : PartyMember<T> {
@@ -39,7 +37,7 @@ public class Party<T> where T : PartyMember<T> {
 	// Removes all members
 	public void RemoveAllMembers() {
 		foreach(var member in _members) {
-			this.RemoveMember(member);
+			RemoveMember(member);
 		}
 	}
 	

@@ -1,8 +1,4 @@
-using UnityEngine;
-using System.Collections;
-
 public class ChatMember {
-	// TODO: Change to account IDs
 	public string accountId;
 
 	// Constructor
@@ -14,14 +10,16 @@ public class ChatMember {
 	public ChatMember(string nName) {
 		accountId = nName;
 	}
-	
+
+	// WriteToBitStream
 	public static void WriteToBitStream(uLink.BitStream stream, object val, params object[] args) {
-		ChatMember myObj = (ChatMember)val;
+		var myObj = (ChatMember)val;
 		stream.WriteString(myObj.accountId);
 	}
-	
+
+	// ReadFromBitStream
 	public static object ReadFromBitStream(uLink.BitStream stream, params object[] args) {
-		ChatMember myObj = new ChatMember(stream.ReadString());
+		var myObj = new ChatMember(stream.ReadString());
 		return myObj;
 	}
 }

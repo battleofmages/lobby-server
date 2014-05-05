@@ -1,4 +1,5 @@
 ﻿using uLobby;
+using uGameDB;
 using UnityEngine;
 using System.Collections;
 
@@ -15,6 +16,70 @@ public class LobbyAccountManager : MonoBehaviour {
 		
 		var emailToken = System.Uri.EscapeDataString(token);
 		Mail.Send(email, "Activate your Battle of Mages account", "Click this link to activate your account:\nhttp://battleofmages.com/scripts/activate.php?email=" + email + "&token=" + emailToken);
+	}
+	
+	// DeleteAccount
+	// TODO: This is incomplete and should only be used for not yet activated accounts
+	public static IEnumerator DeleteAccount(string accountId) {
+		string email = null;
+		
+		yield return LobbyGameDB.GetEmail(
+			accountId,
+			data => {
+				if(data != null)
+					email = data;
+			}
+		);
+		
+		if(string.IsNullOrEmpty(email))
+			yield break;
+		
+		// Get a list of all buckets
+		var getBucketsReq = Bucket.GetBuckets();
+		yield return getBucketsReq.WaitUntilDone();
+		
+		if(getBucketsReq.isSuccessful) {
+			foreach(var bucket in getBucketsReq.GetBucketEnumerable()) {
+				if(bucket.name.StartsWith("AccountTo")) {
+					yield return bucket.Remove(accountId).WaitUntilDone();
+				}
+			}
+		}
+		
+		var emailBucketNames = new string[] {
+			"AccountsAwaitingActivation",
+			"uLobby AccountNameToID"
+		};
+		
+		foreach(var bucketName in emailBucketNames) {
+			yield return new Bucket(bucketName).Remove(email).WaitUntilDone();
+		}
+		
+		yield return new Bucket("uLobby Accounts").Remove(email).WaitUntilDone();
+	}
+	
+	// DeleteAllUnactivatedAccounts
+	public static IEnumerator DeleteAllUnactivatedAccounts() {
+		var emailToIdBucket = new Bucket("uLobby AccountNameToID");
+		
+		var request = new Bucket("AccountsAwaitingActivation").GetKeys();
+		yield return request.WaitUntilDone();
+		
+		if(request.hasFailed)
+			yield break;
+		
+		foreach(var email in request.GetKeyEnumerable()) {
+			if(email.Contains("patrick.juhl") || email.Contains("kuroato"))
+				continue;
+			
+			emailToIdBucket.Get(email, Constants.Replication.Default, (req) => {
+				var accountId = req.GetValue<string>();
+				LogManager.General.Log("Deleting account '" + req.key + "' with ID '" + accountId + "'");
+				GameDB.instance.StartCoroutine(DeleteAccount(accountId));
+			}, null);
+			//yield return req.WaitUntilDone();
+			
+		}
 	}
 	
 #region RPCs
@@ -66,7 +131,11 @@ public class LobbyAccountManager : MonoBehaviour {
 		Lobby.RPC("_RPCOnAccountRegistered", info.sender, account);
 		
 		// Log it
-		LogManager.General.Log("New account has been registered: E-Mail: '" + email + "' IP: " + info.sender.ToString().Split(',')[2].Remove(info.sender.ToString().Split(',')[2].Length -1));
+		LogManager.General.Log(string.Format(
+			"[{0}] New account has been registered: E-Mail: '{1}'",
+			info.sender.endpoint.Address,
+			email
+		));
 		
 		// Activation mail
 		if(!GameDB.IsTestAccount(email)) {

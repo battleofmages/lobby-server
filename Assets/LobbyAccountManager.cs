@@ -66,7 +66,7 @@ public class LobbyAccountManager : MonoBehaviour {
 		Lobby.RPC("_RPCOnAccountRegistered", info.sender, account);
 		
 		// Log it
-		LogManager.General.Log("New account has been registered: E-Mail: '" + email + "'");
+		LogManager.General.Log("New account has been registered: E-Mail: '" + email + "' Peer: " + info.sender.ToString());
 		
 		// Activation mail
 		if(!GameDB.IsTestAccount(email)) {

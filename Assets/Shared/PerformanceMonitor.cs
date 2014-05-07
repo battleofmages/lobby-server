@@ -1,11 +1,9 @@
-﻿/*
-using UnityEngine;
-using System.Collections;
-using System.Diagnostics;
+﻿using UnityEngine;
+//using System.Diagnostics;
 
-// Doesn't work for some reason
-public static class HealthMonitor {
-	private static PerformanceCounter cpuCounter;
+public static class PerformanceMonitor {
+	// Doesn't work for some reason
+	/*private static PerformanceCounter cpuCounter;
 	private static PerformanceCounter ramCounter;
 	
 	private static float lastCPUPoll;
@@ -14,17 +12,13 @@ public static class HealthMonitor {
 	private static float _cpuUsage;
 	private static float _freeRAM;
 	
-	// Init
-	static void Init() {
-		cpuCounter = new PerformanceCounter();
-		
-		cpuCounter.CategoryName = "Processor";
-		cpuCounter.CounterName = "% Processor Time";
-		cpuCounter.InstanceName = "_Total";
-		cpuCounter.NextValue();
+	// Contructor
+	static PerformanceMonitor() {
+		cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+		UnityEngine.Debug.Log(_cpuUsage = cpuCounter.NextValue());
 		
 		ramCounter = new PerformanceCounter("Memory", "Available MBytes");
-		ramCounter.NextValue();
+		UnityEngine.Debug.Log(_freeRAM = ramCounter.NextValue());
 	}
 	
 	// CPU usage in %
@@ -32,6 +26,7 @@ public static class HealthMonitor {
 		get {
 			if(Time.time - lastCPUPoll >= 1.0f) {
 				_cpuUsage = cpuCounter.NextValue();
+				UnityEngine.Debug.Log(_cpuUsage);
 				lastCPUPoll = Time.time;
 			}
 			
@@ -49,6 +44,11 @@ public static class HealthMonitor {
 			
 			return _freeRAM;
 		}
+	}*/
+
+	// FreeRAM
+	public static void FreeRAM() {
+		System.GC.Collect();
+		Resources.UnloadUnusedAssets();
 	}
 }
-*/

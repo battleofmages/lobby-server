@@ -42,7 +42,8 @@ public class LobbyInstanceManager : SingletonMonoBehaviour<LobbyInstanceManager>
 		LogManager.General.Log("Connected to uZone: " + request);
 		
 		LobbyInstanceManager.uZoneConnected = true;
-		//InstanceManager.ListAvailableNodes();
+		uZoneNodeCount = new List<Node>(InstanceManager.nodes).Count;
+		LogManager.General.Log(uZoneNodeCount + " node(s) connected");
 	}
 	
 	// uZone connection error

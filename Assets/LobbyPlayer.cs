@@ -219,10 +219,38 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 		}
 	}
 	
+	// In world
+	public bool inWorld {
+		get {
+			return _gameInstance is LobbyWorld;
+		}
+	}
+	
 	// In FFA
 	public bool inFFA {
 		get {
 			return _gameInstance is LobbyFFA;
+		}
+	}
+	
+	// In PvP
+	public bool inPvP {
+		get {
+			return inMatch || inFFA;
+		}
+	}
+	
+	// In dungeon
+	public bool inDungeon {
+		get {
+			return false;
+		}
+	}
+	
+	// Can enter PvP
+	public bool canEnterPvP {
+		get {
+			return !inPvP && !inDungeon;
 		}
 	}
 	
@@ -247,6 +275,13 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 		}
 	}
 	
+	// World
+	public LobbyWorld world {
+		get {
+			return _gameInstance as LobbyWorld;
+		}
+	}
+	
 	// Instance
 	public uZone.InstanceProcess instance {
 		get {
@@ -258,6 +293,9 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 			
 			if(inFFA)
 				return ffa.instance;
+			
+			if(inWorld)
+				return world.instance;
 			
 			return null;
 		}
@@ -273,11 +311,11 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 			_queue = value;
 			
 			if(_queue != null)
-				this.onlineStatus = OnlineStatus.InQueue;
+				onlineStatus = OnlineStatus.InQueue;
 			else
-				this.onlineStatus = OnlineStatus.Online;
+				onlineStatus = OnlineStatus.Online;
 			
-			this.BroadcastStatus();
+			BroadcastStatus();
 		}
 	}
 	
@@ -320,6 +358,9 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 		
 		// Remove game instance associations
 		gameInstance = null;
+		
+		// Treat him as if he is disconnected for existing objects
+		peer = null;
 		
 		// Broadcast offline status
 		onlineStatus = OnlineStatus.Offline;

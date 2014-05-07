@@ -29,6 +29,7 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 	
 	public uZone.InstanceProcess instance = null;
 	public List<string> args = new List<string>();
+	public int maxPlayerCount = 999999999;
 	protected string mapName;
 	protected ServerType serverType;
 	private uZone.InstanceOptions options;

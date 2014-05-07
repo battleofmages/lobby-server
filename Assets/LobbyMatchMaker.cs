@@ -101,10 +101,11 @@ public class LobbyMatchMaker : SingletonMonoBehaviour<LobbyMatchMaker> {
 	void JoinFFARequest(byte playersPerTeam, LobbyMessageInfo info) {
 		var player = LobbyServer.GetLobbyPlayer(info);
 		
-		if(!player.inTown)
+		// If the player is in PvP already, ignore the request
+		if(!player.canEnterPvP)
 			return;
 		
-		// Start new town server if needed
+		// Start new server if needed
 		LobbyFFA ffaInstance = LobbyFFA.PickFFAInstance(player);
 		
 		// Connect the player once the instance is ready
@@ -123,7 +124,7 @@ public class LobbyMatchMaker : SingletonMonoBehaviour<LobbyMatchMaker> {
 		if(player.stats == null)
 			return;
 		
-		if(!player.inTown)
+		if(!player.canEnterPvP)
 			return;
 		
 		var enteredQueue = queue[playersPerTeam - 1];

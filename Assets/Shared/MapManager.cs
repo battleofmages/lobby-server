@@ -31,6 +31,13 @@ public class MapManager {
 	public static Bounds mapBounds;
 	public static bool occlusionCullingActive = false;
 	public static Transform occlusionArea = null;
+
+	// Map loaded
+	public static bool mapLoaded {
+		get {
+			return mapInstance != null;
+		}
+	}
 	
 	// Loads a new map
 	public static IEnumerator LoadMapAsync(string mapName, CallBack func = null) {
@@ -43,8 +50,16 @@ public class MapManager {
 		else
 			LogManager.General.LogError("Scene '" + mapName + "' can not be loaded");
 
+		// Load map
 		LogManager.General.Log("Loading map '" + mapName + "'...");
+		
 		var asyncLoadLevel = Application.LoadLevelAdditiveAsync(mapName);
+
+		if(LoadingScreen.instance != null) {
+			LoadingScreen.instance.loadingText = "Loading map: " + mapName + "...";
+			LoadingScreen.instance.asyncLoadLevel = asyncLoadLevel;
+		}
+
 		yield return asyncLoadLevel;
 
 		LogManager.General.Log("Map loaded: " + mapName);

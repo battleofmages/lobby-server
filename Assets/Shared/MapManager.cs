@@ -68,7 +68,7 @@ public class MapManager {
 		mapIntro = mapInstance.GetComponent<Intro>();
 		LogManager.General.Log("Map intro: " + mapIntro);
 		
-		mapBounds = mapInstance.GetComponent<Boundary>().bounds;
+		mapBounds = mapInstance.GetComponent<MapBoundary>().bounds;
 		LogManager.General.Log("Map bounds: " + mapBounds);
 		
 		occlusionArea = mapInstance.transform.FindChild("Occlusion Area");

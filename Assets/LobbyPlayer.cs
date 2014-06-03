@@ -359,9 +359,6 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 		// Remove game instance associations
 		gameInstance = null;
 		
-		// Treat him as if he is disconnected for existing objects
-		peer = null;
-		
 		// Broadcast offline status
 		onlineStatus = OnlineStatus.Offline;
 		
@@ -382,6 +379,9 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 		foreach(var channel in new List<LobbyChatChannel>(channels)) {
 			channel.RemovePlayer(this);
 		}
+		
+		// Treat him as if he is disconnected for existing objects
+		peer = null;
 	}
 	
 	// Returns a player to his world location

@@ -112,6 +112,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
+  m_RootOrder: 1
 --- !u!1 &646597628
 GameObject:
   m_ObjectHideFlags: 0
@@ -151,6 +152,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
+  m_RootOrder: 4
 --- !u!1 &654090319
 GameObject:
   m_ObjectHideFlags: 0
@@ -192,6 +194,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
+  m_RootOrder: 2
 --- !u!1 &780800308
 GameObject:
   m_ObjectHideFlags: 0
@@ -234,6 +237,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
+  m_RootOrder: 3
 --- !u!114 &780800311
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -459,6 +463,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
+  m_RootOrder: 0
 --- !u!1 &1673014149
 GameObject:
   m_ObjectHideFlags: 0
@@ -486,7 +491,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 794abc4222df6394a87147f40e0944ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  webServerInfoURL: http://battleofmages.com/scripts/lobbyinfo.php
+  webServerInfoURL: https://battleofmages.com/scripts/lobbyinfo.php
   webServerInfoDelay: 10
 --- !u!4 &1673014151
 Transform:
@@ -499,3 +504,4 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
+  m_RootOrder: 5

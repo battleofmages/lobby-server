@@ -1,4 +1,4 @@
-﻿public class JsonSerializable<T> where T : new() {
+﻿public class JsonSerializable<T> where T : JsonSerializable<T>, new() {
 	// Writer
 	public static void JsonSerializer(Jboy.JsonWriter writer, object instance) {
 		GenericSerializer.WriteJSONClassInstance<T>(writer, (T)instance);

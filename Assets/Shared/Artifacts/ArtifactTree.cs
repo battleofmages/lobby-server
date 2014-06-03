@@ -1,10 +1,8 @@
-﻿using UnityEngine;
-using System.Collections;
-
-[System.Serializable]
+﻿[System.Serializable]
 public class ArtifactTree {
 	public ArtifactSlot[][] slots;
-	
+
+	// Constructor
 	public ArtifactTree() {
 		slots = new ArtifactSlot[5][];
 		
@@ -17,7 +15,8 @@ public class ArtifactTree {
 			}
 		}
 	}
-	
+
+	// Char stats
 	public CharacterStats charStats {
 		get {
 			CharacterStats stats = new CharacterStats(0);
@@ -33,7 +32,8 @@ public class ArtifactTree {
 			return stats;
 		}
 	}
-	
+
+	// AddArtifact
 	public bool AddArtifact(int itemId) {
 		var arti = new Artifact(itemId);
 		var slotLevel = slots[arti.level];
@@ -47,13 +47,15 @@ public class ArtifactTree {
 		
 		return false;
 	}
-	
+
+	// GetStarterArtifactTree
 	public static ArtifactTree GetStarterArtifactTree() {
 		var tree = new ArtifactTree();
 		tree.BuildStarterArtifacts();
 		return tree;
 	}
-	
+
+	// BuildStarterArtifacts
 	public void BuildStarterArtifacts() {
 		bool otherHalf = false;
 		
@@ -68,7 +70,8 @@ public class ArtifactTree {
 			}
 		}
 	}
-	
+
+	// Randomize
 	public void Randomize() {
 		foreach(var slotLevel in slots) {
 			foreach(var slot in slotLevel) {

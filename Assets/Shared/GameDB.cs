@@ -185,6 +185,7 @@ public class GameDB : SingletonMonoBehaviour<GameDB> {
 	
 	// Salt password
 	public static string SaltPassword(string password) {
+		// TODO: Dynamically generated salts
 		string salt = "c90e8eca04f64d70baacc9d0a5c4c72e" + password;
 		return password + salt;
 	}

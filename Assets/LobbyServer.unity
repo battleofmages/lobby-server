@@ -257,6 +257,7 @@ MonoBehaviour:
   mailFeedbackReceiver: e.urbach@gmail.com
   privateKeyPath: config/private-key.txt
   loginMessagePath: config/login-message.txt
+  smtpConfigPath: config/smtp-account.txt
 --- !u!114 &780800312
 MonoBehaviour:
   m_ObjectHideFlags: 0

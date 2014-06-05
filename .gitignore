@@ -3,6 +3,9 @@
 [Oo]bj/
 [Ll]ogs/
 
+config/private-key.txt
+config/smtp-account.txt
+
 # ===================================== #
 # Visual Studio / MonoDevelop generated #
 # ===================================== #

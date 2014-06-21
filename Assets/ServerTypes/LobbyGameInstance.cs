@@ -62,7 +62,9 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 		mapNameToInstances[mapName].Add(this);
 		
 		waitingForServer.Add(this);
-		options = new uZone.InstanceOptions(LobbyInstanceManager.gameName, args);
+		
+		var cmdLine = string.Join(" ", args.ToArray());
+		options = new uZone.InstanceOptions(LobbyInstanceManager.gameName, cmdLine);
 		
 		// Request uZone to start a new instance
 		uZone.InstanceManager.StartInstance(

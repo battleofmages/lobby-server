@@ -4,557 +4,1480 @@
     <name>uZone</name>
   </assembly>
   <members>
-    <member name="T:uZone.Node">
+    <member name="T:uZone.RequestError">
       <summary>
-            A local representation of a uZone node.
+            A list of all error codes they can be returned by the <see cref="T:uZone.Request" /> class.
             </summary>
     </member>
-    <member name="P:uZone.Node.id">
+    <member name="F:uZone.RequestError.Unknown">
+      <summary> Unknow error. The underlying code does not have enough information to qualify the error. </summary>
+    </member>
+    <member name="F:uZone.RequestError.NoError">
+      <summary> No error - the request operation was successfull </summary>
+    </member>
+    <member name="F:uZone.RequestError.BadRequest">
+      <summary> Request was rejected by the uZone system. Either Master or Node was unable to process the request at the moment. </summary>
+    </member>
+    <member name="F:uZone.RequestError.MasterError">
+      <summary> Failed due to an internal error on uZone Master. </summary>
+    </member>
+    <member name="F:uZone.RequestError.InstanceTimeout">
+      <summary> The instance failed to start within defined time interval. </summary>
+    </member>
+    <member name="F:uZone.RequestError.ClientError">
+      <summary> Failed due to an unexpected client exception. </summary>
+    </member>
+    <member name="F:uZone.RequestError.NodeOffline">
+      <summary> Can't process a node related request. The node is currently not available. </summary>
+    </member>
+    <member name="F:uZone.RequestError.TypeNotAvailable">
+      <summary> A requested instance type is not supported by any of nodes (according to other rules) </summary>
+    </member>
+    <member name="F:uZone.RequestError.InvalidAffinity">
+      <summary> Afinity parameter was invalid. Cannot launch an instance at a given CPU or core. </summary>
+    </member>
+    <member name="F:uZone.RequestError.BadPath">
+      <summary> Failed because the instance (at a given node) is registered under a bad/no path. </summary>
+    </member>
+    <member name="F:uZone.RequestError.ExecutableNotFound">
+      <summary> Request failed as the node could not find the instance executable at its registered path. </summary>
+    </member>
+    <member name="F:uZone.RequestError.ExecutableError">
+      <summary> Request failed due to an error that occurred while opening the instance executable. </summary>
+    </member>
+    <member name="F:uZone.RequestError.UnknownStartupError">
+      <summary> Request failed due to an unknown error that occurred during instance startup. </summary>
+    </member>
+    <member name="F:uZone.RequestError.NoPortAvailable">
+      <summary> Request failed as the node failed to allocate a port for the instance to use.</summary>
+    </member>
+    <member name="F:uZone.RequestError.InstanceUnavailable">
+      <summary> The instance referenced in the request does not exist. Presumably it was shutdown before the request could reach the uZone Master server. </summary>
+    </member>
+    <member name="T:uZone.NodeSelectionMode">
       <summary>
-            The unique ID assigned to the node and that is used to identify it.
+            The modes in this enumeration provide a smart and powerfull way how to start a new instance by letting uZone to choose the right node for you.
             </summary>
     </member>
-    <member name="P:uZone.Node.hostname">
+    <member name="F:uZone.NodeSelectionMode.Default">
+      <summary> A default behaviour, currently mapped to RoundRobin </summary>
+    </member>
+    <member name="F:uZone.NodeSelectionMode.RunningLeastInstances">
       <summary>
-            The hostname of the machine hosting the uZone node.
+            A new instance will be launched on a node currently running the smallest number of instances.
             </summary>
     </member>
-    <member name="P:uZone.Node.ip">
+    <member name="F:uZone.NodeSelectionMode.RunningMostInstances">
       <summary>
-            The IP address of the uZone node.
+            A new instance will be launched on a node currently running the highest number of instances
+            Not yet implemented. Currently mapped to default.
             </summary>
     </member>
-    <member name="P:uZone.Node.instanceTypes">
+    <member name="F:uZone.NodeSelectionMode.RoundRobin">
       <summary>
-            A list of all the installed game types on the node, meaning that they are available
-            for the node to instantiate a game instance of these types.
+            These scenario causes the nodes to "cycle". You may find it useful if you want to balance number of running instances on nodes
+            which were started at the same moment. On the other hand, this mode is not suitable for situations where some node(s) are already
+            running couple of instances and there are other completely fresh node(s) at the same time.
             </summary>
     </member>
-    <member name="P:uZone.Node.instances">
+    <member name="F:uZone.NodeSelectionMode.LeastCPULoad">
       <summary>
-            A list of all the IDs of instances running on the node.
+            A new instance will be launched on a node which is currently experiencing the least (relative) CPU load
+            Not yet implemented. Currently mapped to default.
             </summary>
     </member>
-    <member name="P:uZone.Node.args">
+    <member name="F:uZone.NodeSelectionMode.MostRAMAvailable">
       <summary>
-            A list containing the arguments supplied in the node's config.
+            A new instance will be launched on a node which is currently having the most (absolute) RAM available
+            Not yet implemented. Currently mapped to default.
             </summary>
     </member>
-    <member name="T:uZone.InternalHelper">
+    <member name="F:uZone.NodeSelectionMode.LeastBandwidthLoad">
       <summary>
-            Internal use only, needed in Older Unity versions up to 2.6.1. Do not use this class. 
-            </summary>
-      <remarks>Used in the internal script uLinkInternalHelper included in uLink</remarks>
-    </member>
-    <member name="T:uZone.GameInstance">
-      <summary>
-            A local representation of a running game instance.
+            A new instance will be launched on a node which is currently experiencing least (absolute) network load.
+            Not yet implemented. Currently mapped to default.
             </summary>
     </member>
-    <member name="P:uZone.GameInstance.id">
+    <member name="T:uZone.InstanceState">
       <summary>
-            The unique ID assigned to the instance in uZone, and that is used to identify it.
+            Used to represent the current instance status in <see cref="T:uZone.InstanceProcess" />.
+            </summary>
+      <remarks>
+            Some of the states should be considered as internal and the user code should ignore them.
+            </remarks>
+    </member>
+    <member name="F:uZone.InstanceState.Starting">
+      <summary>
+            Internal. Will be removed later.
+            We will never expose an instance to an user API before it reach the running state.
             </summary>
     </member>
-    <member name="P:uZone.GameInstance.type">
+    <member name="F:uZone.InstanceState.Running">
+      <summary> The instance is currently running. There is no problem about it. :-) </summary>
+    </member>
+    <member name="F:uZone.InstanceState.Unresponsive">
       <summary>
-            The type of the instance. This is identical to the name the game type is registered under
-            on the node that is running the instnace.
+            The instance is currently non-responding but there is a chance that it will get better again.
+            This state should be understood as temporary/transition
             </summary>
     </member>
-    <member name="P:uZone.GameInstance.nodeID">
+    <member name="F:uZone.InstanceState.Stopping">
       <summary>
-            The unique ID assigned to the node that is running the instance.
+            The instance is currently stopping.
+            This state should be understood as temporary/transition. The next state (under normal conditions)
+            should be <see cref="F:uZone.InstanceState.Stopped" /> but could be different if something unexpected will happen.
             </summary>
     </member>
-    <member name="P:uZone.GameInstance.ip">
+    <member name="F:uZone.InstanceState.Stopped">
+      <summary> The instance stopped peacefully. </summary>
+    </member>
+    <member name="F:uZone.InstanceState.Crashed">
+      <summary> Abnormal instance termination occurred. The instance crashed. </summary>
+    </member>
+    <member name="F:uZone.InstanceState.NonExisting">
+      <summary> Internal. Will be removed later. </summary>
+    </member>
+    <member name="F:uZone.InstanceState.Unreachable">
+      <summary> This status is set when the owning node is disconnected/unreachable. </summary>
+    </member>
+    <member name="T:uZone.NodeState">
       <summary>
-            The IP address the game instance is reachable from. Use this coupled with the port number
-            to connect to the game.
+            Used to represent the current node status in <see cref="T:uZone.Node" />.
             </summary>
     </member>
-    <member name="P:uZone.GameInstance.port">
+    <member name="F:uZone.NodeState.Available">
       <summary>
-            The port number the game instance is assigned to listen to on its node. If port allocation
-            is turned off in the uZone-system, this will be set to 0.
+            Several conditions neeeds to be met to declare the Node as available:
+             - The Node is running and connected to the uZone Master server
+             - The Client is succefully connected to the uZone Master server
             </summary>
     </member>
-    <member name="P:uZone.GameInstance.requestId">
+    <member name="F:uZone.NodeState.Unavailable">
       <summary>
-            The ID of the request that initiated the instance. Set to 0 by default in responses to
-            requests other than that that started the instance.
+            One (or more) of the conditions mentioned in the Available state description is not met.
             </summary>
     </member>
-    <member name="T:uZone.EventCode">
+    <member name="F:uZone.NodeState.Discarded">
       <summary>
-            A collection of codes each representing an event in uZone.
+            The node  gets into the discarded state when it got disconnected from the uZone Master server and was unable
+            to connect successfuly back in a reasonable time. Only Master can set the node into this state.
+            This state is final.
             </summary>
     </member>
-    <member name="F:uZone.EventCode.UzoneError">
+    <member name="T:uZone.ConnectionError">
       <summary>
-            Represents the event where the uZone-client receives unknown or badly formatted data
-            that is unrecognisable. Argument passes to callback is of type <see cref="T:uZone.ErrorCode" />.
+            This error code is reported via OnFailedToConnect callback when <see cref="M:uZone.InstanceManager.Connect(System.String,System.Int32)" />
+            fails to connect to the uZone Master server.
             </summary>
     </member>
-    <member name="F:uZone.EventCode.UzoneConnected">
-      <summary>
-            Represents the event where a game instance or client successfully connects to
-            uZone. Argument passed to callback function is of type <see cref="T:System.String" /> which 
-            represents the ID the client or game instance is registered under in the system.</summary>
+    <member name="F:uZone.ConnectionError.CreateSocketOrThreadFailure">
+      <summary> A problem occured on a local computer. It is unable to create the socket or a related resource. </summary>
     </member>
-    <member name="F:uZone.EventCode.UzoneDisconnected">
+    <member name="F:uZone.ConnectionError.AlreadyConnecting">
+      <summary> Another connect request is already running. </summary>
+    </member>
+    <member name="F:uZone.ConnectionError.AlreadyConnected">
+      <summary> There is already a connection established. </summary>
+    </member>
+    <member name="F:uZone.ConnectionError.NoError">
+      <summary> Success </summary>
+    </member>
+    <member name="F:uZone.ConnectionError.Disconnecting">
       <summary>
-            Represents the event where the uZone-client or the instance initiated by uZone disconnects.
+            The connection was cancelled due to a Disconnect call.
             </summary>
     </member>
-    <member name="F:uZone.EventCode.UzoneNodeConnected">
-      <summary>
-            Represents the event where a node successfully connects to the uZone-system.
-            Argument passed to callback function is of type <see cref="T:uZone.Node" /> 
-            that describes the connected node.</summary>
+    <member name="F:uZone.ConnectionError.ConnectionFailed">
+      <summary> In general, any other problem than "host unreachable" </summary>
     </member>
-    <member name="F:uZone.EventCode.UzoneNodeDisconnected">
-      <summary>
-            Represents the event where a node disconnects from the uZone-system.
-            Argument passed to callback is the ID of the disconnected node as a <see cref="T:System.String" /></summary>
+    <member name="F:uZone.ConnectionError.IncompatibleVersions">
+      <summary> The client and the server are running incompatible versions. </summary>
     </member>
-    <member name="F:uZone.EventCode.UzoneInstanceStarted">
-      <summary>
-            Represents the event where a new instance of some sort is started in the system.
-            Argument passed to callback is of type <see cref="T:uZone.GameInstance" />, which represents the newly
-            started instance.</summary>
+    <member name="F:uZone.ConnectionError.ConnectionTimeout">
+      <summary> Unable to connect to the server within given timeout interval. It is kind of "host unrechable" error. </summary>
     </member>
-    <member name="F:uZone.EventCode.UzoneInstanceStopped">
+    <member name="F:uZone.ConnectionError.HandshakeFailed">
       <summary>
-            Represents the event where an instance was shutdown in the system.
-            Argument passed to callback is List of type <see cref="T:System.String" />, which represents the ID of
-            the instance that was shutdown.</summary>
-    </member>
-    <member name="F:uZone.EventCode.UzoneNodeList">
-      <summary>
-            Represents the event where the client receives a list of all available nodes registered in
-            the system.
-            Argument passed to callback is a List of type <see cref="T:uZone.Node" />, which represents all the
-            nodes that are connected and registered in the system.</summary>
-    </member>
-    <member name="F:uZone.EventCode.UzoneInstanceList">
-      <summary>
-            Represents the event where the client receives a list of running game instances available
-            on the registered nodes in the system.
-            Argument passed to callback is a List of type <see cref="T:uZone.GameInstance" />, which represents
-            the running instances.</summary>
-    </member>
-    <member name="F:uZone.EventCode.UzoneInstanceTypeList">
-      <summary>
-            Represents the event where the client receives a list of game instances that are
-            registered as available in the system, ready to be started.
-            Argument passed to callback is a List of type <see cref="T:System.String" />, which represents and
-            identifies all the available types of instances available in the system.</summary>
-    </member>
-    <member name="F:uZone.EventCode.UzoneTerminate">
-      <summary>
-            Represents the event where an instance receives a request from uZone to terminate.
-            This event will only occur on game instances initialised and connected
-            to uZone.</summary>
-    </member>
-    <member name="T:uZone.ErrorCode">
-      <summary>
-            A collection of codes that represents errors returned by the uZone system.
+            The host was reached but communication failed.
             </summary>
     </member>
-    <member name="F:uZone.ErrorCode.InstanceStartFailed">
+    <member name="T:uZone.InstanceOptions">
       <summary>
-            The code returned when a request to start an instance failed.
+            Contains startup options and configurations regarding instances.
             </summary>
     </member>
-    <member name="F:uZone.ErrorCode.NodeNotAvailable">
+    <member name="F:uZone.InstanceOptions.arguments">
       <summary>
-            The code returned by the server when the node specified in the request is unavailable
-            in the system, or simply not registered.
+            A list of arguments that are sent as command-line input to the instance. Can for example contain Unity3D flags such as '-batchmode', but also custom arguments.
             </summary>
     </member>
-    <member name="F:uZone.ErrorCode.NoPortAvailable">
+    <member name="F:uZone.InstanceOptions.commandLine">
       <summary>
-            The code returned by the server when the node specified in a request to start an instance
-            failed cause all of its available ports are occupied.
+            The command line arguments passed to the launched instance.
+            </summary>
+      <remarks>
+            In fact, this string represents only a part of the command-line arguments. The seconds part comes from the related instance type definition.
+            Thus, the commandLine member here respresents the dynamic part of the instance process's command-line while the instance type definition
+            represents the static part of it.
+            
+            Pay an extra attention to the command line format because it use to be a source of tricky and difficult (time consuming) to find problems.
+            Use spaces to distinguish individual arguments. If you want to pass several words (a text string containing spaces) as a single argument
+            just enclose such character sequence in quotation marks.
+            </remarks>
+    </member>
+    <member name="F:uZone.InstanceOptions.processorAffinity">
+      <summary>
+            Sets the processors on which the associated instance can run. Each processor it can run on has its bit set to 1. As an example, assigning this property the value of 1 would allow the
+            instance to run on the first processor, 2 on the second processor, and 3 on both the first and second processor (determined by the OS). Default behavior is to allow all available processors
+            to run the instance.
             </summary>
     </member>
-    <member name="F:uZone.ErrorCode.GameNotAvailable">
+    <member name="F:uZone.InstanceOptions.instanceType">
       <summary>
-            The code returned by the server when the node specified in a request to start a server,
-            does not have the specified game installed.
+            Sets what type of instance should be started. This name is associated with a binary path on nodes where it is installed.
             </summary>
     </member>
-    <member name="F:uZone.ErrorCode.UnknownError">
+    <member name="M:uZone.InstanceOptions.#ctor(System.String)">
+      <summary> Initializes a new instance of the <see cref="T:uZone.InstanceOptions" /> struct.	</summary>
+      <param name="instanceType">Instance type.</param>
+    </member>
+    <member name="M:uZone.InstanceOptions.#ctor(System.String,System.Int32)">
+      <summary> Initializes a new instance of the <see cref="T:uZone.InstanceOptions" /> struct. </summary>
+      <param name="instanceType">Instance type.</param>
+      <param name="processorAffinity">Processor affinity.</param>
+    </member>
+    <member name="M:uZone.InstanceOptions.#ctor(System.String,System.Collections.Generic.IEnumerable{System.String})">
+      <summary> Initializes a new instance of the <see cref="T:uZone.InstanceOptions" /> struct. </summary>
+      <param name="instanceType">Instance type.</param>
+      <param name="arguments">Arguments.</param>
+    </member>
+    <member name="M:uZone.InstanceOptions.#ctor(System.String,System.Int32,System.Collections.Generic.IEnumerable{System.String})">
+      <summary> Initializes a new instance of the <see cref="T:uZone.InstanceOptions" /> struct. </summary>
+      <param name="instanceType">Instance type.</param>
+      <param name="processorAffinity">Processor affinity.</param>
+      <param name="arguments">Arguments.</param>
+    </member>
+    <member name="M:uZone.InstanceOptions.#ctor(System.String,System.String)">
+      <summary> Initializes a new instance of the <see cref="T:uZone.InstanceOptions" /> struct. </summary>
+      <param name="instanceType">Instance type.</param>
+      <param name="commandLine">Command-line arguments</param>
+    </member>
+    <member name="M:uZone.InstanceOptions.#ctor(System.String,System.Int32,System.String)">
+      <summary> Initializes a new instance of the <see cref="T:uZone.InstanceOptions" /> struct. </summary>
+      <param name="instanceType">Instance type.</param>
+      <param name="processorAffinity">Processor affinity.</param>
+      <param name="commandLine">Command-line arguments.</param>
+    </member>
+    <member name="M:uZone.InstanceOptions.ToString">
       <summary>
-            The code returned when an unknown error occured.
+            Returns a <see cref="T:System.String" /> that represents the current <see cref="T:uZone.InstanceOptions" />.
+            </summary>
+      <returns>A <see cref="T:System.String" /> that represents the current <see cref="T:uZone.InstanceOptions" />.</returns>
+    </member>
+    <member name="P:uZone.InstanceOptions.gameType">
+      <summary>
+            Sets what type of instance should be started. This name is associated with a binary path on nodes where it is installed.
             </summary>
     </member>
-    <member name="F:uZone.ErrorCode.BadMessageBody">
+    <member name="T:uZone.LogLevel">
       <summary>
-            The code returned when a message was received with an unknown header.
+            The available log levels that can be set for minimum logging and also can be set per log category.
             </summary>
     </member>
-    <member name="F:uZone.ErrorCode.BadMessageHeader">
+    <member name="F:uZone.LogLevel.Off">
       <summary>
-            The code returned when a message was received with a unintelligible message body.
+            Logs nothing.
             </summary>
     </member>
-    <member name="F:uZone.ErrorCode.BadInstanceIdFormat">
+    <member name="F:uZone.LogLevel.Error">
       <summary>
-            The code returned when an instance ID of the wrong format was caught in uZone.
+            Logs errors only
             </summary>
     </member>
-    <member name="T:uZone.EventCallback">
+    <member name="F:uZone.LogLevel.Warning">
       <summary>
-            Used by uZone to describe a callback that is invoked when a specific event occurs.
+            Logs warnings and errors.
             </summary>
-      <param name="eventArg">The argument supplied to the callback. Is usually what is returned
-            from the uZone system in a request.</param>
+    </member>
+    <member name="F:uZone.LogLevel.Info">
+      <summary>
+            Logs info messages, warnings and errors.
+            </summary>
+    </member>
+    <member name="F:uZone.LogLevel.Debug">
+      <summary>
+            Logs debug messages, info messages, warnings and errors. The most detailed log level available.
+            </summary>
+    </member>
+    <member name="F:uZone.LogLevel.Informational">
+      <summary>
+            Deprecated, please use NetworkLogLevel.Info instead
+            </summary>
+    </member>
+    <member name="F:uZone.LogLevel.Full">
+      <summary>
+            Deprecated, please use NetworkLogLevel.Debug instead
+            </summary>
+    </member>
+    <member name="T:uZone.LogFlags">
+      <summary>
+            The different log categories currently available. Each item is a binary flag. You can create various combinations
+            by "or"-ing individual flags together. These flags can be used to define verbosity of the log output which can
+            be set by the <see cref="M:uZone.Log.SetLevel(uZone.LogFlags,uZone.LogLevel)" /> method.
+            </summary>
+    </member>
+    <member name="F:uZone.LogFlags.None">
+      <summary> no cathegory = no output at all </summary>
+    </member>
+    <member name="F:uZone.LogFlags.Node">
+      <summary> A node related log records </summary>
+    </member>
+    <member name="F:uZone.LogFlags.RPC">
+      <summary> Internal data, messages and RPCs communication log records  </summary>
+    </member>
+    <member name="F:uZone.LogFlags.Network">
+      <summary>
+            Involves all the log records related to the low level network communication, like
+            connection/disconnection process, handshakes, connection timeouts etc.
+            </summary>
+    </member>
+    <member name="F:uZone.LogFlags.BadMessage">
+      <summary> Involves bad data formats, invalid parameters, non-existing object ids or RPC names etc. </summary>
+    </member>
+    <member name="F:uZone.LogFlags.Master">
+      <summary> Master related log records </summary>
+    </member>
+    <member name="F:uZone.LogFlags.Performance">
+      <summary> Performance related log records </summary>
+    </member>
+    <member name="F:uZone.LogFlags.All">
+      <summary> A predefined value representing all the LogFlagss </summary>
+    </member>
+    <member name="T:uZone.Log">
+      <summary>
+            Class for configuring uZone logging.
+            </summary>
+    </member>
+    <member name="F:uZone.Log.errorWriter">
+      <summary>
+            The delegate writing error messages. Default implementation send output to the Editor console / output_log.txt file.
+            </summary>
+    </member>
+    <member name="F:uZone.Log.warningWriter">
+      <summary>
+            The delegate writing warning messages. Default implementation send output to the Editor console / output_log.txt file.
+            </summary>
+    </member>
+    <member name="F:uZone.Log.infoWriter">
+      <summary>
+            The delegate writing info messages. Default implementation send output to the Editor console / output_log.txt file.
+            </summary>
+    </member>
+    <member name="F:uZone.Log.debugWriter">
+      <summary>
+            The delegate writing debug messages. Default implementation send output to the Editor console / output_log.txt file.
+            </summary>
+    </member>
+    <member name="F:uZone.Log.minLevel">
+      <summary>
+            The minimum level for all logging categories. This can be overruled by setting a detailed log level for an individual category to a higher log level via <see cref="M:uZone.Log.SetLevel(uZone.LogFlags,uZone.LogLevel)" />.
+            </summary>
+      <value>Default value is LogLevel.Warning</value>
+    </member>
+    <member name="M:uZone.Log.HasLevel(uZone.LogFlags,uZone.LogLevel)">
+      <summary>
+            Returns true if the the categories (flags) are set by either <see cref="M:uZone.Log.SetLevel(uZone.LogFlags,uZone.LogLevel)" /> or <see cref="F:uZone.Log.minLevel" />.
+            </summary>
+    </member>
+    <member name="M:uZone.Log.SetLevel(uZone.LogFlags,uZone.LogLevel)">
+      <summary>
+            Sets a detailed logging level for the specified categories (flags). If the categories (flags) is set to a lower log level than <see cref="F:uZone.Log.minLevel" /> then <see cref="F:uZone.Log.minLevel" /> overrules the detailed log level when logging.
+            </summary>
+    </member>
+    <member name="M:uZone.Log.GetMaxLevel(uZone.LogFlags)">
+      <summary>
+            Gets the highest detailed log level configured for any of the log categories (flags), where
+            <see cref="F:uZone.LogLevel.Off" /> is the lowest and <see cref="F:uZone.LogLevel.Debug" /> is the highest.
+            </summary>
+    </member>
+    <member name="M:uZone.Log.GetMinLevel(uZone.LogFlags)">
+      <summary>
+            Gets the lowest detailed log level configured for any of the log categories (flags), where
+            <see cref="F:uZone.LogLevel.Off" /> is the lowest and <see cref="F:uZone.LogLevel.Debug" /> is the highest.
+            </summary>
+    </member>
+    <member name="M:uZone.Log.SetNetworkingLogLevel(uZone.LogLevel)">
+      <summary>
+            Sets the logging level of internal networking library.
+            </summary>
+    </member>
+    <member name="P:uZone.Log.errorFlags">
+      <summary>
+            Gets or sets the log categories for the <see cref="F:uZone.Log.errorWriter" />.
+            </summary>
+    </member>
+    <member name="P:uZone.Log.warningFlags">
+      <summary>
+            Gets or sets the log categories for the <see cref="F:uZone.Log.warningWriter" />.
+            </summary>
+    </member>
+    <member name="P:uZone.Log.infoFlags">
+      <summary>
+            Gets or sets the log categories for the <see cref="F:uZone.Log.infoWriter" />.
+            </summary>
+    </member>
+    <member name="P:uZone.Log.debugFlags">
+      <summary>
+            Gets or sets the log categories for the <see cref="F:uZone.Log.debugWriter" />.
+            </summary>
+    </member>
+    <member name="T:uZone.Log.Writer">
+      <summary>
+             Implement one or several new delegates if there is a need to replace the default Writers in this class.
+             </summary>
+      <example>
+             In your own implementation you can choose another destination for log messages.
+             This example code shows how to send log messages to a file.
+             <code>
+             using UnityEngine;
+             using System.Collections;
+             using System.IO;
+            
+             public class CustomFileLog : MonoBehaviour
+             {
+            	 public string logFileName = @"c:\temp\MyLog.txt";
+            
+            	 void Start()
+            	 {
+            		 //This code replaces the default debugWriter with a new delegate
+            		 uZone.Log.debugWriter = delegate(uZone.LogFlags flags, object[] args)
+            		 {
+            			 string line = System.DateTime.Now + ", " + uZone.LogUtility.ToString(args) + "\r\n";
+            			 File.AppendAllText(logFileName, line);
+            		 };
+            
+            		 //Set the level to Debug for the category uZone.LogFlags.Server
+            		 uZone.Log.SetLevel(uZone.LogFlags.Server, uZone.LogLevel.Debug);
+            
+            		 //Do some debug logging to the file
+            		 for (int i = 1; i != 5; i++)
+            		 {
+            			 uZone.Log.Debug(uZone.LogFlags.Server, "Hello ", i, " from demo code.");
+            		 }
+            	 }
+             }
+             </code></example>
+    </member>
+    <member name="T:uZone.Exceptions.InstanceManagerUnknownException">
+      <summary>
+            This exception is reserved for a very special cases when we can't really identify/name the problem.
+            Normally it should not appear.
+            </summary>
+    </member>
+    <member name="T:uZone.Exceptions.InstanceManagerException">
+      <summary>
+            A base class for all InstanceManager realated exceptions
+            </summary>
+    </member>
+    <member name="P:uZone.Exceptions.InstanceManagerException.Message">
+      <summary>
+            Gets a message that describes the current exception.
+            </summary>
+    </member>
+    <member name="P:uZone.Exceptions.InstanceManagerException.StackTrace">
+      <summary>
+            Gets a string representation of the immediate frames on the call stack.
+            </summary>
     </member>
     <member name="T:uZone.InstanceManager">
       <summary>
-            This is the class that houses all the global operations of uZone. Use it to start and stop
-            game instances, connect a client or initialise a newly started game instance, etc.
+            This is one of the most important classes in uZone. It is the main class of the client side of the system.
             </summary>
+      <remarks>
+            This class allows the client to connect to a uZone Master server, list to existing nodes and instances,
+            request to start a new Instance, register to various events and much more.
+            <para />
+            The first thing you have to do is to initialize it by calling the
+            <see cref="M:uZone.InstanceManager.Initialize" />
+            method.
+            <para />
+            Consequently you have to connect to a uZone Master server. That can be done by calling the
+            <see cref="M:uZone.InstanceManager.Connect(System.String,System.Int32)" />
+            method. Once you are successfully connected you can use all the remaining parts of the API. Conversely,
+            if you are not connected, many methods will throw the
+            <see cref="T:uZone.Exceptions.InstanceManagerException" />
+            exception once they are called.
+            </remarks>
     </member>
-    <member name="M:uZone.InstanceManager.Initialise">
+    <member name="M:uZone.InstanceManager.Initialize(uZone.InstanceManager.GlobalEvents)">
       <summary>
-            Initialises the uZone client interface. Should only be called once on application
-            startup and on client applications. For initialisation of game instances started by
-            uZone, use uZone.InstanceManager.Server.Initialise().
+            Initializes the instance manager, which allows the application to start and stop instances through uZone's interface.
             </summary>
+      <param name="globalEvents">
+            Can be used to register all the requested global event listeners at once. Each member of the <see cref="T:uZone.InstanceManager.GlobalEvents" />
+            structure may be set to null.
+            </param>
+      <seealso cref="M:uZone.InstanceManager.Connect(System.String,System.Int32)" />
+    </member>
+    <member name="M:uZone.InstanceManager.Initialize">
+      <summary>
+            Initializes the instance manager, which allows the application to start and stop instances through uZone's interface.
+            </summary>
+      <remarks>
+            There is another overloaded
+            <see cref="M:uZone.InstanceManager.Initialize(uZone.InstanceManager.GlobalEvents)" />
+            function overload which allows you to initialize uZone client (InstanceManager) and define a set of
+            global event listeners at the same time.
+            </remarks>
+      <seealso cref="M:uZone.InstanceManager.Connect(System.String,System.Int32)" />
+    </member>
+    <member name="M:uZone.InstanceManager.Connect(System.String,System.Int32,uZone.OnResponseCallback{uZone.ConnectRequest},uZone.OnResponseCallback{uZone.ConnectRequest})">
+      <summary>
+            Connects the instance manager to a uZone Master server at a given endpoint.
+            </summary>
+      <param name="host">The IP/Hostname of the uZone Master server.</param>
+      <param name="port">The port number where the uZone Master server is listening on.</param>
+      <param name="onSuccess">A callback routine which is triggered once the connect request finished sucessfully. Can be set to null.</param>
+      <param name="onError">A callback routine which is triggered once the connect request failed. Can be set to null.</param>
+      <returns>Returns the request object even when the function fails.</returns>
     </member>
     <member name="M:uZone.InstanceManager.Connect(System.String,System.Int32)">
       <summary>
-            This will try and connect the uZone client to a uZone master-server and 
-            start listening for incoming data.
+            Connects the instance manager to a uZone Master server at a given endpoint.
             </summary>
-      <param name="host">The address of the machine running a uZone master-server</param>
-      <param name="port">The port the running uZone master-server application is listening to</param>
-      <remarks>uZone will generate a unique ID that identifies this lobby instance.</remarks>
-    </member>
-    <member name="M:uZone.InstanceManager.Connect(System.String,System.Int32,System.String)">
-      <summary>
-            This will try and connect the uZone client to a uZone master-server and 
-            start listening for incoming data.
-            </summary>
-      <param name="host">The address of the machine running a uZone master-server</param>
-      <param name="port">The port the running uZone master-server application is listening to</param>
-      <param name="lobbyId">The ID under which the lobby will be registered in uZone. If the ID
-            is already in use, uZone will generate a new unique ID. Needs to be on the form X.X.X, where
-            each X is 1-10 numbers numbered 0-9.</param>
+      <param name="host">The IP/Hostname of the uZone Master server.</param>
+      <param name="port">The port number where the uZone Master server is listening on.</param>
+      <returns>Returns the request object even when the function fails.</returns>
     </member>
     <member name="M:uZone.InstanceManager.Disconnect">
       <summary>
-            Disconnects the uZone client, dropping all communication to the uZone master-server.
+            Disconnects the instance manager. This will also remove all pending and queued requests.
             </summary>
     </member>
-    <member name="M:uZone.InstanceManager.ListAvailableNodes(System.String)">
+    <member name="M:uZone.InstanceManager.StartInstance(uZone.InstanceOptions,uZone.NodeSelectionMode,uZone.OnResponseCallback{uZone.StartInstanceRequest},uZone.OnResponseCallback{uZone.StartInstanceRequest})">
       <summary>
-            Sends a request to the connected uZone master-server to list all available nodes with a
-            specific game type installed on them.
+            Creates and sends a request to uZone to start a new instance. The state of the request is available in the returned <see cref="T:uZone.StartInstanceRequest" /> object.
             </summary>
-      <param name="gameTypeName">The name of the game type as it is registered on the server</param>
+      <param name="options">Contains options and parameters for the new instance.</param>
+      <param name="selectMode">Selects what algorithm should be used to chose what node to start the instance on.</param>
+      <param name="onResponse">An optional callback</param>
+      <param name="onError">Callback that is executed on error.</param>
+      <returns>Information regarding the request and its state</returns>
     </member>
-    <member name="M:uZone.InstanceManager.ListAvailableNodes">
+    <member name="M:uZone.InstanceManager.StartInstance(uZone.InstanceOptions,uZone.NodeSelectionMode)">
       <summary>
-            Sends a request to the connected uZone master-server to list all available nodes.
-            </summary>
+      </summary>
+      <param name="options">
+      </param>
+      <param name="selectMode">
+      </param>
+      <returns>
+      </returns>
     </member>
-    <member name="M:uZone.InstanceManager.ListAllInstances">
+    <member name="P:uZone.InstanceManager.id">
       <summary>
-            Sends a request to the connected uZone master-server to list all available instances.
-            </summary>
-    </member>
-    <member name="M:uZone.InstanceManager.ListInstances(System.String)">
-      <summary>
-            Sends a request to the connected uZone master-server to list all available instances
-            of type <paramref name="gameTypeName" />.
-            </summary>
-      <param name="gameTypeName">The type of instances to list.</param>
-    </member>
-    <member name="M:uZone.InstanceManager.ListNodeInstances(System.String,System.String)">
-      <summary>
-            Sends a request to the connected uZone master-server to list all available instances
-            of type <paramref name="gameTypeName" /> that is running on node <paramref name="nodeId" />.
-            </summary>
-      <param name="nodeId">The string that identifies the node in the system whose instances is to
-            be listed. Needs to be on the form X.X.X, where each X is 1-10 numbers numbered 0-9.</param>
-      <param name="gameTypeName">The type of instances to list.</param>
-    </member>
-    <member name="M:uZone.InstanceManager.ListNodeInstances(System.String)">
-      <summary>
-            Sends a request to the connected uZone master-server to list all available instances
-            that is running on node <paramref name="nodeId" />.
-            </summary>
-      <param name="nodeId">The string that identifies the node in the system whose instances is to
-            be listed. Needs to be on the form X.X.X, where each X is 1-10 numbers numbered 0-9.</param>
-    </member>
-    <member name="M:uZone.InstanceManager.ListInstanceTypes">
-      <summary>
-            Sends a request to the connected uZone master-server to list all the available
-            type of instances in the system.
-            </summary>
-    </member>
-    <member name="M:uZone.InstanceManager.StartGameInstance(System.String,System.String)">
-      <summary>
-            Sends a request to the connected uZone master-server to start a new game instance
-            of type <paramref name="gameTypeName" /> on node <paramref name="nodeId" />. 
-            </summary>
-      <param name="gameTypeName">Identifies the type of game to be started as it is
-            registered in the system.</param>
-      <param name="nodeId">The string that identifies the node in the system on which the instance
-            is to be started on. Needs to be on the form X.X.X, where each X is 1-10 numbers numbered 0-9.</param>
-      <returns>A request identifier that can be used to uniquely identify this request in the request callback.</returns>
-    </member>
-    <member name="M:uZone.InstanceManager.StartGameInstance(System.String,System.String,System.Collections.Generic.List{System.String})">
-      <summary>
-            Sends a request to the connected uZone master-server to start a new game instance
-            of type <paramref name="gameTypeName" /> on node <paramref name="nodeId" /> with arguments
-            <paramref name="args" />. 
-            </summary>
-      <param name="gameTypeName">Identifies the type of game to be started as it is
-            registered in the system.</param>
-      <param name="nodeId">The string that identifies the node in the system on which the instance
-            is to be started on. Needs to be on the form X.X.X, where each X is 1-10 numbers numbered 0-9.</param>
-      <param name="args">Any extra arguments that are supplied to the server on startup. Can include Unity flags such as -batchmode.</param>
-      <remarks>
-            The optional arguments can be on any form, and can immediately be accessed by the instance by calling 
-            <see cref="P:uZone.InstanceManager.Server.cmdArgs" />.</remarks>
-      <returns>A request identifier that can be used to uniquely identify this request in the request callback.</returns>
-    </member>
-    <member name="M:uZone.InstanceManager.StartGameInstance(System.String)">
-      <summary>
-            Sends a request to the connected uZone master-server to start a new game instance
-            of type <paramref name="gameTypeName" />.
-            </summary>
-      <param name="gameTypeName">Identifies the type of game to be started as it is
-            registered on at least one node in the system.</param>
-      <remarks>If different types of games are registered using the same key on different
-            nodes, the type of game to be started may appear random.</remarks>
-      <returns>A request identifier that can be used to uniquely identify this request in the request callback.</returns>
-    </member>
-    <member name="M:uZone.InstanceManager.StartGameInstance(System.String,System.Collections.Generic.List{System.String})">
-      <summary>
-            Sends a request to the connected uZone master-server to start a new game instance
-            of type <paramref name="gameTypeName" />.
-            </summary>
-      <param name="gameTypeName">Identifies the type of game to be started as it is
-            registered on at least one node in the system.</param>
-      <param name="args">Any extra arguments that are to be supplied to the instance on startup.</param>
-      <remarks>
-            The optional arguments can be on any form, and can immediately be accessed by the instance by calling 
-            <see cref="P:uZone.InstanceManager.Server.cmdArgs" />.</remarks>
-      <returns>A request identifier that can be used to uniquely identify this request in the request callback.</returns>
-    </member>
-    <member name="M:uZone.InstanceManager.StopGameTypeInstances(System.String,System.String)">
-      <summary>
-            Sends a request to the connected uZone master-server to terminate all game instances of type
-            <paramref name="gameTypeName" /> from running on node <paramref name="nodeId" />.
-            </summary>
-      <param name="gameTypeName">The type of game instances to be terminated.</param>
-      <param name="nodeId">The string that identifies the node in the system on whose instances
-            are to be terminated. Needs to be on the form X.X.X, where each X is 1-10 numbers numbered 0-9.</param>
-    </member>
-    <member name="M:uZone.InstanceManager.StopGameTypeInstances(System.String)">
-      <summary>
-            Sends a request to the connected uZone master-server to terminate all game instances of type
-            <paramref name="gameTypeName" /> from running.
-            </summary>
-      <param name="gameTypeName">Identifies the type of game instances to be terminated as it is
-            registered in the system</param>
-      <remarks>Any associated callback with this call will be executed an equal amount of times
-            as there are nodes that has instances of <paramref name="gameTypeName" /> running since
-            each of these nodes will generate a response.</remarks>
-    </member>
-    <member name="M:uZone.InstanceManager.StopNodeInstances(System.String)">
-      <summary>
-            Sends a request to the connected uZone master-server to terminate all game instances
-            running on <paramref name="nodeId" />.
-            </summary>
-      <param name="nodeId">The string that identifies the node in the system on whose instances
-            are to be stopped. Needs to be on the form X.X.X, where each X is 1-10 numbers numbered 0-9.</param>
-    </member>
-    <member name="M:uZone.InstanceManager.StopAllInstances">
-      <summary>
-            Sends a request to the connected uZone master-server to terminate all game instances
-            registered in the system.
-            </summary>
-      <remarks>Any callback associated with this call will be executed an equal amount of times
-            as there are nodes connected to the system with instances running on them, as each such node
-            will generate a response.</remarks>
-    </member>
-    <member name="M:uZone.InstanceManager.StopInstance(System.String)">
-      <summary>
-            Sends a request to the connected uZone master-server to stop a game instance with
-            the unique ID <paramref name="instanceId" />.
-            </summary>
-      <param name="instanceId">The string identifying the instance in the system that is
-            to be terminated. Needs to be on the form X.X.X:X.X.X, where each X is 1-10 numbers numbered 0-9.</param>
-    </member>
-    <member name="M:uZone.InstanceManager.SetCallback(uZone.EventCode,uZone.EventCallback)">
-      <summary>
-            Sets the callback to be executed if the event represented by <paramref name="eventCode" /> 
-            occurs. Any callback already set for the event is overwritten.
-            </summary>
-      <param name="eventCode">The event code that represents a specific event.</param>
-      <param name="callback">The callback delegate function to be executed.</param>
-      <remarks>The argument sent to the callback funtion is dependant on what type of
-            event that occurs. See <see cref="T:uZone.EventCode" /> documentation for the type argument
-            types.</remarks>
-    </member>
-    <member name="M:uZone.InstanceManager.DeleteCallback(uZone.EventCode)">
-      <summary>
-            Deletes the set callback for a specific event.
-            </summary>
-      <param name="eventCode">The code representing the event whose callback is to be
-            deleted.</param>
-    </member>
-    <member name="M:uZone.InstanceManager.ResetCallbacks">
-      <summary>
-            Deletes all set callbacks set in the system.
-            </summary>
-    </member>
-    <member name="M:uZone.InstanceManager.AddListener(UnityEngine.GameObject)">
-      <summary>
-            Makes an object subscribe to the events in uZone and execute its defined callbacks.
-            </summary>
-      <param name="gameObject">The object whose callbacks are to be executed
-            on events.</param>
-    </member>
-    <member name="M:uZone.InstanceManager.RemoveListener(UnityEngine.GameObject)">
-      <summary>
-            Unsubscribes an object from uZone events, preventing its callbacks to be executed.
-            </summary>
-      <param name="gameObject">The object to unsubscribe.</param>
-      <returns>true if the object was found and removed, else false.</returns>
-    </member>
-    <member name="M:uZone.InstanceManager.ClearListeners">
-      <summary>
-            Unsubscribes all objects that were previously added to listen to uZone events.
-            </summary>
-    </member>
-    <member name="P:uZone.InstanceManager.isInitialized">
-      <summary>
-            Returns true if the uZone client is in an initialized state.
+            An unique client identifier. It is generated/assigned by uZone Master.
             </summary>
     </member>
     <member name="P:uZone.InstanceManager.isConnected">
       <summary>
-            Returns true if the uZone client is in a connected state.
+            Returns whether the InstanceManager is fully connected to a uZone Master server.
             </summary>
     </member>
-    <member name="P:uZone.InstanceManager.isListening">
+    <member name="E:uZone.InstanceManager.onDisconnected">
+      <summary> Used to notify the application when the client disconnects from a uZone Master server. </summary>
+    </member>
+    <member name="E:uZone.InstanceManager.onNodeConnected">
+      <summary> Used to notify application about a new new node connected </summary>
+    </member>
+    <member name="E:uZone.InstanceManager.onNodeDisconnected">
+      <summary> Used to notify application about an existing node disconnected </summary>
+    </member>
+    <member name="E:uZone.InstanceManager.onNodeStateChanged">
+      <summary> Used to notify application when the state of the node changed </summary>
+    </member>
+    <member name="E:uZone.InstanceManager.onInstanceStarted">
+      <summary> Used to notify application about a new instance started </summary>
+    </member>
+    <member name="E:uZone.InstanceManager.onInstanceStopped">
+      <summary> Used to notify application about an existing instance stopeed </summary>
+    </member>
+    <member name="E:uZone.InstanceManager.onInstanceStateChanged">
+      <summary> Used to notify application when the state of the instance changed </summary>
+    </member>
+    <member name="P:uZone.InstanceManager.nodes">
+      <summary> Returns all currently known nodes </summary>
+    </member>
+    <member name="T:uZone.InstanceManager.GlobalEvents">
       <summary>
-            Returns true if the uZone client is listening for incoming data. Should always return
-            true when uZone is in a connected state.
+             This structure helps to register all the global event listeners at the same time and right
+             during the initiation of uZone client (InstanceManager)
+             </summary>
+      <remarks>
+             The "global events" does mean that the related events are triggered as they appear in the uZone system without any filtering.
+             There are also local (object oriented versions) for all Node and InstanceProcess related events. Check all the public events
+             declared at <see cref="T:uZone.Node" /> and <see cref="T:uZone.InstanceProcess" /> classes
+             </remarks>
+    </member>
+    <member name="F:uZone.InstanceManager.GlobalEvents.onDisconnected">
+      <summary> Global <see cref="T:uZone.InstanceManager.OnDisconnectedHandler" /> delegate. </summary>
+    </member>
+    <member name="F:uZone.InstanceManager.GlobalEvents.onNodeConnected">
+      <summary> Global <see cref="T:uZone.InstanceManager.OnNodeConnectedHandler" /> delegate. </summary>
+    </member>
+    <member name="F:uZone.InstanceManager.GlobalEvents.onNodeDisconnected">
+      <summary> Global <see cref="T:uZone.InstanceManager.OnNodeDisconnectedHandler" /> delegate. </summary>
+    </member>
+    <member name="F:uZone.InstanceManager.GlobalEvents.onNodeStateChanged">
+      <summary> Global <see cref="T:uZone.InstanceManager.OnNodeStateChangedHandler" /> delegate. </summary>
+    </member>
+    <member name="F:uZone.InstanceManager.GlobalEvents.onInstanceStarted">
+      <summary> Global <see cref="T:uZone.InstanceManager.OnInstanceStartedHandler" /> delegate. </summary>
+    </member>
+    <member name="F:uZone.InstanceManager.GlobalEvents.onInstanceStopped">
+      <summary> Global <see cref="T:uZone.InstanceManager.OnInstanceStoppedHandler" /> delegate. </summary>
+    </member>
+    <member name="F:uZone.InstanceManager.GlobalEvents.onInstanceStateChanged">
+      <summary> Global <see cref="T:uZone.InstanceManager.OnInstanceStateChangedHandler" /> delegate. </summary>
+    </member>
+    <member name="T:uZone.InstanceManager.OnDisconnectedHandler">
+      <summary> Used to notify the application when the client disconnects from a uZone Master server. </summary>
+    </member>
+    <member name="T:uZone.InstanceManager.OnNodeConnectedHandler">
+      <summary> Used to notify the application about a new new node connected </summary>
+    </member>
+    <member name="T:uZone.InstanceManager.OnNodeDisconnectedHandler">
+      <summary> Used to notify the application about an existing node disconnected </summary>
+    </member>
+    <member name="T:uZone.InstanceManager.OnNodeStateChangedHandler">
+      <summary> Used to notify application when the state of the node changed </summary>
+    </member>
+    <member name="T:uZone.InstanceManager.OnInstanceStartedHandler">
+      <summary> Used to notify application about a new instance started </summary>
+    </member>
+    <member name="T:uZone.InstanceManager.OnInstanceStoppedHandler">
+      <summary> Used to notify application about an existing instance stopeed </summary>
+    </member>
+    <member name="T:uZone.InstanceManager.OnInstanceStateChangedHandler">
+      <summary> Used to notify application when the state of the instance changed </summary>
+    </member>
+    <member name="T:uZone.InstanceManager.Debug">
+      <summary>
+            This class is here for debug and statistics purposes only.
+            </summary>
+      <remarks>
+            The content of this class
+            may change without any prior warnings, backward compatibility is not guaranteed.
+            Normaly there should be no reason to use it unless you are trying to identify some problem.
+            </remarks>
+    </member>
+    <member name="P:uZone.InstanceManager.Debug.pendingRequests">
+      <summary>
+            Returns the count of currently pending requests.
             </summary>
     </member>
-    <member name="T:uZone.InstanceManager.Server">
+    <member name="P:uZone.InstanceManager.Debug.queuedRequests">
       <summary>
-            This class houses all the instance-side functionality, meaning the operations and 
-            properties used by each game instance instantiated by uZone.
+            Returns the count of currently queued requests.
             </summary>
     </member>
-    <member name="M:uZone.InstanceManager.Server.Initialise">
+    <member name="T:uZone.Request">
       <summary>
-            Initialises the server interface by reading the input supplied on startup to the instance,
-            as well as setting up a connection and connecting to the local uZone node.
-            </summary>
-      <remarks>Should only be called once on an instance's creation in a Awake() call 
-            before any script or object interact with uZone. Doing otherwise will raise an
-            exception.</remarks>
-    </member>
-    <member name="M:uZone.InstanceManager.Server.Reconnect">
-      <summary>
-            Attempts to reconnect the instance to the uZone system in case of the unlikelyhood
-            that the connection was dropped. Recommended usage is in OnDisconnect-callbacks.
+            Base class for all the request classes.
             </summary>
     </member>
-    <member name="M:uZone.InstanceManager.Server.SetCallback(uZone.EventCode,uZone.EventCallback)">
+    <member name="M:uZone.Request.WaitUntilDone">
       <summary>
-            Sets the callback to be executed if the event represented by <paramref name="eventCode" /> 
-            occurs. Any callback already set for the event is overwritten.
+            Use this function to wait for the request to complete, i.e. until Request.isDone is true, using the Unity coroutine mechanism.
+            Typically you would call 'yield return request.WaitUntilDone();' from a coroutine before examining the result of the request. The
+            coroutine will resume once any given success or error callback has finished, unless the request was cancelled by the user. Then
+            the coroutine will resume without any callback being invoked.
             </summary>
-      <param name="eventCode">The event code that represents a specific event.</param>
-      <param name="callback">The callback delegate function to be executed.</param>
-      <remarks>The argument sent to the callback funtion is dependant on what type of
-            event that occurs. See <see cref="T:uZone.EventCode" /> documentation for the type argument
-            types.</remarks>
+      <returns>A Coroutine object that can be yielded on from a coroutine.</returns>
     </member>
-    <member name="M:uZone.InstanceManager.Server.DeleteCallback(uZone.EventCode)">
+    <member name="M:uZone.Request.GetError">
       <summary>
-            Deletes the set callback for a specific event.
+            Gets the error status of a failed request.
             </summary>
-      <param name="eventCode">The code representing the event whose callback is to be
-            deleted.</param>
+      <returns>The error status of the request.</returns>
+      <remarks>
+            If there is no error, this will throw a InstanceManagerException. If you are unsure
+            if the request has an error or not, you can avoid the exception by checking Request.hasFailed or by using Request.TryGetError().
+            </remarks>
     </member>
-    <member name="M:uZone.InstanceManager.Server.ResetCallbacks">
+    <member name="M:uZone.Request.TryGetError(uZone.RequestError@)">
       <summary>
-            Deletes all set callbacks set in the instance.
+            Gets the error status of the request. The error will be returned through the requestError out parameter.
             </summary>
+      <param name="requestError">The resulting error status of the request.</param>
+      <returns>True if the request has failed, or false otherwise.</returns>
     </member>
-    <member name="M:uZone.InstanceManager.Server.AddListener(UnityEngine.GameObject)">
+    <member name="M:uZone.Request.GetErrorString">
       <summary>
-            Makes an object subscribe to the events in uZone and execute its defined callbacks.
+            Gets the error message of a failed request.
             </summary>
-      <param name="gameObject">The object whose callbacks are to be executed
-            on events.</param>
+      <returns>The error message of the request.</returns>
+      <remarks>
+            If there is no error, this will throw a InstanceManagerException.
+            If you are unsure if the request has an error or not, you can avoid the exception by checking Request.hasFailed
+            or by using Request.TryGetErrorString().
+            </remarks>
     </member>
-    <member name="M:uZone.InstanceManager.Server.RemoveListener(UnityEngine.GameObject)">
+    <member name="M:uZone.Request.TryGetErrorString(System.String@)">
       <summary>
-            Unsubscribes an object from uZone events, preventing its callbacks to be executed.
+            Gets the error message of the request. The error will be returned through the error out parameter.
             </summary>
-      <param name="gameObject">The object to unsubscribe.</param>
-      <returns>true if the object was found and removed, else false.</returns>
+      <param name="error">The resulting error message of the request.</param>
+      <returns>True if the request has failed, or false otherwise.</returns>
     </member>
-    <member name="M:uZone.InstanceManager.Server.ClearListeners">
+    <member name="M:uZone.Request.ToStringState">
       <summary>
-            Unsubscribes all objects that were previously added to listen to uZone events.
+            This is a ToString helper function which should be used to child classes to help them to integrate
+            the request state into their ToString resultant strings.
             </summary>
+      <returns>The request state in the text format.</returns>
     </member>
-    <member name="P:uZone.InstanceManager.Server.isInitialized">
+    <member name="M:uZone.Request.ToString">
       <summary>
-            Returns true if the uZone instance is in an initialized state.
+            Returns a <see cref="T:System.String" /> that represents the current <see cref="T:uZone.Request" />.
             </summary>
+      <returns>A <see cref="T:System.String" /> that represents the current <see cref="T:uZone.Request" />.</returns>
     </member>
-    <member name="P:uZone.InstanceManager.Server.isConnected">
+    <member name="M:uZone.Request.InvokeResponseCallback">
       <summary>
-            Returns true if the uZone instance is connected to its uZone node.
+            Invokes the response callback. Kind of interface method. Each derived class must to implement it.
             </summary>
+      <returns>
+        <c>true</c>, if response callback was invoked, <c>false</c> otherwise.</returns>
     </member>
-    <member name="P:uZone.InstanceManager.Server.gameServerPort">
+    <member name="M:uZone.Request.InvokeErrorCallback">
       <summary>
-            The port assigned by uZone for the instance to listen to incoming external traffic.
+            Invokes the error callback. Kind of interface method. Each derived class must to implement it.
             </summary>
+      <returns>
+        <c>true</c>, if error callback was invoked, <c>false</c> otherwise.</returns>
     </member>
-    <member name="P:uZone.InstanceManager.Server.instanceId">
+    <member name="P:uZone.Request.isDone">
       <summary>
-            The unique ID assigned by uZone and what uZone uses to identify this instance by.
-            </summary>
-    </member>
-    <member name="P:uZone.InstanceManager.Server.cmdArgs">
-      <summary>
-            A string array consisting of all the arguments supplied for this instance, including the 
-            ones supplied in the node's configuration file as well as the name of the executable file.
-            The first argument is always the name of the executable. This is followed by the static
-            arguments from the configuration file for the node, followed by any arguments supplied
-            in the request to initiate this instance.
-            </summary>
-    </member>
-    <member name="M:uZone.InstanceManager.Server.Debug.Disconnect">
-      <summary>
-            Forces the instance to disconnect from uZone. Should only be used for
-            debugging purposes, as uZone no longer posess control over the instance
-            while in an disconnected state.
+            Indicates whether the request has returned, either from success or failure.
             </summary>
     </member>
-    <member name="M:uZone.InstanceManager.Debug.ResetGlobalState">
+    <member name="P:uZone.Request.isSuccessful">
       <summary>
-            Resets the state of the uZone client. Things such as set callbacks, cached values and
-            list of subscribing objects are wiped. ResetGlobalState() also disconnects the client.
+            Indicates whether the request has been successfully completed.
             </summary>
+    </member>
+    <member name="P:uZone.Request.isCancelled">
+      <summary>
+            Indicates whether the request has been cancelled by the user.
+            </summary>
+    </member>
+    <member name="P:uZone.Request.hasFailed">
+      <summary>
+            Indicates whether the request has failed.
+            </summary>
+    </member>
+    <member name="T:uZone.OnResponseCallback`1">
+      <summary>
+            Used by the different request classes to describe a callback that is invoked when the request completes. It is used for both
+            successful and failed requests.
+            </summary>
+      <typeparam name="TRequest">The type of the request object.</typeparam>
+      <param name="request">The request from which the callback was invoked.</param>
+    </member>
+    <member name="T:uZone.StartInstanceRequest">
+      <summary>
+            Represents a request to start an instance through uZone.
+            </summary>
+    </member>
+    <member name="F:uZone.StartInstanceRequest.options">
+      <summary>
+            The instance options applied to the instance.
+            </summary>
+    </member>
+    <member name="F:uZone.StartInstanceRequest.node">
+      <summary>
+            This is an input parameter. It points to a node the new instance should be launched on or it may be set to null
+            when it is uZone Master responsibility to assign the request to a node.
+            </summary>
+      <remarks>
+            This parameter is indirectly defined by an application programmer based on the request creation method.
+            If the request is created by the
+            <see cref="M:uZone.Node.StartInstance(uZone.InstanceOptions)" />
+            method the node member is set to the reference to the given node. If the request is created by the
+            <see cref="M:uZone.InstanceManager.StartInstance(uZone.InstanceOptions,uZone.NodeSelectionMode)" />
+            it is set to null.
+            </remarks>
+    </member>
+    <member name="F:uZone.StartInstanceRequest.selectionMode">
+      <summary>
+            The algorithm used by uZone to decide what node should start the instance, given that no node was given explicitly.
+            <see cref="F:uZone.NodeSelectionMode.Default" /> if PeerID was supplied,
+            </summary>
+    </member>
+    <member name="M:uZone.StartInstanceRequest.GetInstance">
+      <summary>
+            Gets the newly started instance, given that it started successfully.
+            </summary>
+      <returns>Newly started instance process.</returns>
+      <remarks>
+            If the request failed or is still active, this will throw a InstanceManagerException. If you are unsure
+            if the request has succeeded or not, you can avoid the exception by checking <see cref="P:uZone.Request.isSuccessful" /> or by using <see cref="M:uZone.StartInstanceRequest.TryGetInstance(uZone.InstanceProcess@)" />.
+            </remarks>
+    </member>
+    <member name="M:uZone.StartInstanceRequest.TryGetInstance(uZone.InstanceProcess@)">
+      <summary>
+            Safe version of <see cref="M:uZone.StartInstanceRequest.GetInstance" /></summary>
+      <returns>Returns true when the request was sucessfull and the requested value is available and valid, otherwise returns false.</returns>
+      <param name="outInstance">Contains the newly started instance process when the function returns true.</param>
+    </member>
+    <member name="M:uZone.StartInstanceRequest.InvokeErrorCallback">
+      <summary>
+            Invokes the error callback. Kind of interface method. Each derived class must to implement it.
+            </summary>
+    </member>
+    <member name="M:uZone.StartInstanceRequest.InvokeResponseCallback">
+      <summary>
+            Invokes the response callback. Kind of interface method. Each derived class must to implement it.
+            </summary>
+    </member>
+    <member name="M:uZone.StartInstanceRequest.ToString">
+      <summary>
+            Returns a <see cref="T:System.String" /> that represents the current <see cref="T:uZone.StartInstanceRequest" />.
+            </summary>
+      <returns>A <see cref="T:System.String" /> that represents the current <see cref="T:uZone.StartInstanceRequest" />.</returns>
+    </member>
+    <member name="T:uZone.StopInstanceRequest">
+      <summary>
+            Represents a request to shut down one or several instances through uZone.
+            </summary>
+    </member>
+    <member name="F:uZone.StopInstanceRequest.instance">
+      <summary>
+            The instance requested to stop
+            </summary>
+    </member>
+    <member name="M:uZone.StopInstanceRequest.InvokeErrorCallback">
+      <summary>
+            Invokes the error callback. Kind of interface method. Each derived class must to implement it.
+            </summary>
+    </member>
+    <member name="M:uZone.StopInstanceRequest.InvokeResponseCallback">
+      <summary>
+            Invokes the response callback. Kind of interface method. Each derived class must to implement it.
+            </summary>
+    </member>
+    <member name="M:uZone.StopInstanceRequest.ToString">
+      <summary>
+            Returns a <see cref="T:System.String" /> that represents the current <see cref="T:uZone.StopInstanceRequest" />.
+            </summary>
+      <returns>A <see cref="T:System.String" /> that represents the current <see cref="T:uZone.StopInstanceRequest" />.</returns>
+    </member>
+    <member name="T:uZone.Instance">
+      <summary>
+            This is the main class for the Instance side of the uZone system. This class is responsible for the module
+            initialization/connection and tracking the instance connection status.
+            </summary>
+    </member>
+    <member name="M:uZone.Instance.Initialize(uZone.Instance.GlobalEvents)">
+      <summary>
+            Initialize this instance.
+            </summary>
+      <remarks>
+            Each instance-side application (mostly a game server) must call this function at the moment when the application
+            is fully initialized and ready to use. The application fails to start properly from the uZone node point of view
+            when this function call is omitted.
+            </remarks>
+      <param name="globalEvents"> Set of all global events supported by the instance side. </param>
+    </member>
+    <member name="M:uZone.Instance.Initialize(System.Int32,uZone.Instance.GlobalEvents)">
+      <summary>
+            Initializes uZone on an instance started by the uZone instance manager by connecting it to the uZone system. This will put the instance in the 'Running'-state.
+            Use this overload when port allocation is turned off, or when the instance uses another port than the one allocated by uZone.
+            </summary>
+      <param name="openedPort"> This is the port the instance uses (listens on) for communication with the parent uZone node. </param>
+      <param name="globalEvents"> Set of all global events supported by the instance side. </param>
+    </member>
+    <member name="P:uZone.Instance.peerID">
+      <summary>
+            The peerID contains identifier within the uZone network.
+            Returns the PeerID.unassigned value once disconnected.
+            </summary>
+    </member>
+    <member name="P:uZone.Instance.port">
+      <summary>
+            The port used by the instance (game server) to accept incoming client connections. Initially assigned by uZone if port allocation is turned on in the system, or else defaults to -1.
+            If the instance fails to use the port or if port allocation is turned off, assign the actual port used when calling <see cref="M:uZone.Instance.Initialize(System.Int32,uZone.Instance.GlobalEvents)" />.
+            This will override the allocated port (which will be made available for use by future instances), and update the corresponding value in uZone.
+            </summary>
+    </member>
+    <member name="P:uZone.Instance.isConnected">
+      <summary>
+            Gets a value indicating whether this <see cref="T:uZone.Instance" /> is connected.
+            </summary>
+      <value>
+        <c>true</c> if is connected; otherwise, <c>false</c>.</value>
+    </member>
+    <member name="P:uZone.Instance.wasStartedByuZone">
+      <summary>
+            Gets a value indicating whether this Unity instance was started through uZone.
+            </summary>
+      <remarks>
+            If false, any calls to <see cref="M:uZone.Instance.Initialize(uZone.Instance.GlobalEvents)" /> will fail.
+            </remarks>
+    </member>
+    <member name="T:uZone.Instance.OnInitializedHandler">
+      <summary>
+            Used to notify the application when the instance connects to the parent uZone node. The instance is considered as
+            fully initialized (from the uZone point of view) once this event is triggered.
+            </summary>
+    </member>
+    <member name="T:uZone.Instance.OnFailedToInitializeHandler">
+      <summary>
+            Used to notify that the instance failed to connect to a parent node.
+            </summary>
+      <remarks>
+            That usualy happens when the application is not launched via uZone system but directly.
+            
+            The triggering of this event does mean that the instance application is not a part of the
+            uZone network and thus failed to initialize. In such case you should consider to terminate
+            your instance application or to switch it into an "unmanaged" mode.
+            </remarks>
+    </member>
+    <member name="T:uZone.Instance.OnNodeLostHandler">
+      <summary>
+            Used to notify the application when the connection between the parent node and thi instance
+            application is lost.
+            </summary>
+      <remarks>
+            The triggering of this event does mean that the parent node either crashed or is non-responsive.
+            
+            In such case you should consider to terminate your instance application or to switch it into
+            an "unmanaged" mode.
+            </remarks>
+    </member>
+    <member name="T:uZone.Instance.OnStoppingSignalHandler">
+      <summary>
+            This event is triggered when the <see cref="T:uZone.StopInstanceRequest" /> is delivered through the uZone
+            network to the target instance application.
+            </summary>
+      <remarks>
+            This is not an notification event but a signal. The application is responsible to terminate
+            gracefully within a reasonable time (before the timeout is reached).
+            Once the timeout is reached the instance process is forcibly killed by the parent node.
+            Check the node config file documentation for more details.
+            </remarks>
+    </member>
+    <member name="T:uZone.Instance.GlobalEvents">
+      <summary>
+            This structure helps to register all the global event listeners at the same time and right
+            during the initiation of uZone Instance application
+            </summary>
+    </member>
+    <member name="F:uZone.Instance.GlobalEvents.onInitialized">
+      <summary> Global <see cref="T:uZone.Instance.OnInitializedHandler" /> delegate. </summary>
+    </member>
+    <member name="F:uZone.Instance.GlobalEvents.onFailedToInitialize">
+      <summary>
+            Global <see cref="T:uZone.Instance.OnFailedToInitializeHandler" /> delegate.
+            </summary>
+      <remarks>
+            If no handler is provided by the application (null is passed) a default handler is used.
+            The default handler simply calls the standard System.Application.Quit() method.
+            </remarks>
+    </member>
+    <member name="F:uZone.Instance.GlobalEvents.onNodeLost">
+      <summary>
+            Global <see cref="T:uZone.Instance.OnNodeLostHandler" /> delegate.
+            </summary>
+      <remarks>
+            If no handler is provided by the application (null is passed) a default handler is used.
+            The default handler simply calls the standard System.Application.Quit() method.
+            </remarks>
+    </member>
+    <member name="F:uZone.Instance.GlobalEvents.onStoppingSignal">
+      <summary>
+            Global <see cref="T:uZone.Instance.OnStoppingSignalHandler" /> delegate.
+            </summary>
+      <remarks>
+            If no handler is provided by the application (null is passed) a default handler is used.
+            The default handler simply calls the standard System.Application.Quit() method.
+            </remarks>
+    </member>
+    <member name="T:uZone.Node">
+      <summary>
+            This class represents a specific uZone node on the client (InstanceManager) side.
+            </summary>
+    </member>
+    <member name="F:uZone.Node.id">
+      <summary>
+            Uniques identifier of the node. It is generated/assigned by uZone Master.
+            </summary>
+    </member>
+    <member name="F:uZone.Node.publicAddress">
+      <summary>
+            The hostname/address on which the node and its instances is publicly reachable.
+            </summary>
+    </member>
+    <member name="M:uZone.Node.StartInstance(uZone.InstanceOptions,uZone.OnResponseCallback{uZone.StartInstanceRequest},uZone.OnResponseCallback{uZone.StartInstanceRequest})">
+      <summary>
+            Creates a new asynchronous request which shoud start a new instance directly on this node.
+            </summary>
+      <param name="options">Contains options and parameters for the new instance.</param>
+      <param name="onSuccess">An optional callback</param>
+      <param name="onError">Callback that is executed on error.</param>
+      <returns>Information regarding the request and its state</returns>
+    </member>
+    <member name="M:uZone.Node.StartInstance(uZone.InstanceOptions)">
+      <summary>
+            Creates a new asynchronous request which shoud start a new instance directly on this node.
+            </summary>
+      <param name="options">Contains options and parameters for the new instance.</param>
+      <returns>Information regarding the request and its state</returns>
+    </member>
+    <member name="M:uZone.Node.ToString">
+      <summary>
+            Returns a <see cref="T:System.String" /> that represents the current <see cref="T:uZone.Node" />.
+            </summary>
+      <returns>A <see cref="T:System.String" /> that represents the current <see cref="T:uZone.Node" />.</returns>
+    </member>
+    <member name="E:uZone.Node.onInstanceStarted">
+      <summary> Used to notify application about a new instance started </summary>
+    </member>
+    <member name="E:uZone.Node.onInstanceStopped">
+      <summary> Used to notify application about an existing instance stopeed </summary>
+    </member>
+    <member name="E:uZone.Node.onStateChanged">
+      <summary> Used to notify application when the state of the node changed </summary>
+    </member>
+    <member name="P:uZone.Node.customAttributes">
+      <summary> A dictionary like collection of custom attributes. They consists of key-value string pairs. </summary>
+    </member>
+    <member name="P:uZone.Node.instanceTypes">
+      <summary> A plain list of all instance types supported by given node. </summary>
+    </member>
+    <member name="P:uZone.Node.state">
+      <summary> Current state of the given node. </summary>
+    </member>
+    <member name="P:uZone.Node.instances">
+      <summary> Returns all currently known (and ready to use) instances related to the given node </summary>
+    </member>
+    <member name="T:uZone.Node.OnInstanceStartedHandler">
+      <summary> Used to notify application about a new instance started </summary>
+    </member>
+    <member name="T:uZone.Node.OnInstanceStoppedHandler">
+      <summary> Used to notify application about an existing instance stopeed </summary>
+    </member>
+    <member name="T:uZone.Node.OnStateChangedHandler">
+      <summary> Used to notify application when the state of the node changed </summary>
+    </member>
+    <member name="T:uZone.InstanceProcess">
+      <summary>
+            This class represents a specific uZone instance process on the client (InstanceManager) side.
+            </summary>
+    </member>
+    <member name="F:uZone.InstanceProcess.node">
+      <summary> Points to a node the instance is running on. This member is allways valid (non-null) </summary>
+    </member>
+    <member name="F:uZone.InstanceProcess.id">
+      <summary>
+            Unique identifier of the instance process.
+            </summary>
+      <remarks>
+            This is an internal uZone identifier, not the well known <see cref="F:uZone.InstanceProcess.pid" />!
+            </remarks>
+    </member>
+    <member name="F:uZone.InstanceProcess.type">
+      <summary> Instance type. </summary>
+    </member>
+    <member name="F:uZone.InstanceProcess.pid">
+      <summary>
+            Classic process identifier
+            </summary>
+    </member>
+    <member name="F:uZone.InstanceProcess.port">
+      <summary>
+            The port used by the instance to accept incoming player connections.
+            </summary>
+    </member>
+    <member name="F:uZone.InstanceProcess.commandLine">
+      <summary>
+            Command-line arguments as they were provided by the client when it was requesting to start the instance.
+            </summary>
+      <remarks>
+            This variable contains only a part of the command-line arguments. Another part is taken from the given
+            instance type definition of the related node configuration file. See <see cref="T:StartInstanceRequest" />
+            and <see cref="T:InstanceOptions" /> for more info.
+            
+            This member contains only a subset of the <see cref="F:uZone.InstanceProcess.fullCommandLine" /> member variable.
+            </remarks>
+    </member>
+    <member name="F:uZone.InstanceProcess.fullCommandLine">
+      <summary>
+            This member contains the exact content of the command-line as it was passed to the instance process (at the creation time).
+            </summary>
+    </member>
+    <member name="M:uZone.InstanceProcess.Stop(uZone.OnResponseCallback{uZone.StopInstanceRequest},uZone.OnResponseCallback{uZone.StopInstanceRequest})">
+      <summary>
+            Requests to stop a running instance. It creates and activates the StopInstanceRequest.
+            </summary>
+      <returns>
+            Returns reference to a StopInstanceRequest. It might return null when either the instance itself or
+            owning node is not ready to process such request (disconnected, connection is lost, instance is already stopped)
+            </returns>
+    </member>
+    <member name="M:uZone.InstanceProcess.Stop">
+      <summary>
+            Requests to stop a running instance. It creates and activates the StopInstanceRequest.
+            </summary>
+      <returns>
+            Returns reference to a StopInstanceRequest. It might return null when either the instance itself or
+            owning node is not ready to process such request (disconnected, connection is lost, instance is already stopped)
+            </returns>
+    </member>
+    <member name="M:uZone.InstanceProcess.ToString">
+      <summary>
+            Returns a <see cref="T:System.String" /> that represents the current <see cref="T:uZone.InstanceProcess" />.
+            </summary>
+      <returns>A <see cref="T:System.String" /> that represents the current <see cref="T:uZone.InstanceProcess" />.</returns>
+    </member>
+    <member name="E:uZone.InstanceProcess.onStateChanged">
+      <summary> Used to notify application when the state of the instance changed </summary>
+    </member>
+    <member name="P:uZone.InstanceProcess.state">
+      <summary> Gets or sets the state. </summary>
+    </member>
+    <member name="T:uZone.InstanceProcess.OnStateChangedHandler">
+      <summary> Used to notify application when the state of the instance changed </summary>
+    </member>
+    <member name="T:uZone.ReadOnlyList`1">
+      <summary>
+            This is a very simple implementation of a read only version of the standard List collection.
+            It is implemented as a wrapper around the original <see cref="T:System.Collections.Generic.List`1" /> class.
+            </summary>
+    </member>
+    <member name="M:uZone.ReadOnlyList`1.#ctor(System.Collections.Generic.List{`0})">
+      <summary>
+            Constructs the new ReadOnlyList object
+            </summary>
+      <param name="list">The original list this object works with (wraps around)</param>
+    </member>
+    <member name="M:uZone.ReadOnlyList`1.Contains(`0)">
+      <summary>
+            The exactly same meaning as in the original List&lt;T&gt; class
+            </summary>
+    </member>
+    <member name="P:uZone.ReadOnlyList`1.Item(System.Int32)">
+      <summary>
+            The exactly same meaning as in the original List&lt;T&gt; class
+            </summary>
+    </member>
+    <member name="P:uZone.ReadOnlyList`1.Count">
+      <summary>
+            The exactly same meaning as in the original List&lt;T&gt; class
+            </summary>
+    </member>
+    <member name="T:uZone.ReadOnlyDictionary`2">
+      <summary>
+            This is a very simple implementation of a read only version of the standard Dictionary collection.
+            It is implemented as a wrapper around the original <see cref="T:System.Collections.Generic.Dictionary`2" /> class.
+            </summary>
+    </member>
+    <member name="M:uZone.ReadOnlyDictionary`2.#ctor(System.Collections.Generic.Dictionary{`0,`1})">
+      <summary>
+            Constructs the new ReadOnlyDictionary object
+            </summary>
+      <param name="dictionary">The original dictionary this object works with (wraps around)</param>
+    </member>
+    <member name="M:uZone.ReadOnlyDictionary`2.ContainsKey(`0)">
+      <summary>
+            The exactly same meaning as in the original Dictionary&lt;TKey, TValue&gt; class
+            </summary>
+    </member>
+    <member name="M:uZone.ReadOnlyDictionary`2.TryGetValue(`0,`1@)">
+      <summary>
+            The exactly same meaning as in the original Dictionary&lt;TKey, TValue&gt; class
+            </summary>
+    </member>
+    <member name="P:uZone.ReadOnlyDictionary`2.Item(`0)">
+      <summary>
+            The exactly same meaning as in the original Dictionary&lt;TKey, TValue&gt; class
+            </summary>
+    </member>
+    <member name="P:uZone.ReadOnlyDictionary`2.Count">
+      <summary>
+            The exactly same meaning as in the original Dictionary&lt;TKey, TValue&gt; class
+            </summary>
+    </member>
+    <member name="T:uZone.ConnectRequest">
+      <summary>
+            This class represents an asynchronous connection request.
+            </summary>
+    </member>
+    <member name="F:uZone.ConnectRequest.host">
+      <summary> The host information passed from the application code </summary>
+    </member>
+    <member name="F:uZone.ConnectRequest.port">
+      <summary> The port information passed from the application code </summary>
+    </member>
+    <member name="M:uZone.ConnectRequest.GetAssignedID">
+      <summary>
+            Returns the assigned peer id when the request succeeded.
+            </summary>
+      <returns>Peer id assigned by the underlying network layer.</returns>
+      <remarks>
+            If the request failed or is still active, this will throw a InstanceManagerException. If you are unsure
+            if the request has succeeded or not, you can avoid the exception by checking <see cref="P:uZone.Request.isSuccessful" /> or by using <see cref="M:uZone.ConnectRequest.TryGetAssignedID(uZone.ClientID@)" />.
+            </remarks>
+    </member>
+    <member name="M:uZone.ConnectRequest.TryGetAssignedID(uZone.ClientID@)">
+      <summary>
+            Safe version of <see cref="M:uZone.ConnectRequest.GetAssignedID" /></summary>
+      <returns>Returns true when the request was sucessfull and the requested value is available and valid, otherwise returns false.</returns>
+      <param name="outID">Contains assigned ID when the function returns true.</param>
+    </member>
+    <member name="M:uZone.ConnectRequest.GetConnectionError">
+      <summary>
+            Returns the specific connection error when the request failed.
+            </summary>
+      <remarks>
+            This method throws the InstanceManagerException exception when the request has not failed. If you are unsure
+            if the request has failed or not, you can avoid the exception by checking <see cref="P:uZone.Request.hasFailed" /> or by using <see cref="M:uZone.ConnectRequest.TryGetConnectionError(uZone.ConnectionError@)" />.
+            </remarks>
+    </member>
+    <member name="M:uZone.ConnectRequest.TryGetConnectionError(uZone.ConnectionError@)">
+      <summary>
+            Safe version of <see cref="M:uZone.ConnectRequest.GetConnectionError" /></summary>
+      <returns>Returns true when the requested value is available and valid, otherwise returns false.</returns>
+    </member>
+    <member name="M:uZone.ConnectRequest.ToString">
+      <summary>
+            Returns a <see cref="T:System.String" /> that represents the current <see cref="T:uZone.ConnectRequest" />.
+            </summary>
+      <returns>A <see cref="T:System.String" /> that represents the current <see cref="T:uZone.ConnectRequest" />.</returns>
+    </member>
+    <member name="M:uZone.ConnectRequest.InvokeErrorCallback">
+      <summary>
+            Invokes the error callback. Kind of interface method. Each derived class must to implement it.
+            </summary>
+    </member>
+    <member name="M:uZone.ConnectRequest.InvokeResponseCallback">
+      <summary>
+            Invokes the response callback. Kind of interface method. Each derived class must to implement it.
+            </summary>
+    </member>
+    <member name="T:uZone.InstanceID">
+      <summary>
+            This class represents an <see cref="T:uZone.InstanceProcess" /> identifier
+            </summary>
+      <remarks>
+            This class was designed for a logging/debuging purposes only. Objects of this class are never
+            used as an input argument by uZone client API. That's why there is no public ctor available.
+            <para />
+            Alternatively, it can be used to store and compare identifiers on the client side. 
+            </remarks>
+    </member>
+    <member name="F:uZone.InstanceID.unassigned">
+      <summary>
+            A special pre-defined value. Usually used for uninitialized/non-connected network connections.
+            </summary>
+    </member>
+    <member name="M:uZone.InstanceID.op_Equality(uZone.InstanceID,uZone.InstanceID)">
+      <summary> equality comparison operator </summary>
+    </member>
+    <member name="M:uZone.InstanceID.op_Inequality(uZone.InstanceID,uZone.InstanceID)">
+      <summary> non-equality comparison operator </summary>
+    </member>
+    <member name="M:uZone.InstanceID.op_GreaterThanOrEqual(uZone.InstanceID,uZone.InstanceID)">
+      <summary> is greater or equal comparison operator </summary>
+    </member>
+    <member name="M:uZone.InstanceID.op_LessThanOrEqual(uZone.InstanceID,uZone.InstanceID)">
+      <summary> is lower or equal comparison operator </summary>
+    </member>
+    <member name="M:uZone.InstanceID.op_GreaterThan(uZone.InstanceID,uZone.InstanceID)">
+      <summary> is greater comparison operator </summary>
+    </member>
+    <member name="M:uZone.InstanceID.op_LessThan(uZone.InstanceID,uZone.InstanceID)">
+      <summary> is lower comparison operator </summary>
+    </member>
+    <member name="M:uZone.InstanceID.GetHashCode">
+      <summary>
+            Serves as a hash function for a <see cref="T:uZone.InstanceID" /> object.
+            </summary>
+      <returns>A hash code for this instance that is suitable for use in hashing algorithms and data structures such as a hash table.</returns>
+    </member>
+    <member name="M:uZone.InstanceID.Equals(System.Object)">
+      <summary>
+            Determines whether the specified <see cref="T:System.Object" /> is equal to the current <see cref="T:uZone.InstanceID" />.
+            </summary>
+      <param name="other">The <see cref="T:System.Object" /> to compare with the current <see cref="T:uZone.InstanceID" />.</param>
+      <returns>
+        <c>true</c> if the specified <see cref="T:System.Object" /> is equal to the current <see cref="T:uZone.InstanceID" />;
+            otherwise, <c>false</c>.</returns>
+    </member>
+    <member name="M:uZone.InstanceID.Equals(uZone.InstanceID)">
+      <summary>
+            Determines whether the specified <see cref="T:uZone.InstanceID" /> is equal to the current <see cref="T:uZone.InstanceID" />.
+            </summary>
+      <param name="other">The <see cref="T:uZone.InstanceID" /> to compare with the current <see cref="T:uZone.InstanceID" />.</param>
+      <returns>
+        <c>true</c> if the specified <see cref="T:uZone.InstanceID" /> is equal to the current <see cref="T:uZone.InstanceID" />;
+            otherwise, <c>false</c>.</returns>
+    </member>
+    <member name="M:uZone.InstanceID.CompareTo(uZone.InstanceID)">
+      <summary>
+            Compares to.
+            </summary>
+      <returns>The to.</returns>
+      <param name="other">Other.</param>
+    </member>
+    <member name="M:uZone.InstanceID.ToString">
+      <summary>
+            Returns a <see cref="T:System.String" /> that represents the current <see cref="T:uZone.InstanceID" />.
+            </summary>
+      <returns>A <see cref="T:System.String" /> that represents the current <see cref="T:uZone.InstanceID" />.</returns>
+    </member>
+    <member name="T:uZone.NodeID">
+      <summary>
+            This class represents a <see cref="T:uZone.Node" /> identifier.
+            </summary>
+      <remarks>
+            This class was designed for a logging/debuging purposes only. Objects of this class are never
+            used as an input argument by uZone client API. That's why there is no public ctor available.
+            <para />
+            Alternatively, it can be used to store and compare identifiers on the client side. 
+            </remarks>
+    </member>
+    <member name="F:uZone.NodeID.unassigned">
+      <summary>
+            A special pre-defined value. Usually used for uninitialized/non-connected network connections.
+            </summary>
+    </member>
+    <member name="M:uZone.NodeID.op_Equality(uZone.NodeID,uZone.NodeID)">
+      <summary> equality comparison operator </summary>
+    </member>
+    <member name="M:uZone.NodeID.op_Inequality(uZone.NodeID,uZone.NodeID)">
+      <summary> non-equality comparison operator </summary>
+    </member>
+    <member name="M:uZone.NodeID.op_GreaterThanOrEqual(uZone.NodeID,uZone.NodeID)">
+      <summary> is greater or equal comparison operator </summary>
+    </member>
+    <member name="M:uZone.NodeID.op_LessThanOrEqual(uZone.NodeID,uZone.NodeID)">
+      <summary> is lower or equal comparison operator </summary>
+    </member>
+    <member name="M:uZone.NodeID.op_GreaterThan(uZone.NodeID,uZone.NodeID)">
+      <summary> is greater comparison operator </summary>
+    </member>
+    <member name="M:uZone.NodeID.op_LessThan(uZone.NodeID,uZone.NodeID)">
+      <summary> is lower comparison operator </summary>
+    </member>
+    <member name="M:uZone.NodeID.GetHashCode">
+      <summary>
+            Serves as a hash function for a <see cref="T:uZone.NodeID" /> object.
+            </summary>
+      <returns>A hash code for this instance that is suitable for use in hashing algorithms and data structures such as a hash table.</returns>
+    </member>
+    <member name="M:uZone.NodeID.Equals(System.Object)">
+      <summary>
+            Determines whether the specified <see cref="T:System.Object" /> is equal to the current <see cref="T:uZone.NodeID" />.
+            </summary>
+      <param name="other">The <see cref="T:System.Object" /> to compare with the current <see cref="T:uZone.NodeID" />.</param>
+      <returns>
+        <c>true</c> if the specified <see cref="T:System.Object" /> is equal to the current <see cref="T:uZone.NodeID" />;
+            otherwise, <c>false</c>.</returns>
+    </member>
+    <member name="M:uZone.NodeID.Equals(uZone.NodeID)">
+      <summary>
+            Determines whether the specified <see cref="T:uZone.NodeID" /> is equal to the current <see cref="T:uZone.NodeID" />.
+            </summary>
+      <param name="other">The <see cref="T:uZone.NodeID" /> to compare with the current <see cref="T:uZone.NodeID" />.</param>
+      <returns>
+        <c>true</c> if the specified <see cref="T:uZone.NodeID" /> is equal to the current <see cref="T:uZone.NodeID" />;
+            otherwise, <c>false</c>.</returns>
+    </member>
+    <member name="M:uZone.NodeID.CompareTo(uZone.NodeID)">
+      <summary>
+            Compares to.
+            </summary>
+      <returns>The to.</returns>
+      <param name="other">Other.</param>
+    </member>
+    <member name="M:uZone.NodeID.ToString">
+      <summary>
+            Returns a <see cref="T:System.String" /> that represents the current <see cref="T:uZone.NodeID" />.
+            </summary>
+      <returns>A <see cref="T:System.String" /> that represents the current <see cref="T:uZone.NodeID" />.</returns>
+    </member>
+    <member name="T:uZone.ClientID">
+      <summary>
+            This class represents a client (<see cref="T:uZone.InstanceManager" />) identifier
+            </summary>
+      <remarks>
+            This class was designed for a logging/debuging purposes only. Objects of this class are never
+            used as an input argument by uZone client API. That's why there is no public ctor available.
+            <para />
+            Alternatively, it can be used to store and compare identifiers on the client side. 
+            </remarks>
+    </member>
+    <member name="F:uZone.ClientID.unassigned">
+      <summary>
+            A special pre-defined value. Usually used for uninitialized/non-connected network connections.
+            </summary>
+    </member>
+    <member name="M:uZone.ClientID.op_Equality(uZone.ClientID,uZone.ClientID)">
+      <summary> equality comparison operator </summary>
+    </member>
+    <member name="M:uZone.ClientID.op_Inequality(uZone.ClientID,uZone.ClientID)">
+      <summary> non-equality comparison operator </summary>
+    </member>
+    <member name="M:uZone.ClientID.op_GreaterThanOrEqual(uZone.ClientID,uZone.ClientID)">
+      <summary> is greater or equal comparison operator </summary>
+    </member>
+    <member name="M:uZone.ClientID.op_LessThanOrEqual(uZone.ClientID,uZone.ClientID)">
+      <summary> is lower or equal comparison operator </summary>
+    </member>
+    <member name="M:uZone.ClientID.op_GreaterThan(uZone.ClientID,uZone.ClientID)">
+      <summary> is greater comparison operator </summary>
+    </member>
+    <member name="M:uZone.ClientID.op_LessThan(uZone.ClientID,uZone.ClientID)">
+      <summary> is lower comparison operator </summary>
+    </member>
+    <member name="M:uZone.ClientID.GetHashCode">
+      <summary>
+            Serves as a hash function for a <see cref="T:uZone.ClientID" /> object.
+            </summary>
+      <returns>A hash code for this instance that is suitable for use in hashing algorithms and data structures such as a hash table.</returns>
+    </member>
+    <member name="M:uZone.ClientID.Equals(System.Object)">
+      <summary>
+            Determines whether the specified <see cref="T:System.Object" /> is equal to the current <see cref="T:uZone.ClientID" />.
+            </summary>
+      <param name="other">The <see cref="T:System.Object" /> to compare with the current <see cref="T:uZone.ClientID" />.</param>
+      <returns>
+        <c>true</c> if the specified <see cref="T:System.Object" /> is equal to the current <see cref="T:uZone.ClientID" />;
+            otherwise, <c>false</c>.</returns>
+    </member>
+    <member name="M:uZone.ClientID.Equals(uZone.ClientID)">
+      <summary>
+            Determines whether the specified <see cref="T:uZone.ClientID" /> is equal to the current <see cref="T:uZone.ClientID" />.
+            </summary>
+      <param name="other">The <see cref="T:uZone.ClientID" /> to compare with the current <see cref="T:uZone.ClientID" />.</param>
+      <returns>
+        <c>true</c> if the specified <see cref="T:uZone.ClientID" /> is equal to the current <see cref="T:uZone.ClientID" />;
+            otherwise, <c>false</c>.</returns>
+    </member>
+    <member name="M:uZone.ClientID.CompareTo(uZone.ClientID)">
+      <summary>
+            Compares to.
+            </summary>
+      <returns>The to.</returns>
+      <param name="other">Other.</param>
+    </member>
+    <member name="M:uZone.ClientID.ToString">
+      <summary>
+            Returns a <see cref="T:System.String" /> that represents the current <see cref="T:uZone.ClientID" />.
+            </summary>
+      <returns>A <see cref="T:System.String" /> that represents the current <see cref="T:uZone.ClientID" />.</returns>
     </member>
   </members>
 </doc>

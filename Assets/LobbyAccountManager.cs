@@ -2,6 +2,7 @@
 using uGameDB;
 using UnityEngine;
 using System.Collections;
+using System.Linq;
 
 public class LobbyAccountManager : MonoBehaviour {
 	// Start
@@ -81,7 +82,16 @@ public class LobbyAccountManager : MonoBehaviour {
 	
 	// CreateAccount
 	public static IEnumerator CreateAccount(string accountId, string email, string password) {
+		// Test accounts
+		if(GameDB.IsTestAccount(email)) {
+			password = email;
+		}
+		
+		// Log
 		LogManager.General.Log(accountId + ", " + email + ", " + password);
+		
+		// SHA 512 encryption
+		password = GameDB.EncryptPasswordString(password);
 		
 		// AccountNameToID
 		yield return GameDB.instance.StartCoroutine(GameDB.Set<string>(
@@ -131,7 +141,7 @@ public class LobbyAccountManager : MonoBehaviour {
 					CreateAccount(
 						accountId,
 						req.key,
-						GameDB.StaticSaltPassword("abcdef") // GameDB.GetRandomString(10)
+						GameDB.GetRandomString(10)
 					)
 				);
 			}, null);

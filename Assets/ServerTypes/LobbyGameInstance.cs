@@ -19,14 +19,6 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 	private List<LobbyPlayer> _players = new List<LobbyPlayer>();
 	private LobbyChatChannel _mapChannel;
 	
-	public List<LobbyPlayer> players {
-		get { return _players; }
-	}
-	
-	public LobbyChatChannel mapChannel {
-		get { return _mapChannel; }
-	}
-	
 	public uZone.InstanceProcess instance = null;
 	public List<string> args = new List<string>();
 	public int maxPlayerCount = 999999999;
@@ -36,24 +28,6 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 	
 	// Requests uZone to start a new instance
 	protected virtual void StartInstanceAsync() {
-		args.Add("-type" + serverType);
-		args.Add("\"-map" + mapName + "\"");
-		
-		// Number of parties
-		int partyCount = 1;
-		
-		switch(serverType) {
-			case ServerType.Arena:
-				partyCount = 2;
-				break;
-				
-			case ServerType.FFA:
-				partyCount = 10;
-				break;
-		}
-		
-		args.Add("-partycount" + partyCount);
-		
 		// Add to list by map name
 		if(!mapNameToInstances.ContainsKey(mapName)) {
 			mapNameToInstances[mapName] = new List<LobbyGameInstance<T>>();
@@ -63,7 +37,6 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 		
 		waitingForServer.Add(this);
 		
-		var cmdLine = string.Join(" ", args.ToArray());
 		options = new uZone.InstanceOptions(LobbyInstanceManager.gameName, cmdLine);
 		
 		// Request uZone to start a new instance
@@ -105,6 +78,24 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 	
 	// Register
 	public virtual void Register() {
+		args.Add("-type" + serverType);
+		args.Add("\"-map" + mapName + "\"");
+		
+		// Number of parties
+		int partyCount = 1;
+		
+		switch(serverType) {
+			case ServerType.Arena:
+				partyCount = 2;
+				break;
+				
+			case ServerType.FFA:
+				partyCount = 10;
+				break;
+		}
+		
+		args.Add("-partycount" + partyCount);
+		
 		// Custom callback
 		OnRegister();
 		
@@ -160,12 +151,30 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 		var playerListString = string.Join(", ", playerList.ToArray());
 		
 		if(instance != null) {
-			return string.Format("[{0}] {1}\n * {2}:{3}\n * Players: [{4}]", serverType.ToString(), mapName, instance.node.publicAddress, instance.port, playerListString);
+			return string.Format("[{0}] {1}\n * {2}:{3}\n * Players: [{4}]\n{5}", serverType.ToString(), mapName, instance.node.publicAddress, instance.port, playerListString, cmdLine);
 		}
 		
-		return string.Format("[{0}] {1}\n * Players: [{2}]", serverType.ToString(), mapName, playerListString);
+		return string.Format("[{0}] {1}\n * Players: [{2}]\n{3}", serverType.ToString(), mapName, playerListString, cmdLine);
 	}
 	
+	// Player
+	public List<LobbyPlayer> players {
+		get { return _players; }
+	}
+	
+	// Map channel
+	public LobbyChatChannel mapChannel {
+		get { return _mapChannel; }
+	}
+	
+	// Cmd line
+	public string cmdLine {
+		get {
+			return string.Join(" ", args.ToArray());
+		}
+	}
+	
+	// Virtual
 	protected virtual void OnRegister() {}
 	//protected virtual void OnUnregister() {}
 	protected virtual void OnInstanceAvailable() {}

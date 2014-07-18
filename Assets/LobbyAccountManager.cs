@@ -69,9 +69,6 @@ public class LobbyAccountManager : MonoBehaviour {
 			yield break;
 		
 		foreach(var email in request.GetKeyEnumerable()) {
-			if(email.Contains("patrick.juhl") || email.Contains("kuroato"))
-				continue;
-			
 			emailToIdBucket.Get(email, Constants.Replication.Default, (req) => {
 				var accountId = req.GetValue<string>();
 				LogManager.General.Log("Deleting account '" + req.key + "' with ID '" + accountId + "'");
@@ -79,6 +76,65 @@ public class LobbyAccountManager : MonoBehaviour {
 			}, null);
 			//yield return req.WaitUntilDone();
 			
+		}
+	}
+	
+	// CreateAccount
+	public static IEnumerator CreateAccount(string accountId, string email, string password) {
+		LogManager.General.Log(accountId + ", " + email + ", " + password);
+		
+		// AccountNameToID
+		yield return GameDB.instance.StartCoroutine(GameDB.Set<string>(
+			"AccountNameToID",
+			email,
+			accountId,
+			null
+		));
+		
+		// Create password hash
+		LogManager.General.Log("Generating password hash");
+		var saltedPasswordHash = SaltedPasswordHash.GenerateSaltedPasswordHash(SaltedPasswordHash.GeneratePasswordHash(password + email));
+		
+		// Create game account
+		var gameAccount = new GameAccount(
+			accountId,
+			email,
+			saltedPasswordHash.passwordHash,
+			saltedPasswordHash.salt
+		);
+		
+		// Save game account
+		LogManager.General.Log("Saving game account: " + accountId);
+		yield return GameDB.instance.StartCoroutine(GameDB.Set<GameAccount>(
+			"Accounts",
+			accountId,
+			gameAccount,
+			null
+		));
+	}
+	
+	// CopyULobbyAccounts
+	public static IEnumerator CopyULobbyAccounts() {
+		var emailToIdBucket = new Bucket("uLobby AccountNameToID");
+		
+		var request = emailToIdBucket.GetKeys();
+		yield return request.WaitUntilDone();
+		
+		if(request.hasFailed)
+			yield break;
+		
+		foreach(var email in request.GetKeyEnumerable()) {
+			emailToIdBucket.Get(email, Constants.Replication.Default, (req) => {
+				var accountId = req.GetValue<string>();
+				LogManager.General.Log("Copying account '" + req.key + "' with ID '" + accountId + "'");
+				GameDB.instance.StartCoroutine(
+					CreateAccount(
+						accountId,
+						req.key,
+						GameDB.StaticSaltPassword("abcdef") // GameDB.GetRandomString(10)
+					)
+				);
+			}, null);
 		}
 	}
 	

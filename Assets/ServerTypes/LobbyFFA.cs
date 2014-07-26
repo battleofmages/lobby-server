@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 
 public class LobbyFFA : LobbyGameInstance<LobbyFFA> {
-	// Constructor
-	public LobbyFFA(string nMapName) {
+	// Empty constructor
+	private LobbyFFA() {
 		// Set map pool
 		if(LobbyFFA.mapPool == null)
 			LobbyFFA.mapPool = MapManager.ffaMaps;
@@ -11,11 +11,14 @@ public class LobbyFFA : LobbyGameInstance<LobbyFFA> {
 		// Server type
 		serverType = ServerType.FFA;
 		
-		// Map name
-		mapName = nMapName;
-		
 		// Set max player count
 		maxPlayerCount = 10;
+	}
+	
+	// Constructor
+	public LobbyFFA(string nMapName) : this() {
+		// Map name
+		mapName = nMapName;
 	}
 	
 	// PickInstanceWithLeastPlayers

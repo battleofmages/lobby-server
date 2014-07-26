@@ -26,6 +26,7 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 	public AccessLevel accessLevel;
 	public HashSet<LobbyPlayer> statusObservers;
 	public HashSet<string> accountsWhereInfoIsRequired;
+	public PlayerLocation _location;
 	
 	private string[] _followers;
 	private OnlineStatus _onlineStatus;
@@ -53,6 +54,7 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 		ffaStats = null;
 		custom = null;
 		friends = null;
+		_location = null;
 		_followers = null;
 		_party = new LobbyParty();
 		_gameInstance = null;
@@ -98,8 +100,58 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 		
 		set {
 			_followers = value;
-			this.BroadcastStatus();
+			BroadcastStatus();
 		}
+	}
+	
+	// Location
+	public PlayerLocation location {
+		get {
+			return _location;
+		}
+		
+		set {
+			_location = value;
+			
+			// Save in database
+			LocationsDB.SetLocation(accountId, _location, null);
+			
+			// Switch server
+			switch(_location.serverType) {
+				case ServerType.Town:
+					ConnectToCurrentLocation<LobbyTown>((mapName) => {
+						return new LobbyTown(mapName);
+					});
+					break;
+					
+				case ServerType.World:
+					ConnectToCurrentLocation<LobbyWorld>((mapName) => {
+						return new LobbyWorld(mapName);
+					});
+					break;
+			}
+		}
+	}
+	
+	// SelectServer
+	delegate T GameInstanceConstructor<T>(string mapName);
+	void ConnectToCurrentLocation<T>(GameInstanceConstructor<T> constructor) where T : LobbyGameInstance<T> {
+		// Start new server if needed
+		T newInstance;
+		
+		List<LobbyGameInstance<T>> serverList;
+		if(!LobbyGameInstance<T>.mapNameToInstances.TryGetValue(_location.mapName, out serverList) || serverList.Count == 0) {
+			newInstance = constructor(_location.mapName);
+			newInstance.Register();
+		} else {
+			var mapList = LobbyGameInstance<T>.mapNameToInstances[_location.mapName];
+			var mapIndex = Random.Range(0, mapList.Count - 1);
+			var lobbyGameInstance = mapList[mapIndex];
+			newInstance = (T)lobbyGameInstance;
+		}
+		
+		// Connect the player once the instance is ready
+		LobbyServer.instance.StartCoroutine(ConnectToGameInstanceDelayed(newInstance));
 	}
 	
 	// OnFriendsListLoaded
@@ -490,6 +542,7 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 		
 		queue.RemovePlayer(this);
 		queue = null;
+		
 		return true;
 	}
 	
@@ -520,7 +573,17 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 	// Helper function
 	private void ConnectToGameServer(uZone.InstanceProcess instance) {
 		LogManager.General.Log("Connecting player '" + name + "' to " + gameInstance);
-		Lobby.RPC("ConnectToGameServer", peer, instance.node.publicAddress, instance.port);
+		
+		var ip = instance.node.publicAddress;
+		var port = instance.port;
+		
+		// Connect player to server
+		Lobby.RPC("ConnectToGameServer", peer, ip, port);
+		
+		// Update location
+		location.ip = ip;
+		location.port = port;
+		LocationsDB.SetLocation(accountId, location, null);
 	}
 	
 	// UpdateCountry

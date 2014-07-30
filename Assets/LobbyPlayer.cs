@@ -438,22 +438,25 @@ public class LobbyPlayer : PartyMember<LobbyPlayer> {
 	
 	// Returns a player to his world location
 	public void ReturnToWorld() {
-		// Map name
-		string playerMap = MapManager.defaultTown;
+		/*// Map name
+		string playerMap = MapManager.startingMap;
 		
 		// Start new town server if needed
-		LobbyTown townInstance;
-		List<LobbyGameInstance<LobbyTown>> townList;
-		if(!LobbyTown.mapNameToInstances.TryGetValue(playerMap, out townList) || townList.Count == 0) {
-			townInstance = new LobbyTown(playerMap);
-			townInstance.Register();
+		LobbyWorld worldInstance;
+		List<LobbyGameInstance<LobbyWorld>> worldList;
+		if(!LobbyTown.mapNameToInstances.TryGetValue(playerMap, out worldList) || worldList.Count == 0) {
+			worldInstance = new LobbyWorld(playerMap);
+			worldInstance.Register();
 		} else {
-			var lobbyGameInstance = LobbyTown.mapNameToInstances[playerMap][0];
-			townInstance = (LobbyTown)lobbyGameInstance;
+			var lobbyGameInstance = LobbyWorld.mapNameToInstances[playerMap][0];
+			worldInstance = (LobbyWorld)lobbyGameInstance;
 		}
 		
 		// Connect the player once the instance is ready
-		LobbyServer.instance.StartCoroutine(ConnectToGameInstanceDelayed(townInstance));
+		LobbyServer.instance.StartCoroutine(ConnectToGameInstanceDelayed(worldInstance));*/
+			
+		// This should reconnect him to his current location again
+		location = location;
 	}
 	
 	// Broadcast status

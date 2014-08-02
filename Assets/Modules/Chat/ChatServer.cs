@@ -25,12 +25,24 @@ public class ChatServer : MonoBehaviour {
 			default:
 				if(msg.StartsWith("//list ")) {
 					//var serverType = msg.Substring(7);
-				} else if(msg.StartsWith("//create ") && player.accessLevel >= AccessLevel.GameMaster) {
-					var param = msg.Split(' ');
-					var serverType = param[1];
-					var mapName = param[2];
+				} else if(msg.StartsWith("//goto ")) {
+					// Only for CMs
+					if(player.accessLevel < AccessLevel.CommunityManager)
+						return false;
 					
-					switch(serverType.ToLower()) {
+					var param = msg.Substring("//goto ".Length);
+					var spacePos = param.IndexOf(' ');
+					var serverTypeString = param.Substring(0, spacePos);
+					var mapName = param.Substring(spacePos + 1);
+					
+					player.location = new PlayerLocation(mapName, GetServerType(serverTypeString));
+				} else if(msg.StartsWith("//create ") && player.accessLevel >= AccessLevel.GameMaster) {
+					var param = msg.Substring("//create ".Length);
+					var spacePos = param.IndexOf(' ');
+					var serverTypeString = param.Substring(0, spacePos);
+					var mapName = param.Substring(spacePos + 1);
+					
+					switch(serverTypeString.ToLower()) {
 						case "ffa":
 							new LobbyFFA(mapName).Register();
 							break;
@@ -52,6 +64,16 @@ public class ChatServer : MonoBehaviour {
 				}
 				
 				return true;
+		}
+	}
+	
+	// GetServerType
+	public static ServerType GetServerType(string serverTypeString) {
+		switch(serverTypeString.ToLower()) {
+			case "ffa": return ServerType.FFA;
+			case "town": return ServerType.Town;
+			case "arena": return ServerType.Arena;
+			default: return ServerType.World;
 		}
 	}
 	

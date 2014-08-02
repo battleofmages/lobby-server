@@ -126,7 +126,7 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 		int reconnectCount = 0;
 		foreach(var player in playerList) {
 			if(player.gameInstance == this) {
-				if(player.inTown) {
+				if(player.inTown || player.inWorld) {
 					player.gameInstance = null;
 					player.ReturnToWorld();
 					reconnectCount++;

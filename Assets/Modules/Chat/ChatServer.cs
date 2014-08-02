@@ -36,7 +36,33 @@ public class ChatServer : MonoBehaviour {
 					var mapName = param.Substring(spacePos + 1);
 					
 					player.location = new PlayerLocation(mapName, GetServerType(serverTypeString));
-				} else if(msg.StartsWith("//create ") && player.accessLevel >= AccessLevel.GameMaster) {
+				} else if(msg.StartsWith("//movetoplayer ")) {
+					// Only for CMs
+					if(player.accessLevel < AccessLevel.CommunityManager)
+						return false;
+					
+					var playerName = msg.Substring("//movetoplayer ".Length);
+					
+					LobbyGameDB.GetAccountIdByPlayerName(playerName, accountId => {
+						if(accountId == null)
+							return;
+						
+						PositionsDB.GetPosition(accountId, position => {
+							if(position == null)
+								position = new PlayerPosition();
+							
+							LocationsDB.GetLocation(accountId, location => {
+								if(location == null)
+									return;
+								
+								// TODO: This is not 100% correct as it might get overwritten by the server
+								PositionsDB.SetPosition(player.accountId, position);
+								
+								player.location = location;
+							});
+						});
+					});
+				}else if(msg.StartsWith("//create ") && player.accessLevel >= AccessLevel.GameMaster) {
 					var param = msg.Substring("//create ".Length);
 					var spacePos = param.IndexOf(' ');
 					var serverTypeString = param.Substring(0, spacePos);

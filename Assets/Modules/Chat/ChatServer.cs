@@ -2,46 +2,59 @@ using UnityEngine;
 using uLobby;
 
 public class ChatServer : MonoBehaviour {
+	// Commands
+	protected ChatCommand<LobbyPlayer>[] playerCommands;
+	protected ChatCommand<LobbyPlayer>[] vipCommands;
+	protected ChatCommand<LobbyPlayer>[] communityManagerCommands;
+	protected ChatCommand<LobbyPlayer>[] gameMasterCommands;
+	protected ChatCommand<LobbyPlayer>[] adminCommands;
+	
 	// Start
 	void Start () {
-		// Make this class listen to lobby events
-		Lobby.AddListener(this);
-	}
-	
-	// User and admin commands
-	bool ProcessLobbyChatCommands(LobbyPlayer player, string msg) {
-		msg = msg.ReplaceCommands();
-		
-		switch(msg) {
-			case "//practice":
-				if(!player.inMatch) {
-					LobbyQueue.CreatePracticeMatch(player);
-					//match.Register();
-				} else {
-					// Notify player ...
+		// Player
+		playerCommands = new ChatCommand<LobbyPlayer>[]{
+			// practice
+			new ChatCommand<LobbyPlayer>(
+				@"^practice$",
+				(player, args) => {
+					if(!player.inMatch) {
+						LobbyQueue.CreatePracticeMatch(player);
+					} else {
+						// Notify player ...
+					}
 				}
-				return true;
-				
-			default:
-				if(msg.StartsWith("//list ")) {
-					//var serverType = msg.Substring(7);
-				} else if(msg.StartsWith("//goto ")) {
-					// Only for CMs
-					if(player.accessLevel < AccessLevel.CommunityManager)
-						return false;
+			)
+		};
+		
+		// VIP
+		vipCommands = new ChatCommand<LobbyPlayer>[]{
+			// list
+			new ChatCommand<LobbyPlayer>(
+				@"^list (.*)$",
+				(player, args) => {
+					//var serverType = args[0];
+				}
+			)
+		};
+		
+		// Community Manager
+		communityManagerCommands = new ChatCommand<LobbyPlayer>[]{
+			// goto
+			new ChatCommand<LobbyPlayer>(
+				@"^goto ([^ ]+) (.*)$",
+				(player, args) => {
+					var serverType = ChatServer.GetServerType(args[0]);
+					var mapName = args[1];
 					
-					var param = msg.Substring("//goto ".Length);
-					var spacePos = param.IndexOf(' ');
-					var serverTypeString = param.Substring(0, spacePos);
-					var mapName = param.Substring(spacePos + 1);
-					
-					player.location = new PlayerLocation(mapName, GetServerType(serverTypeString));
-				} else if(msg.StartsWith("//movetoplayer ")) {
-					// Only for CMs
-					if(player.accessLevel < AccessLevel.CommunityManager)
-						return false;
-					
-					var playerName = msg.Substring("//movetoplayer ".Length);
+					player.location = new PlayerLocation(mapName, serverType);
+				}
+			),
+			
+			// moveToPlayer
+			new ChatCommand<LobbyPlayer>(
+				@"^moveToPlayer (.*)$",
+				(player, args) => {
+					var playerName = args[1];
 					
 					LobbyGameDB.GetAccountIdByPlayerName(playerName, accountId => {
 						if(accountId == null)
@@ -62,35 +75,77 @@ public class ChatServer : MonoBehaviour {
 							});
 						});
 					});
-				}else if(msg.StartsWith("//create ") && player.accessLevel >= AccessLevel.GameMaster) {
-					var param = msg.Substring("//create ".Length);
-					var spacePos = param.IndexOf(' ');
-					var serverTypeString = param.Substring(0, spacePos);
-					var mapName = param.Substring(spacePos + 1);
+				}
+			),
+		};
+		
+		// Game Master
+		gameMasterCommands = new ChatCommand<LobbyPlayer>[]{
+			// start
+			new ChatCommand<LobbyPlayer>(
+				@"^start ([^ ]+) (.*)$",
+				(player, args) => {
+					var serverType = ChatServer.GetServerType(args[0]);
+					var mapName = args[1];
 					
-					switch(serverTypeString.ToLower()) {
-						case "ffa":
+					switch(serverType) {
+						case ServerType.FFA:
 							new LobbyFFA(mapName).Register();
 							break;
-						
-						case "town":
+							
+						case ServerType.Town:
 							new LobbyTown(mapName).Register();
 							break;
-						
-						/*case "match":
-							new LobbyMatch().Register();
-							break;*/
 					}
-				} else if(msg.StartsWith("//ginvite ")) {
-					/*StartCoroutine(lobbyGameDB.GetAccountIdByPlayerName(msg.Split(' ')[1], data => {
-						Debug.Log ("ginvite: " + data);
-					}));*/
-				} else {
-					return false;
 				}
-				
+			),
+		};
+		
+		// Admin
+		adminCommands = new ChatCommand<LobbyPlayer>[]{
+			
+		};
+		
+		// Make this class listen to lobby events
+		Lobby.AddListener(this);
+	}
+	
+	// ProcessChatCommands
+	protected bool ProcessChatCommands(LobbyPlayer player, string msg, ChatCommand<LobbyPlayer>[] cmdList) {
+		if(cmdList == null)
+			return false;
+		
+		foreach(var cmd in cmdList) {
+			if(cmd.Process(player, msg))
 				return true;
 		}
+		
+		return false;
+	}
+	
+	// User and admin commands
+	bool ProcessLobbyChatCommands(LobbyPlayer player, string msg) {
+		msg = msg.ReplaceCommands();
+		
+		if(!msg.StartsWith("//"))
+			return false;
+		
+		if(player.accessLevel >= AccessLevel.Player && ProcessChatCommands(player, msg, playerCommands))
+			return true;
+		
+		if(player.accessLevel >= AccessLevel.VIP && ProcessChatCommands(player, msg, vipCommands))
+			return true;
+		
+		if(player.accessLevel >= AccessLevel.CommunityManager && ProcessChatCommands(player, msg, communityManagerCommands))
+			return true;
+		
+		if(player.accessLevel >= AccessLevel.GameMaster && ProcessChatCommands(player, msg, gameMasterCommands))
+			return true;
+		
+		if(player.accessLevel >= AccessLevel.Admin && ProcessChatCommands(player, msg, adminCommands))
+			return true;
+		
+		return false;
 	}
 	
 	// GetServerType

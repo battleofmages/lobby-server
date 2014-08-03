@@ -22,6 +22,11 @@ public class LobbyInstanceManager : SingletonMonoBehaviour<LobbyInstanceManager>
 		events.onInstanceStopped = uZone_OnInstanceStopped;
 		
 		InstanceManager.Initialize(events);
+		Reconnect();
+	}
+	
+	// Reconnect
+	void Reconnect() {
 		InstanceManager.Connect(uZoneHost, uZonePort, uZone_OnConnected, uZone_OnConnectFailed);
 	}
 	
@@ -49,11 +54,17 @@ public class LobbyInstanceManager : SingletonMonoBehaviour<LobbyInstanceManager>
 	// uZone connection error
 	void uZone_OnConnectFailed(Request request) {
 		LogManager.General.LogError("Failed to connect to uZone: " + request);
+		
+		// Try again
+		Reconnect();
 	}
 	
 	// uZone disconnect
 	void uZone_OnDisconnected() {
 		LogManager.General.LogError("Disconnected from uZone");
+		
+		// Try again
+		Reconnect();
 	}
 	
 	// uZone node connection established

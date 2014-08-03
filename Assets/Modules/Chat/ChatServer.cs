@@ -30,9 +30,12 @@ public class ChatServer : MonoBehaviour {
 		vipCommands = new ChatCommand<LobbyPlayer>[]{
 			// list
 			new ChatCommand<LobbyPlayer>(
-				@"^list (.*)$",
+				@"^list$",
 				(player, args) => {
-					//var serverType = args[0];
+					LobbyServer.SendSystemMessage(player, "Town: " + LobbyTown.running.Count);
+					LobbyServer.SendSystemMessage(player, "World: " + LobbyWorld.running.Count);
+					LobbyServer.SendSystemMessage(player, "Arena: " + LobbyMatch.running.Count);
+					LobbyServer.SendSystemMessage(player, "FFA: " + LobbyFFA.running.Count);
 				}
 			)
 		};
@@ -129,6 +132,9 @@ public class ChatServer : MonoBehaviour {
 		
 		if(!msg.StartsWith("//"))
 			return false;
+		
+		// Remove the 
+		msg = msg.Substring(2);
 		
 		if(player.accessLevel >= AccessLevel.Player && ProcessChatCommands(player, msg, playerCommands))
 			return true;

@@ -47,7 +47,6 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 				// Success
 				instance = request.GetInstance();
 				idToInstance[instance.id] = this;
-				StartPlaying();
 			}, (request) => {
 				// Failure
 				LogManager.General.LogError("Couldn't start instance: " + request);
@@ -56,7 +55,7 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 	}
 	
 	// Starts playing on game server instance
-	void StartPlaying() {
+	public void StartPlaying() {
 		// Log after the instance has been assigned, so we see the IP
 		LogManager.General.Log("Instance started: " + this);
 		
@@ -96,6 +95,10 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 		
 		args.Add("-partycount" + partyCount);
 		
+		// Lobby IP and port
+		//args.Add("-lobbyIP" + ?);
+		//args.Add("-lobbyPort" + LobbyServer.instance.listenPort);
+		
 		// Custom callback
 		OnRegister();
 		
@@ -109,8 +112,10 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 		
 		//this.OnUnregister();
 		
-		_mapChannel.Unregister();
-		_mapChannel = null;
+		if(_mapChannel != null) {
+			_mapChannel.Unregister();
+			_mapChannel = null;
+		}
 		
 		if(!idToInstance.Remove(instance.id))
 			LogManager.General.LogError("Could not unregister instance id " + instance.id);

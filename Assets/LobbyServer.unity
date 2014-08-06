@@ -268,8 +268,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxConnections: 1024
   listenPort: 1310
-  databaseHost: 37.139.29.70
-  databasePort: 8087
   frameRate: 20
   mailFeedbackReceiver: e.urbach@gmail.com
   privateKeyPath: config/private-key.txt

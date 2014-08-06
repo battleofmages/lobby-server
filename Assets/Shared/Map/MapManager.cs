@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class MapManager {
+public static class MapManager {
 	// Starting town
 	public static string startingMap = "Tutorial";
 	
@@ -36,12 +36,44 @@ public class MapManager {
 	public static IEnumerator LoadMapAsync(string mapName, CallBack func = null) {
 		DeleteOldMap();
 		
-		LogManager.General.Log("Checking scene: '" + mapName + "'");
+		LogManager.General.Log("[" + mapName + "] Checking scene");
 
-		if(Application.CanStreamedLevelBeLoaded(mapName))
-			LogManager.General.Log("Scene can be loaded");
-		else
-			LogManager.General.LogError("Scene '" + mapName + "' can not be loaded");
+		if(Application.CanStreamedLevelBeLoaded(mapName)) {
+			LogManager.General.Log("[" + mapName + "] Map can be loaded");
+		} else {
+			
+			//WWW.LoadFromCacheOrDownload();
+			// Download asset bundle version info
+			var bundlesInfo = new WWW("https://battleofmages.com/download/bundles.ini");
+			yield return bundlesInfo;
+			
+			if(bundlesInfo.error == null) {
+				
+			} else {
+				LogManager.General.LogError("Failed downloading asset bundle versions: " + bundlesInfo.error);
+			}
+			
+			// Download level
+			LogManager.General.Log("[" + mapName + "] Downloading map");
+			var download = new WWW("https://battleofmages.com/download/windows/bundles/" + mapName + ".unity3d");
+
+			if(LoadingScreen.instance != null) {
+				LoadingScreen.instance.loadingText = "Downloading map: <color=yellow>" + mapName + "</color>...";
+				LoadingScreen.instance.asyncDownload = download;
+			}
+
+			yield return download;
+			
+			if(download.error == null) {
+				var bundle = download.assetBundle;
+				LogManager.General.Log("[" + mapName + "] Successfully downloaded " + bundle);
+			} else {
+				LogManager.General.LogError("[" + mapName + "] Failed downloading map: " + download.error);
+			}
+
+			if(!Application.CanStreamedLevelBeLoaded(mapName))
+				LogManager.General.LogError("[" + mapName + "] Map can not be loaded");
+		}
 
 		// Load map
 		LogManager.General.Log("Loading map '" + mapName + "'...");

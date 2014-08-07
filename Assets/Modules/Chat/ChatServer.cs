@@ -23,6 +23,14 @@ public class ChatServer : MonoBehaviour {
 						// Notify player ...
 					}
 				}
+			),
+			
+			// online
+			new ChatCommand<LobbyPlayer>(
+				@"^online$",
+				(player, args) => {
+					LobbyServer.SendSystemMessage(player, "Players online: " + LobbyPlayer.list.Count);
+				}
 			)
 		};
 		

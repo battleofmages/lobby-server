@@ -14,10 +14,10 @@ public class LobbyMatch : LobbyGameInstance<LobbyMatch> {
 			LobbyMatch.mapPool = MapManager.arenas;
 		
 		// Server type
-		serverType = ServerType.Arena;
+		_serverType = ServerType.Arena;
 		
 		// Map name
-		mapName = LobbyMatch.mapPool[Random.Range(0, mapPool.Length)];
+		_mapName = LobbyMatch.mapPool[Random.Range(0, mapPool.Length)];
 		
 		// Create the player lists
 		teams = new List<LobbyPlayer>[4];

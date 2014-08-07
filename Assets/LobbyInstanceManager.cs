@@ -30,6 +30,26 @@ public class LobbyInstanceManager : SingletonMonoBehaviour<LobbyInstanceManager>
 		InstanceManager.Connect(uZoneHost, uZonePort, uZone_OnConnected, uZone_OnConnectFailed);
 	}
 	
+	// GetGameInstanceByID
+	public static LobbyGameInstanceInterface GetGameInstanceByID(string instanceIdNumber) {
+		return
+			GetGameInstanceByID<LobbyMatch>(instanceIdNumber) ??
+			GetGameInstanceByID<LobbyWorld>(instanceIdNumber) ??
+			GetGameInstanceByID<LobbyTown>(instanceIdNumber) ??
+			GetGameInstanceByID<LobbyFFA>(instanceIdNumber) ??
+			null;
+	}
+	
+	// GetGameInstanceByID<T>
+	public static LobbyGameInstanceInterface GetGameInstanceByID<T>(string instanceIdNumber) {
+		foreach(KeyValuePair<InstanceID, LobbyGameInstance<T>> entry in LobbyGameInstance<T>.idToInstance) {
+			if(entry.Key.ToString().Split(' ')[1] == instanceIdNumber)
+				return entry.Value;
+		}
+		
+		return default(LobbyGameInstance<T>);
+	}
+	
 	// Unregister game instance
 	public bool UnregisterGameInstance<T>(InstanceID id, Dictionary<InstanceID, LobbyGameInstance<T>> idToInstance) where T : LobbyGameInstance<T> {
 		LobbyGameInstance<T> inst;
@@ -114,13 +134,13 @@ public class LobbyInstanceManager : SingletonMonoBehaviour<LobbyInstanceManager>
 		if(UnregisterGameInstance<LobbyMatch>(instance.id, LobbyMatch.idToInstance))
 			return;
 		
-		if(UnregisterGameInstance<LobbyFFA>(instance.id, LobbyFFA.idToInstance))
+		if(UnregisterGameInstance<LobbyWorld>(instance.id, LobbyWorld.idToInstance))
 			return;
 		
 		if(UnregisterGameInstance<LobbyTown>(instance.id, LobbyTown.idToInstance))
 			return;
 		
-		if(UnregisterGameInstance<LobbyWorld>(instance.id, LobbyWorld.idToInstance))
+		if(UnregisterGameInstance<LobbyFFA>(instance.id, LobbyFFA.idToInstance))
 			return;
 	}
 }

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 
 public class LobbyFFA : LobbyGameInstance<LobbyFFA> {
@@ -9,7 +9,7 @@ public class LobbyFFA : LobbyGameInstance<LobbyFFA> {
 			LobbyFFA.mapPool = MapManager.ffaMaps;
 		
 		// Server type
-		serverType = ServerType.FFA;
+		_serverType = ServerType.FFA;
 		
 		// Set max player count
 		maxPlayerCount = 10;
@@ -18,7 +18,7 @@ public class LobbyFFA : LobbyGameInstance<LobbyFFA> {
 	// Constructor
 	public LobbyFFA(string nMapName) : this() {
 		// Map name
-		mapName = nMapName;
+		_mapName = nMapName;
 	}
 	
 	// PickInstanceWithLeastPlayers

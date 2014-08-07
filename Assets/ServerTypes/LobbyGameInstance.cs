@@ -4,9 +4,12 @@ using System.Collections.Generic;
 public interface LobbyGameInstanceInterface {
 	List<LobbyPlayer> players{ get; }
 	LobbyChatChannel mapChannel { get; }
+	string mapName { get; }
+	ServerType serverType { get; }
 	
 	void Register();
 	void Unregister();
+	void StartPlaying();
 }
 
 public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
@@ -22,18 +25,18 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 	public uZone.InstanceProcess instance = null;
 	public List<string> args = new List<string>();
 	public int maxPlayerCount = 999999999;
-	protected string mapName;
-	protected ServerType serverType;
+	protected string _mapName;
+	protected ServerType _serverType;
 	private uZone.InstanceOptions options;
 	
 	// Requests uZone to start a new instance
 	protected virtual void StartInstanceAsync() {
 		// Add to list by map name
-		if(!mapNameToInstances.ContainsKey(mapName)) {
-			mapNameToInstances[mapName] = new List<LobbyGameInstance<T>>();
+		if(!mapNameToInstances.ContainsKey(_mapName)) {
+			mapNameToInstances[_mapName] = new List<LobbyGameInstance<T>>();
 		}
 		
-		mapNameToInstances[mapName].Add(this);
+		mapNameToInstances[_mapName].Add(this);
 		
 		waitingForServer.Add(this);
 		
@@ -47,6 +50,7 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 				// Success
 				instance = request.GetInstance();
 				idToInstance[instance.id] = this;
+				StartPlaying();
 			}, (request) => {
 				// Failure
 				LogManager.General.LogError("Couldn't start instance: " + request);
@@ -77,13 +81,13 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 	
 	// Register
 	public virtual void Register() {
-		args.Add("-type" + serverType);
-		args.Add("\"-map" + mapName + "\"");
+		args.Add("-type" + _serverType);
+		args.Add("\"-map" + _mapName + "\"");
 		
 		// Number of parties
 		int partyCount = 1;
 		
-		switch(serverType) {
+		switch(_serverType) {
 			case ServerType.Arena:
 				partyCount = 2;
 				break;
@@ -120,8 +124,8 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 		if(!idToInstance.Remove(instance.id))
 			LogManager.General.LogError("Could not unregister instance id " + instance.id);
 		
-		if(!mapNameToInstances[mapName].Remove(this))
-			LogManager.General.LogError("Could not unregister instance from map name list: " + mapName + ", " + this.ToString());
+		if(!mapNameToInstances[_mapName].Remove(this))
+			LogManager.General.LogError("Could not unregister instance from map name list: " + _mapName + ", " + this.ToString());
 		
 		if(!running.Remove(this))
 			LogManager.General.LogError("Could not unregister instance from the running list: " + this.ToString());
@@ -156,20 +160,38 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 		var playerListString = string.Join(", ", playerList.ToArray());
 		
 		if(instance != null) {
-			return string.Format("[{0}] {1}\n * {2}:{3}\n * Players: [{4}]\n{5}", serverType.ToString(), mapName, instance.node.publicAddress, instance.port, playerListString, cmdLine);
+			return string.Format("[{0}] {1}\n * {2}:{3}\n * Players: [{4}]\n{5}", _serverType.ToString(), _mapName, instance.node.publicAddress, instance.port, playerListString, cmdLine);
 		}
 		
-		return string.Format("[{0}] {1}\n * Players: [{2}]\n{3}", serverType.ToString(), mapName, playerListString, cmdLine);
+		return string.Format("[{0}] {1}\n * Players: [{2}]\n{3}", _serverType.ToString(), _mapName, playerListString, cmdLine);
 	}
 	
 	// Player
 	public List<LobbyPlayer> players {
-		get { return _players; }
+		get {
+			return _players;
+		}
 	}
 	
 	// Map channel
 	public LobbyChatChannel mapChannel {
-		get { return _mapChannel; }
+		get {
+			return _mapChannel;
+		}
+	}
+	
+	// Map name
+	public string mapName {
+		get {
+			return _mapName;
+		}
+	}
+	
+	// Server type
+	public ServerType serverType {
+		get {
+			return _serverType;
+		}
 	}
 	
 	// Cmd line

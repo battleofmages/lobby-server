@@ -1,13 +1,13 @@
-﻿public class LobbyWorld : LobbyGameInstance<LobbyWorld> {
+public class LobbyWorld : LobbyGameInstance<LobbyWorld> {
 	// Empty constructor
 	private LobbyWorld() {
 		// Server type
-		serverType = ServerType.World;
+		_serverType = ServerType.World;
 	}
 	
 	// Constructor
 	public LobbyWorld(string nMapName) : this() {
 		// Map name
-		mapName = nMapName;
+		_mapName = nMapName;
 	}
 }

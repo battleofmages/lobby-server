@@ -201,7 +201,7 @@ public class LobbyMatchMaker : SingletonMonoBehaviour<LobbyMatchMaker> {
 			}*/
 			
 			LeaveMatch(player);
-		} else if(player.inTown) {
+		} else if(player.inTown || player.inWorld) {
 			player.gameInstance = null;
 			
 			if(AccountManager.Master.IsLoggedIn(player.peer)) {

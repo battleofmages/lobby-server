@@ -12,11 +12,23 @@ public class LobbyAccountManager : MonoBehaviour {
 	}
 	
 	// Sends account activation mail
-	void SendActivationMail(string email, string token) {
+	Coroutine SendActivationMail(string email, string token) {
+		return StartCoroutine(SendActivationMailCoroutine(email, token));
+	}
+	
+	// SendActivationMailCoroutine
+	IEnumerator SendActivationMailCoroutine(string email, string token) {
 		LogManager.General.Log("Sending activation mail to '" + email + "'...");
 		
 		var emailToken = System.Uri.EscapeDataString(token);
-		Mail.Send(email, "Activate your Battle of Mages account", "Click this link to activate your account:\nhttp://battleofmages.com/scripts/activate.php?email=" + email + "&token=" + emailToken);
+		var sendMailRequest = new WWW("https://battleofmages.com/scripts/send-activation-mail.php?email=" + email + "&token=" + emailToken);
+		yield return sendMailRequest;
+		
+		if(sendMailRequest.error == null) {
+			LogManager.General.Log("Sent activation mail to '" + email + "'");
+		} else {
+			LogManager.General.LogError("Failed sending activation mail to '" + email + "'");
+		}
 	}
 	
 	// DeleteAccount

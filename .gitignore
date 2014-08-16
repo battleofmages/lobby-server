@@ -7,6 +7,7 @@
 
 /config/private-key.txt
 /config/smtp-account.txt
+/config/database.txt
 
 # ===================================== #
 # Visual Studio / MonoDevelop generated #

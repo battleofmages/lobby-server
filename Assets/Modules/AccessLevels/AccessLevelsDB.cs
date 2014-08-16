@@ -24,7 +24,7 @@ public static class AccessLevelsDB {
 		//	LobbyServer.instance.SendStaffInfo(player);
 	}
 	
-	// Set character stats
+	// Set access level
 	public static Coroutine SetAccessLevel(LobbyPlayer player, AccessLevel level) {
 		return GameDB.instance.StartCoroutine(GameDB.Set<byte>(
 			"AccountToAccessLevel",

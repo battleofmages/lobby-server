@@ -18,10 +18,10 @@ public class GameDBConnector : SingletonMonoBehaviour<GameDBConnector> {
 		// The config should look like this ip:port
 		string[] databaseConfig = File.ReadAllText(databaseConfigPath).Split(':');
 
-		// Since ip is the infront of : it will be 0
+		// Since ip is the infront of : it will be index 0
 		databaseIP = databaseConfig[0];
 
-		// Since port is behind of : it will be 1, we also have to convert it to a int
+		// Since port is behind of : it will be index 1, we also have to convert it to a int
 		databasePort = int.Parse(databaseConfig[1]);
 
 		// Connect to DB

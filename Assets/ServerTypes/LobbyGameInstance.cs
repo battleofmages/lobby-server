@@ -85,7 +85,6 @@ public abstract class LobbyGameInstance<T> : LobbyGameInstanceInterface {
 		args.Add("\"-map" + _mapName + "\"");
 		args.Add ("-databaseIP" + GameDBConnector.instance.databaseIP);
 		args.Add("-databasePort" + GameDBConnector.instance.databasePort);
-
 		// Number of parties
 		int partyCount = 1;
 		

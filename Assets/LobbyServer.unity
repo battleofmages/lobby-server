@@ -122,14 +122,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 327191664}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5ffc4e4a81e3fa2459b4c1cb6a16dbb4, type: 3}
+  m_Script: {fileID: 11500000, guid: 0ff3622f55b874347b4e200ebc608252, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RiakNodes:
-  - HostName: 37.139.29.70
-    RiakPbcPort: 8087
-    UniqueId: erza
-    SocketPoolSize: 10
+  databaseIP: 95.85.6.12
+  databasePort: 8087
+  databaseConfigPath: config/database.txt
 --- !u!1 &646597628
 GameObject:
   m_ObjectHideFlags: 0

@@ -13,16 +13,30 @@ QualitySettings:
     shadowResolution: 0
     shadowProjection: 1
     shadowCascades: 1
+    shadowmapFiltering: 1
     shadowDistance: 15
+    shadowCascade2Split: .333333343
+    shadowCascade4Split: {x: .0666666701, y: .200000003, z: .466666669}
     blendWeights: 1
-    textureQuality: 3
+    textureQuality: 1
     anisotropicTextures: 0
     antiAliasing: 0
     softParticles: 0
     softVegetation: 0
+    realtimeReflectionProbes: 0
+    billboardsFaceCameraPosition: 0
     vSyncCount: 0
     lodBias: .300000012
     maximumLODLevel: 0
+    maxRealtimeReflectionBounces: 1
     particleRaycastBudget: 4
     excludedTargetPlatforms: []
-  m_PerPlatformDefaultQuality: {}
+  m_PerPlatformDefaultQuality:
+    Android: 0
+    BlackBerry: 0
+    Standalone: 0
+    WP8: 0
+    Web: 0
+    WebGL: 0
+    Windows Store Apps: 0
+    iPhone: 0

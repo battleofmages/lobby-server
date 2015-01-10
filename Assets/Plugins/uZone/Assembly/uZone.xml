@@ -67,35 +67,11 @@
             A new instance will be launched on a node currently running the smallest number of instances.
             </summary>
     </member>
-    <member name="F:uZone.NodeSelectionMode.RunningMostInstances">
-      <summary>
-            A new instance will be launched on a node currently running the highest number of instances
-            Not yet implemented. Currently mapped to default.
-            </summary>
-    </member>
     <member name="F:uZone.NodeSelectionMode.RoundRobin">
       <summary>
             These scenario causes the nodes to "cycle". You may find it useful if you want to balance number of running instances on nodes
             which were started at the same moment. On the other hand, this mode is not suitable for situations where some node(s) are already
             running couple of instances and there are other completely fresh node(s) at the same time.
-            </summary>
-    </member>
-    <member name="F:uZone.NodeSelectionMode.LeastCPULoad">
-      <summary>
-            A new instance will be launched on a node which is currently experiencing the least (relative) CPU load
-            Not yet implemented. Currently mapped to default.
-            </summary>
-    </member>
-    <member name="F:uZone.NodeSelectionMode.MostRAMAvailable">
-      <summary>
-            A new instance will be launched on a node which is currently having the most (absolute) RAM available
-            Not yet implemented. Currently mapped to default.
-            </summary>
-    </member>
-    <member name="F:uZone.NodeSelectionMode.LeastBandwidthLoad">
-      <summary>
-            A new instance will be launched on a node which is currently experiencing least (absolute) network load.
-            Not yet implemented. Currently mapped to default.
             </summary>
     </member>
     <member name="T:uZone.InstanceState">

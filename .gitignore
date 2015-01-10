@@ -3,7 +3,7 @@
 /[Oo]bj/
 /[Ll]ogs/
 
-/Assets/Shared/
+/Assets/Scripts/Shared/
 
 /config/private-key.txt
 /config/smtp-account.txt

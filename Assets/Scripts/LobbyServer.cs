@@ -270,6 +270,11 @@ public class LobbyServer : SingletonMonoBehaviour<LobbyServer>, Initializable {
 	}
 
 	[RPC]
+	void AccountLogOut(LobbyMessageInfo info) {
+		AccountManager.Master.LogOut(info.sender);
+	}
+
+	[RPC]
 	void RequestAccountInfo(string accountId, string propertyName, LobbyMessageInfo info) {
 		var player = LobbyPlayer.Get(info);
 

@@ -43,6 +43,9 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 				"friendsList",
 				() => {
 					FriendsDB.GetFriends(id, data => {
+						if(data == null)
+							data = new FriendsList();
+
 						friendsList.value = data;
 					});
 				}

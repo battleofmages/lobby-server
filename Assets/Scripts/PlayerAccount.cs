@@ -7,9 +7,6 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 	private Dictionary<string, CallBack> propertyGetters;
 	private Dictionary<string, WriteCallBack> propertySetters;
 
-	private Party _party;
-	private OnlineStatus _onlineStatus;
-
 	// Delegate
 	private delegate void WriteCallBack(object val, WriteAsyncPropertyCallBack callBack);
 

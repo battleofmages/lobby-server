@@ -21,7 +21,10 @@ public class LobbyPlayer {
 		};
 
 		account.playerName.onValueChange += sendPlayerName;
-		
+
+		// Online status
+		account.onlineStatus.value = OnlineStatus.Online;
+
 		LobbyPlayer.list.Add(this);
 		LobbyPlayer.accountIdToLobbyPlayer[account.id] = this;
 		LobbyPlayer.peerToLobbyPlayer[peer] = this;
@@ -76,6 +79,9 @@ public class LobbyPlayer {
 		//foreach(var channel in new List<LobbyChatChannel>(channels)) {
 		//	channel.RemovePlayer(this);
 		//}
+
+		// Offline status
+		account.onlineStatus.value = OnlineStatus.Offline;
 
 		// Remove event listeners
 		account.playerName.onValueChange -= sendPlayerName;

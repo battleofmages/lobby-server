@@ -7,13 +7,18 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 	private Dictionary<string, CallBack> propertyGetters;
 	private Dictionary<string, WriteCallBack> propertySetters;
 
+	private Party _party;
+	private OnlineStatus _onlineStatus;
+
 	// Delegate
 	private delegate void WriteCallBack(object val, WriteAsyncPropertyCallBack callBack);
 
 	// Private constructor
-	private PlayerAccount() {
+	private PlayerAccount(string accountId) {
 		// Async properties
 		base.Init(this);
+
+		id = accountId;
 
 		// Getters
 		propertyGetters = new Dictionary<string, CallBack>() {
@@ -49,6 +54,23 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 						friendsList.value = data;
 					});
 				}
+			},
+			{
+				"party",
+				() => {
+					if(party.value == null) {
+						var newParty = new Party();
+						newParty.accountIds.Add(id);
+
+						party.value = newParty;
+					}
+				}
+			},
+			{
+				"onlineStatus",
+				() => {
+					//onlineStatus.value = _onlineStatus;
+				}
 			}
 		};
 
@@ -77,6 +99,18 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 						callBack(data);
 					});
 				}
+			},
+			{
+				"party",
+				(val, callBack) => {
+					callBack(val);
+				}
+			},
+			{
+				"onlineStatus",
+				(val, callBack) => {
+					callBack(val);
+				}
 			}
 		};
 	}
@@ -87,9 +121,7 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 		
 		// Load from cache or create new account
 		if(!PlayerAccount.idToAccount.TryGetValue(accountId, out acc)) {
-			acc = new PlayerAccount {
-				id = accountId
-			};
+			acc = new PlayerAccount(accountId);
 			
 			PlayerAccount.idToAccount[accountId] = acc;
 		}

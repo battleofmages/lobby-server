@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Linq;
 using uLobby;
+using BoM;
 
 public class FriendsServer : MonoBehaviour {
 	// Start
@@ -15,14 +16,19 @@ public class FriendsServer : MonoBehaviour {
 	// --------------------------------------------------------------------------------
 
 #region RPCs
-	/*
 	[RPC]
 	IEnumerator AddFriend(string friendName, string groupName, LobbyMessageInfo info) {
 		var player = LobbyPlayer.Get(info);
 		LogManager.General.Log(string.Format("'{0}' added '{1}' to friend list group '{2}'", player.name, friendName, groupName));
-		
+
+		var friends = player.friends;
+
+		// Friends list not loaded yet
+		if(friends == null)
+			yield break;
+
 		// Find friends group
-		var selectedGroup = player.friends.GetGroupByName(groupName);
+		var selectedGroup = friends.GetGroupByName(groupName);
 		
 		// Get account ID
 		string friendAccountId = null;
@@ -33,19 +39,19 @@ public class FriendsServer : MonoBehaviour {
 		
 		// Error getting account ID?
 		if(friendAccountId == null) {
-			Lobby.RPC("FriendAddPlayerDoesntExistError", info.sender, friendName);
+			Lobby.RPC("AddFriendError", info.sender, friendName, AddFriendError.PlayerDoesntExist);
 			yield break;
 		}
 		
 		// Trying to add yourself?
-		if(friendAccountId == player.accountId) {
-			Lobby.RPC("FriendAddCantAddYourselfError", info.sender, friendName);
+		if(friendAccountId == player.account.id) {
+			Lobby.RPC("AddFriendError", info.sender, friendName, AddFriendError.CantAddYourself);
 			yield break;
 		}
 		
 		// Already in friends list?
 		if(!player.friends.CanAdd(friendAccountId)) {
-			Lobby.RPC("FriendAddAlreadyExistsError", info.sender, friendName);
+			Lobby.RPC("AddFriendError", info.sender, friendName, AddFriendError.AlreadyInFriendsList);
 			yield break;
 		}
 		
@@ -53,16 +59,17 @@ public class FriendsServer : MonoBehaviour {
 		selectedGroup.friends.Add(new Friend(friendAccountId));
 		
 		// Send new friends list
-		player.OnFriendsListLoaded();
+		//player.OnFriendsListLoaded();
 		
 		// Save friends list in database
 		yield return FriendsDB.SetFriends(
-			player.accountId,
-			player.friends,
+			player.account.id,
+			friends,
 			null
 		);
 	}
-	
+
+	/*
 	[RPC]
 	IEnumerator RemoveFriend(string friendName, string groupName, LobbyMessageInfo info) {
 		var player = LobbyPlayer.Get(info);

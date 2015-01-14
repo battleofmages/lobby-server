@@ -110,6 +110,13 @@ public class LobbyPlayer {
 		}
 	}
 
+	// Friends
+	public FriendsList friends {
+		get {
+			return account.friendsList.value;
+		}
+	}
+
 	// IP
 	public string ip {
 		get {

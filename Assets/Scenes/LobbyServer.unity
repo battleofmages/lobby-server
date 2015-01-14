@@ -379,6 +379,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxConnections: 1024
   listenPort: 1310
-  frameRate: 20
+  frameRate: 50
   privateKeyPath: config/private-key.txt
   loginMessagePath: config/login-message.txt

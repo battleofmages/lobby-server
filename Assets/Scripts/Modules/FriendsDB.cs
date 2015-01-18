@@ -28,19 +28,14 @@ public static class FriendsDB {
 	// MapReduce
 	// --------------------------------------------------------------------------------
 	
-	/*// Get followers
-	public static Coroutine GetFollowers(LobbyPlayer player) {
+	// Get followers
+	public static Coroutine GetFollowers(string accountId, GameDB.ActionOnResult<string[]> func = null) {
 		return GameDB.instance.StartCoroutine(GameDB.MapReduce<string>(
 			"AccountToFriends",
 			GameDB.GetSearchMapFunction("groups"),
 			followersReduceFunction,
-			player.accountId,
-			data => {
-				player.followers = data;
-			
-				// Send new followers list
-				player.OnFollowersListLoaded();
-			}
+			accountId,
+			func
 		));
 	}
 	
@@ -68,5 +63,5 @@ public static class FriendsDB {
 		
 		return result;
 	}
-	";*/
+	";
 }

@@ -21,9 +21,20 @@ public class LobbyPlayer {
 		};
 
 		account.playerName.onValueChange += sendPlayerName;
-
-		// Online status
+		
 		account.onlineStatus.value = OnlineStatus.Online;
+
+		account.friendsList.Get(data => {
+			foreach(var friend in data.allFriends) {
+				LogManager.General.Log("Subscribing to " + friend);
+				var friendAccount = friend.account;
+
+				friendAccount.onlineStatus.Connect(status => {
+					LogManager.General.Log("Sending online status of " + friend + " to " + this);
+					this.RPC("ReceiveAccountInfo", friendAccount.id, "onlineStatus", status.GetType().FullName, Jboy.Json.WriteObject(status));
+				});
+			}
+		});
 
 		LobbyPlayer.list.Add(this);
 		LobbyPlayer.accountIdToLobbyPlayer[account.id] = this;

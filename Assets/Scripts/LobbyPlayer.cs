@@ -9,36 +9,33 @@ public class LobbyPlayer {
 	public LobbyPeer peer;
 	public PlayerAccount account;
 
-	private AsyncProperty<string>.ConnectCallBack sendPlayerName;
-
 	// Constructor
 	public LobbyPlayer(Account uLobbyAccount) {
 		account = PlayerAccount.Get(uLobbyAccount.id.value);
 		peer = AccountManager.Master.GetLoggedInPeer(uLobbyAccount);
 
-		sendPlayerName = data => {
-			this.RPC("ReceiveAccountInfo", account.id, "playerName", data);
-		};
+		LobbyPlayer.list.Add(this);
+		LobbyPlayer.accountIdToLobbyPlayer[account.id] = this;
+		LobbyPlayer.peerToLobbyPlayer[peer] = this;
 
-		account.playerName.onValueChange += sendPlayerName;
-		
-		account.onlineStatus.value = OnlineStatus.Online;
+		// Name
+		account.playerName.Connect(this, data => {
+			this.RPC("ReceiveAccountInfo", account.id, "playerName", data.GetType().FullName, Jboy.Json.WriteObject(data));
+		});
 
+		// Friends list
 		account.friendsList.Get(data => {
 			foreach(var friend in data.allFriends) {
-				LogManager.General.Log("Subscribing to " + friend);
 				var friendAccount = friend.account;
-
-				friendAccount.onlineStatus.Connect(status => {
-					LogManager.General.Log("Sending online status of " + friendAccount + " to " + this);
+				
+				friendAccount.onlineStatus.Connect(this, status => {
 					this.RPC("ReceiveAccountInfo", friendAccount.id, "onlineStatus", status.GetType().FullName, Jboy.Json.WriteObject(status));
 				});
 			}
 		});
 
-		LobbyPlayer.list.Add(this);
-		LobbyPlayer.accountIdToLobbyPlayer[account.id] = this;
-		LobbyPlayer.peerToLobbyPlayer[peer] = this;
+		// Online status
+		account.onlineStatus.value = OnlineStatus.Online;
 	}
 
 	// Get
@@ -91,11 +88,19 @@ public class LobbyPlayer {
 		//	channel.RemovePlayer(this);
 		//}
 
-		// Offline status
-		account.onlineStatus.value = OnlineStatus.Offline;
+		// Remove event listeners
+		account.friendsList.Get(data => {
+			foreach(var friend in data.allFriends) {
+				LogManager.General.Log("Unsubscribing from " + friend);
+				friend.account.onlineStatus.Disconnect(this);
+			}
+		});
 
 		// Remove event listeners
-		account.playerName.onValueChange -= sendPlayerName;
+		account.playerName.Disconnect(this);
+
+		// Offline status
+		account.onlineStatus.value = OnlineStatus.Offline;
 		
 		// Treat him as if he is disconnected for existing objects
 		peer = null;
@@ -103,14 +108,20 @@ public class LobbyPlayer {
 
 	// ToString
 	public override string ToString() {
-		return name;
+		if(account.playerName.available)
+			return account.playerName.value;
+
+		return string.Format("[Account: {0}]", account.id);
 	}
 
 #region Properties
 	// Name
 	public string name {
 		get {
-			return account.playerName.value;
+			if(account.playerName.available)
+				return account.playerName.value;
+
+			return "";
 		}
 	}
 

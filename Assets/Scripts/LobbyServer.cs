@@ -226,28 +226,6 @@ public class LobbyServer : SingletonMonoBehaviour<LobbyServer>, Initializable {
 		
 		// Login
 		LogManager.General.Log("Login attempt: '" + email + "' on device " + deviceId);
-		
-		// Get account
-		var getAccountReq = AccountManager.Master.TryGetAccount(email);
-		yield return getAccountReq.WaitUntilDone();
-		
-		if(getAccountReq.isSuccessful) {
-			var account = getAccountReq.result;
-			
-			// Log out account if logged in from a different peer
-			if(account != null && AccountManager.Master.IsLoggedIn(account)) {
-				var peer = AccountManager.Master.GetLoggedInPeer(account);
-				
-				LogManager.General.LogWarning(string.Format(
-					"Account '{0}' already logged in, kicking old peer: {1}",
-					account.name,
-					peer
-				));
-				
-				var logoutReq = AccountManager.Master.LogOut(peer);
-				yield return logoutReq.WaitUntilDone();
-			}
-		}
 
 		// Is the peer still connected?
 		if(info.sender.type == LobbyPeerType.Disconnected) {
@@ -262,6 +240,43 @@ public class LobbyServer : SingletonMonoBehaviour<LobbyServer>, Initializable {
 		if(!loginReq.isSuccessful) {
 			var exception = (AccountException)loginReq.exception;
 			var error = exception.error;
+
+			// Already logged in
+			if(error == AccountError.AlreadyLoggedIn) {
+				// Get account
+				var getAccountReq = AccountManager.Master.TryGetAccount(email);
+				yield return getAccountReq.WaitUntilDone();
+				
+				if(getAccountReq.isSuccessful) {
+					var account = getAccountReq.result;
+					
+					// Log out account if logged in from a different peer
+					if(account != null && AccountManager.Master.IsLoggedIn(account)) {
+						var peer = AccountManager.Master.GetLoggedInPeer(account);
+						
+						LogManager.General.LogWarning(string.Format(
+							"Account '{0}' already logged in, kicking old peer: {1}",
+							account.name,
+							peer
+						));
+						
+						var logoutReq = AccountManager.Master.LogOut(peer);
+						yield return logoutReq.WaitUntilDone();
+
+						// Retry login
+						loginReq = AccountManager.Master.LogIn(info.sender, email, password);
+						yield return loginReq.WaitUntilDone();
+
+						if(!loginReq.isSuccessful) {
+							exception = (AccountException)loginReq.exception;
+							error = exception.error;
+
+							// Bug in uLobby: We need to call this explicitly on the client
+							Lobby.RPC("_RPCOnLogInFailed", info.sender, email, error);
+						}
+					}
+				}
+			}
 			
 			// Bug in uLobby: We need to call this explicitly on the client
 			Lobby.RPC("_RPCOnLogInFailed", info.sender, email, error);
@@ -279,7 +294,10 @@ public class LobbyServer : SingletonMonoBehaviour<LobbyServer>, Initializable {
 		var player = LobbyPlayer.Get(info);
 
 		PlayerAccount.Get(accountId)[propertyName].GetObject((data) => {
-			player.RPC("ReceiveAccountInfo", accountId, propertyName, data.GetType().FullName, Jboy.Json.WriteObject(data));
+			string json = Jboy.Json.WriteObject(data);
+			string typeName = data.GetType().FullName;
+
+			player.RPC("ReceiveAccountInfo", accountId, propertyName, typeName, json);
 		});
 	}
 #endregion

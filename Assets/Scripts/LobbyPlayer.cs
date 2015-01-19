@@ -30,7 +30,7 @@ public class LobbyPlayer {
 				var friendAccount = friend.account;
 
 				friendAccount.onlineStatus.Connect(status => {
-					LogManager.General.Log("Sending online status of " + friend + " to " + this);
+					LogManager.General.Log("Sending online status of " + friendAccount + " to " + this);
 					this.RPC("ReceiveAccountInfo", friendAccount.id, "onlineStatus", status.GetType().FullName, Jboy.Json.WriteObject(status));
 				});
 			}

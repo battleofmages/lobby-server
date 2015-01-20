@@ -156,7 +156,8 @@ public class LobbyServer : SingletonMonoBehaviour<LobbyServer>, Initializable {
 	
 	// Account login
 	void OnAccountLoggedIn(Account account) {
-
+		// Force lobby player creation even if no requests are sent
+		new LobbyPlayer(account);
 	}
 	
 	// Account logout
@@ -276,6 +277,8 @@ public class LobbyServer : SingletonMonoBehaviour<LobbyServer>, Initializable {
 						}
 					}
 				}
+
+				yield break;
 			}
 			
 			// Bug in uLobby: We need to call this explicitly on the client

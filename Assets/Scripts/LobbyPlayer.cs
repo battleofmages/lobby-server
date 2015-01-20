@@ -14,6 +14,8 @@ public class LobbyPlayer {
 		account = PlayerAccount.Get(uLobbyAccount.id.value);
 		peer = AccountManager.Master.GetLoggedInPeer(uLobbyAccount);
 
+		LogManager.General.Log("New player: " + this);
+
 		LobbyPlayer.list.Add(this);
 		LobbyPlayer.accountIdToLobbyPlayer[account.id] = this;
 		LobbyPlayer.peerToLobbyPlayer[peer] = this;
@@ -63,6 +65,8 @@ public class LobbyPlayer {
 
 	// Removes a player - This function can be called from logout and disconnect!
 	public void Remove() {
+		LogManager.General.Log("Remove player: " + this);
+
 		// Remove the player from the queue he was in
 		//if(queue != null)
 		//	queue.RemovePlayer(this);
@@ -91,7 +95,6 @@ public class LobbyPlayer {
 		// Remove event listeners
 		account.friendsList.Get(data => {
 			foreach(var friend in data.allFriends) {
-				LogManager.General.Log("Unsubscribing from " + friend);
 				friend.account.onlineStatus.Disconnect(this);
 			}
 		});
@@ -109,9 +112,9 @@ public class LobbyPlayer {
 	// ToString
 	public override string ToString() {
 		if(account.playerName.available)
-			return account.playerName.value;
+			return string.Format("{0} ({1})", account.playerName.value, account.id);
 
-		return string.Format("[Account: {0}]", account.id);
+		return string.Format("({0})", account.id);
 	}
 
 #region Properties

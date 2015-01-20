@@ -26,14 +26,21 @@ public class LobbyPlayer {
 		});
 
 		// Friends list
-		account.friendsList.Get(data => {
-			foreach(var friend in data.allFriends) {
+		account.friendsList.Connect(this, friendsList => {
+			foreach(var friend in friendsList.allFriends) {
 				var friendAccount = friend.account;
-				
+
+				// Disconnect old listeners
+				friendAccount.onlineStatus.Disconnect(this);
+
+				// Set new listener
 				friendAccount.onlineStatus.Connect(this, status => {
 					this.RPC("ReceiveAccountInfo", friendAccount.id, "onlineStatus", status.GetType().FullName, Jboy.Json.WriteObject(status));
 				});
 			}
+
+			// Send friends list to owner
+			this.RPC("ReceiveAccountInfo", account.id, "friendsList", friendsList.GetType().FullName, Jboy.Json.WriteObject(friendsList));
 		});
 
 		// Online status

@@ -58,8 +58,8 @@ public class FriendsServer : MonoBehaviour {
 		// Add player to the group
 		selectedGroup.friends.Add(new Friend(friendAccountId));
 		
-		// Send new friends list
-		//player.OnFriendsListLoaded();
+		// Send new friends list to all listeners
+		player.account.friendsList.value = friends;
 		
 		// Save friends list in database
 		yield return FriendsDB.SetFriends(

@@ -17,9 +17,8 @@ public class FriendsServer : MonoBehaviour {
 
 #region RPCs
 	[RPC]
-	IEnumerator AddFriend(string friendName, string groupName, LobbyMessageInfo info) {
+	IEnumerator AddFriendToGroup(string friendName, string groupName, LobbyMessageInfo info) {
 		var player = LobbyPlayer.Get(info);
-		LogManager.General.Log(string.Format("'{0}' added '{1}' to friend list group '{2}'", player.name, friendName, groupName));
 
 		var friends = player.friends;
 
@@ -39,33 +38,39 @@ public class FriendsServer : MonoBehaviour {
 		
 		// Error getting account ID?
 		if(friendAccountId == null) {
-			Lobby.RPC("AddFriendError", info.sender, friendName, AddFriendError.PlayerDoesntExist);
+			player.RPC("AddFriendError", friendName, AddFriendError.PlayerDoesntExist);
 			yield break;
 		}
 		
 		// Trying to add yourself?
 		if(friendAccountId == player.account.id) {
-			Lobby.RPC("AddFriendError", info.sender, friendName, AddFriendError.CantAddYourself);
+			player.RPC("AddFriendError", friendName, AddFriendError.CantAddYourself);
 			yield break;
 		}
 		
 		// Already in friends list?
 		if(!player.friends.CanAdd(friendAccountId)) {
-			Lobby.RPC("AddFriendError", info.sender, friendName, AddFriendError.AlreadyInFriendsList);
+			player.RPC("AddFriendError", friendName, AddFriendError.AlreadyInFriendsList);
 			yield break;
 		}
+
+		// Log
+		LogManager.General.Log(string.Format("'{0}' added '{1}' to friends list group '{2}'", player.name, friendName, groupName));
 		
 		// Add player to the group
 		selectedGroup.friends.Add(new Friend(friendAccountId));
-		
-		// Send new friends list to all listeners
-		player.account.friendsList.value = friends;
-		
+
 		// Save friends list in database
 		yield return FriendsDB.SetFriends(
 			player.account.id,
 			friends,
-			null
+			data => {
+				// Send new friends list to all listeners
+				if(data != null)
+					player.account.friendsList.value = data;
+				else
+					player.RPC("AddFriendError", friendName, AddFriendError.UnknownError);
+			}
 		);
 	}
 

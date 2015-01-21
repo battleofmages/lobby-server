@@ -12,10 +12,10 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 
 	// Private constructor
 	private PlayerAccount(string accountId) {
+		id = accountId;
+
 		// Async properties
 		base.Init(this);
-
-		id = accountId;
 
 		// Getters
 		propertyGetters = new Dictionary<string, CallBack>() {
@@ -66,7 +66,7 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 			{
 				"onlineStatus",
 				() => {
-					//onlineStatus.value = _onlineStatus;
+					onlineStatus.value = onlineStatus.value;
 				}
 			}
 		};

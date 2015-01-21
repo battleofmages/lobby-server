@@ -75,7 +75,7 @@ public class FriendsServer : MonoBehaviour {
 		player.SubscribeToOnlineStatus(friend);
 		
 		// Save friends list in database
-		player.account.friendsList.value = player.account.friendsList.value;
+		player.account.friendsList.value = friends;
 	}
 
 	[RPC]
@@ -103,7 +103,8 @@ public class FriendsServer : MonoBehaviour {
 		var friendAccount = PlayerAccount.Get(friendAccountId);
 		
 		// Find friends group
-		var selectedGroup = player.friends.GetGroupByName(groupName);
+		var friends = player.friends;
+		var selectedGroup = friends.GetGroupByName(groupName);
 
 		// Error getting account ID?
 		if(selectedGroup == null) {
@@ -121,7 +122,7 @@ public class FriendsServer : MonoBehaviour {
 		friendAccount.onlineStatus.Disconnect(player);
 		
 		// Save friends list in database
-		player.account.friendsList.value = player.account.friendsList.value;
+		player.account.friendsList.value = friends;
 	}
 
 	/*

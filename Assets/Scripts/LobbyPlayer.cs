@@ -27,16 +27,9 @@ public class LobbyPlayer {
 
 		// Friends list
 		account.friendsList.Connect(this, friendsList => {
+			// Subscribe to online status
 			foreach(var friend in friendsList.allFriends) {
-				var friendAccount = friend.account;
-
-				// Disconnect old listeners
-				friendAccount.onlineStatus.Disconnect(this);
-
-				// Set new listener
-				friendAccount.onlineStatus.Connect(this, status => {
-					this.RPC("ReceiveAccountInfo", friendAccount.id, "onlineStatus", status.GetType().FullName, Jboy.Json.WriteObject(status));
-				});
+				SubscribeToOnlineStatus(friend.account);
 			}
 
 			// Send friends list to owner
@@ -68,6 +61,22 @@ public class LobbyPlayer {
 	// RPC
 	public void RPC(string rpcName, params object[] args) {
 		Lobby.RPC(rpcName, peer, args);
+	}
+
+	// SubscribeToOnlineStatus
+	public void SubscribeToOnlineStatus(Friend friend) {
+		SubscribeToOnlineStatus(friend.account);
+	}
+
+	// SubscribeToOnlineStatus
+	public void SubscribeToOnlineStatus(PlayerAccount friendAccount) {
+		// Disconnect old listeners
+		friendAccount.onlineStatus.Disconnect(this);
+
+		// Set new listener
+		friendAccount.onlineStatus.Connect(this, status => {
+			this.RPC("ReceiveAccountInfo", friendAccount.id, "onlineStatus", status.GetType().FullName, Jboy.Json.WriteObject(status));
+		});
 	}
 
 	// Removes a player - This function can be called from logout and disconnect!
@@ -118,10 +127,7 @@ public class LobbyPlayer {
 
 	// ToString
 	public override string ToString() {
-		if(account.playerName.available)
-			return string.Format("{0} ({1})", account.playerName.value, account.id);
-
-		return string.Format("({0})", account.id);
+		return account.ToString();
 	}
 
 #region Properties

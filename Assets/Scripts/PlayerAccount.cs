@@ -138,6 +138,9 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 
 	// ToString
 	public override string ToString() {
-		return string.Format("[PlayerAccount: {0}]", id);
+		if(playerName.available)
+			return string.Format("{0} ({1})", playerName.value, id);
+		
+		return string.Format("({0})", id);
 	}
 }

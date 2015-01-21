@@ -7,7 +7,7 @@ public class LobbyServer : SingletonMonoBehaviour<LobbyServer>, Initializable {
 	// Settings
 	public int maxConnections = 1024;
 	public int listenPort = 1310;
-	public int frameRate = 20;
+	public int frameRate;
 	public string privateKeyPath;
 	public string loginMessagePath;
 	

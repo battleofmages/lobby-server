@@ -42,6 +42,14 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 				}
 			},
 			{
+				"avatarURL",
+				() => {
+					email.Get(data => {
+						avatarURL.value = "https://www.gravatar.com/avatar/" + GameDB.MD5(data.Trim().ToLower());
+					});
+				}
+			},
+			{
 				"friendsList",
 				() => {
 					FriendsDB.GetFriends(id, data => {
@@ -69,6 +77,11 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 					onlineStatus.value = onlineStatus.value;
 				}
 			}
+		};
+
+		// Default setter
+		PlayerAccount.WriteCallBack defaultSetter = (val, callBack) => {
+			callBack(val);
 		};
 
 		// Setters
@@ -99,15 +112,15 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 			},
 			{
 				"party",
-				(val, callBack) => {
-					callBack(val);
-				}
+				defaultSetter
 			},
 			{
 				"onlineStatus",
-				(val, callBack) => {
-					callBack(val);
-				}
+				defaultSetter
+			},
+			{
+				"avatarURL",
+				defaultSetter
 			}
 		};
 	}

@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Linq;
 using uLobby;
 using BoM;
 
@@ -10,10 +9,6 @@ public class FriendsServer : MonoBehaviour {
 		// Make this class listen to lobby events
 		Lobby.AddListener(this);
 	}
-
-	// --------------------------------------------------------------------------------
-	// RPCs
-	// --------------------------------------------------------------------------------
 
 #region RPCs
 	[RPC]

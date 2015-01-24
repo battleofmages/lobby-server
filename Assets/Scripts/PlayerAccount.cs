@@ -26,7 +26,7 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 						if(data == null)
 							data = "";
 
-						playerName.value = data;
+						playerName.directValue = data;
 					});
 				}
 			},
@@ -37,7 +37,7 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 						if(data == null)
 							data = "";
 						
-						email.value = data;
+						email.directValue = data;
 					});
 				}
 			},
@@ -45,7 +45,7 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 				"avatarURL",
 				() => {
 					email.Get(data => {
-						avatarURL.value = "https://www.gravatar.com/avatar/" + GameDB.MD5(data.Trim().ToLower());
+						avatarURL.directValue = "https://www.gravatar.com/avatar/" + GameDB.MD5(data.Trim().ToLower());
 					});
 				}
 			},
@@ -56,7 +56,7 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 						if(data == null)
 							data = new FriendsList();
 
-						friendsList.value = data;
+						friendsList.directValue = data;
 					});
 				}
 			},
@@ -67,14 +67,14 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 						var newParty = new Party();
 						newParty.accountIds.Add(id);
 
-						party.value = newParty;
+						party.directValue = newParty;
 					}
 				}
 			},
 			{
 				"onlineStatus",
 				() => {
-					onlineStatus.value = onlineStatus.value;
+					onlineStatus.directValue = onlineStatus.value;
 				}
 			}
 		};

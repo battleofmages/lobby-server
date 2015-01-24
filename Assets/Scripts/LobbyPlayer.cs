@@ -1,5 +1,6 @@
 ﻿using uLobby;
 using System.Collections.Generic;
+using System.Linq;
 
 public class LobbyPlayer {
 	public static Dictionary<string, LobbyPlayer> accountIdToLobbyPlayer = new Dictionary<string, LobbyPlayer>();
@@ -60,6 +61,7 @@ public class LobbyPlayer {
 
 	// RPC
 	public void RPC(string rpcName, params object[] args) {
+		//LogManager.General.Log(peer + " > " + rpcName + "(" + string.Join(", ", args.Select(x => x.ToString()).ToArray()) + ")");
 		Lobby.RPC(rpcName, peer, args);
 	}
 
@@ -117,6 +119,7 @@ public class LobbyPlayer {
 
 		// Remove event listeners
 		account.playerName.Disconnect(this);
+		account.friendsList.Disconnect(this);
 
 		// Offline status
 		account.onlineStatus.value = OnlineStatus.Offline;

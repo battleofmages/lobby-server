@@ -67,7 +67,7 @@ public class FriendsServer : MonoBehaviour {
 		selectedGroup.friends.Add(friend);
 		
 		// Subscribe to his online status
-		player.SubscribeToOnlineStatus(friend);
+		//player.SubscribeToOnlineStatus(friend);
 		
 		// Save friends list in database
 		player.account.friendsList.value = friends;

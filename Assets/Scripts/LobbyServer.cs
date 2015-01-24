@@ -142,6 +142,11 @@ public class LobbyServer : SingletonMonoBehaviour<LobbyServer>, Initializable {
 			
 			LogManager.General.Log(msg);
 			LogManager.Online.Log(msg);
+		} else {
+			var peerOfflineMsg = "Peer disconnected: " + peer;
+			
+			LogManager.General.Log(peerOfflineMsg);
+			LogManager.Online.Log(peerOfflineMsg);
 		}
 	}
 	
@@ -157,7 +162,12 @@ public class LobbyServer : SingletonMonoBehaviour<LobbyServer>, Initializable {
 	// Account login
 	void OnAccountLoggedIn(Account account) {
 		// Force lobby player creation even if no requests are sent
-		new LobbyPlayer(account);
+		var player = new LobbyPlayer(account);
+
+		// Log message
+		player.account.playerName.Get(data => {
+			LogManager.Online.Log(player + " is online.");
+		});
 	}
 	
 	// Account logout
@@ -167,13 +177,7 @@ public class LobbyServer : SingletonMonoBehaviour<LobbyServer>, Initializable {
 		if(LobbyPlayer.accountIdToLobbyPlayer.TryGetValue(account.id.value, out player)) {
 			player.Remove();
 			
-			var msg = string.Format(
-				"'{0}' logged out. (Peer: {1}, E-Mail: '{2}', AccID: '{3}')",
-				player.name,
-				player.peer,
-				player.email,
-				player.account.id
-			);
+			var msg = string.Format("{0} logged out.", player);
 			
 			// Log it
 			LogManager.General.Log(msg);

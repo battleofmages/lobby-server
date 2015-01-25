@@ -123,8 +123,8 @@ public class LobbyPlayer {
 		account.friendsList.Disconnect(this);
 
 		// Offline status
-		account.onlineStatus.value = OnlineStatus.Offline;
 		account.onlineStatus.Disconnect(this);
+		account.onlineStatus.value = OnlineStatus.Offline;
 		
 		// Treat him as if he is disconnected for existing objects
 		peer = null;

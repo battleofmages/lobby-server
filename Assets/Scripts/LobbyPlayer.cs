@@ -26,6 +26,16 @@ public class LobbyPlayer {
 			this.RPC("ReceiveAccountInfo", account.id, "playerName", data.GetType().FullName, Jboy.Json.WriteObject(data));
 		});
 
+		// Party
+		account.party.Connect(this, party => {
+			// Subscribe to online status
+			foreach(var memberId in party.accountIds) {
+				SubscribeToOnlineStatus(memberId);
+			}
+
+			this.RPC("ReceiveAccountInfo", account.id, "party", party.GetType().FullName, Jboy.Json.WriteObject(party));
+		});
+
 		// Friends list
 		account.friendsList.Connect(this, friendsList => {
 			// Subscribe to online status
@@ -60,6 +70,22 @@ public class LobbyPlayer {
 		return player;
 	}
 
+	// Get
+	public static LobbyPlayer Get(PlayerAccountBase byAccount) {
+		return Get(byAccount.id);
+	}
+
+	// Get
+	public static LobbyPlayer Get(string byAccountId) {
+		LobbyPlayer player;
+		
+		// Load from cache or create new player
+		if(!LobbyPlayer.accountIdToLobbyPlayer.TryGetValue(byAccountId, out player))
+			return null;
+		
+		return player;
+	}
+
 	// RPC
 	public void RPC(string rpcName, params object[] args) {
 		//LogManager.General.Log(peer + " > " + rpcName + "(" + string.Join(", ", args.Select(x => x.ToString()).ToArray()) + ")");
@@ -72,7 +98,17 @@ public class LobbyPlayer {
 	}
 
 	// SubscribeToOnlineStatus
-	public void SubscribeToOnlineStatus(PlayerAccount friendAccount) {
+	public void SubscribeToOnlineStatus(LobbyPlayer player) {
+		SubscribeToOnlineStatus(player.account);
+	}
+
+	// SubscribeToOnlineStatus
+	public void SubscribeToOnlineStatus(string accountId) {
+		SubscribeToOnlineStatus(PlayerAccount.Get(accountId));
+	}
+
+	// SubscribeToOnlineStatus
+	public void SubscribeToOnlineStatus(PlayerAccountBase friendAccount) {
 		// Disconnect old listeners
 		friendAccount.onlineStatus.Disconnect(this);
 
@@ -111,15 +147,23 @@ public class LobbyPlayer {
 		//	channel.RemovePlayer(this);
 		//}
 
-		// Remove event listeners
+		// Friends list: Remove event listeners
 		account.friendsList.Get(data => {
 			foreach(var friend in data.allFriends) {
 				friend.account.onlineStatus.Disconnect(this);
 			}
 		});
 
+		// Party: Remove event listeners
+		account.party.Get(party => {
+			foreach(var memberId in party.accountIds) {
+				PlayerAccount.Get(memberId).onlineStatus.Disconnect(this);
+			}
+		});
+
 		// Remove event listeners
 		account.playerName.Disconnect(this);
+		account.party.Disconnect(this);
 		account.friendsList.Disconnect(this);
 
 		// Offline status

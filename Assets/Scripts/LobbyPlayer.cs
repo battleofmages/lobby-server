@@ -38,6 +38,7 @@ public class LobbyPlayer {
 		});
 
 		// Online status
+		SubscribeToOnlineStatus(account);
 		account.onlineStatus.value = OnlineStatus.Online;
 	}
 
@@ -123,6 +124,7 @@ public class LobbyPlayer {
 
 		// Offline status
 		account.onlineStatus.value = OnlineStatus.Offline;
+		account.onlineStatus.Disconnect(this);
 		
 		// Treat him as if he is disconnected for existing objects
 		peer = null;

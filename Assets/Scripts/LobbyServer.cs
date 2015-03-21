@@ -10,6 +10,7 @@ public class LobbyServer : SingletonMonoBehaviour<LobbyServer>, Initializable {
 	public int frameRate;
 	public string privateKeyPath;
 	public string loginMessagePath;
+
 	
 	private string loginMessage;
 	
@@ -164,6 +165,16 @@ public class LobbyServer : SingletonMonoBehaviour<LobbyServer>, Initializable {
 		// Force lobby player creation even if no requests are sent
 		var player = new LobbyPlayer(account);
 
+		// Disconnected already?
+		// This can happen if the database takes too much time to respond.
+		if(player.disconnected) {
+			LogManager.General.LogWarning("Peer disconnected already, interrupting login process for: " + player);
+			return;
+		}
+
+		// Async: Set last login date
+		LobbyGameDB.SetLastLoginDate(player.account.id, System.DateTime.UtcNow);
+
 		// Log message
 		player.account.playerName.Get(data => {
 			LogManager.Online.Log(player + " is online.");
@@ -294,6 +305,69 @@ public class LobbyServer : SingletonMonoBehaviour<LobbyServer>, Initializable {
 	[RPC]
 	void AccountLogOut(LobbyMessageInfo info) {
 		AccountManager.Master.LogOut(info.sender);
+	}
+
+	[RPC]
+	IEnumerator AccountRegister(string email, string password, LobbyMessageInfo info) {
+		// Validate data
+		// Password is hashed at this point anyway, no need to check it
+		if(!Validator.email.IsMatch(email) && !GameDB.IsTestAccount(email)) {
+			LogManager.General.LogWarning("Ignoring malformed email: " + email);
+			yield break;
+		}
+		
+		// Check if email has already been registered
+		bool emailExists = false;
+		
+		yield return LobbyGameDB.GetAccountIdByEmail(email, data => {
+			if(data != null) {
+				emailExists = true;
+			}
+		});
+		
+		if(emailExists) {
+			Lobby.RPC("EmailAlreadyExists", info.sender);
+			yield break;
+		}
+		
+		// Register account in uLobby
+		var registerReq = AccountManager.Master.RegisterAccount(email, password);
+		yield return registerReq.WaitUntilDone();
+		
+		// Bug in uLobby: We need to call this explicitly on the client
+		if(!registerReq.isSuccessful) {
+			var exception = (AccountException)registerReq.exception;
+			var error = exception.error;
+			
+			Lobby.RPC("_RPCOnRegisterAccountFailed", info.sender, email, error);
+			yield break;
+		}
+		
+		// Set email for the account
+		Account account = registerReq.result;
+		yield return LobbyGameDB.SetEmail(account.id.value, email, data => {
+			// ...
+		});
+		
+		// Bug in uLobby: We need to call this explicitly on the client
+		Lobby.RPC("_RPCOnAccountRegistered", info.sender, account);
+		
+		// Log it
+		LogManager.General.Log(string.Format(
+			"[{0}] New account has been registered: E-Mail: '{1}'",
+			info.sender.endpoint.Address,
+			email
+		));
+		
+		// Activation mail
+		if(!GameDB.IsTestAccount(email)) {
+			LobbyGameDB.PutAccountAwaitingActivation(
+				email,
+				(data) => {
+					Mailer.instance.SendActivationMail(email);
+				}
+			);
+		}
 	}
 
 	[RPC]

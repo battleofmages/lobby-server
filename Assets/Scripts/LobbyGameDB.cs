@@ -207,7 +207,6 @@ public static class LobbyGameDB {
 		));
 	}
 
-	/*
 	// Get account ID by Email
 	public static Coroutine GetAccountIdByEmail(string email, GameDB.ActionOnResult<string> func) {
 		return GameDB.instance.StartCoroutine(GameDB.MapReduce<KeyValue<string>>(
@@ -224,7 +223,8 @@ public static class LobbyGameDB {
 			}
 		));
 	}
-	
+
+	/*
 	// Get last logins
 	public static Coroutine GetLastLogins(uint numPlayers, GameDB.ActionOnResult<KeyValue<TimeStamp>[]> func) {
 		return GameDB.instance.StartCoroutine(GameDB.MapReduce<KeyValue<TimeStamp>>(

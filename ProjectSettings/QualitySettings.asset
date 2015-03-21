@@ -27,7 +27,6 @@ QualitySettings:
     vSyncCount: 0
     lodBias: .300000012
     maximumLODLevel: 0
-    maxRealtimeReflectionBounces: 1
     particleRaycastBudget: 4
     excludedTargetPlatforms: []
   m_PerPlatformDefaultQuality: {}

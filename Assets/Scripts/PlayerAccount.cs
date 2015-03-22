@@ -20,8 +20,7 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 		// Getters
 		propertyGetters = new Dictionary<string, CallBack>() {
 			{
-				"playerName",
-				() => {
+				"playerName", () => {
 					LobbyGameDB.GetPlayerName(id, data => {
 						if(data == null)
 							data = "";
@@ -31,8 +30,7 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 				}
 			},
 			{
-				"email",
-				() => {
+				"email", () => {
 					LobbyGameDB.GetEmail(id, data => {
 						if(data == null)
 							data = "";
@@ -42,16 +40,14 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 				}
 			},
 			{
-				"avatarURL",
-				() => {
+				"avatarURL", () => {
 					email.Get(data => {
 						avatarURL.directValue = "https://www.gravatar.com/avatar/" + GameDB.MD5(data.Trim().ToLower());
 					});
 				}
 			},
 			{
-				"friendsList",
-				() => {
+				"friendsList", () => {
 					FriendsDB.GetFriends(id, data => {
 						if(data == null)
 							data = new FriendsList();
@@ -61,8 +57,7 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 				}
 			},
 			{
-				"party",
-				() => {
+				"party", () => {
 					if(party.value == null) {
 						var newParty = new Party();
 						newParty.accountIds.Add(id);
@@ -72,8 +67,7 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 				}
 			},
 			{
-				"onlineStatus",
-				() => {
+				"onlineStatus", () => {
 					onlineStatus.directValue = onlineStatus.value;
 				}
 			}
@@ -87,40 +81,34 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 		// Setters
 		propertySetters = new Dictionary<string, WriteCallBack>() {
 			{
-				"playerName",
-				(val, callBack) => {
+				"playerName", (val, callBack) => {
 					LobbyGameDB.SetPlayerName(id, (string)val, (data) => {
 						callBack(data);
 					});
 				}
 			},
 			{
-				"email",
-				(val, callBack) => {
+				"email", (val, callBack) => {
 					LobbyGameDB.SetEmail(id, (string)val, (data) => {
 						callBack(data);
 					});
 				}
 			},
 			{
-				"friendsList",
-				(val, callBack) => {
+				"friendsList", (val, callBack) => {
 					FriendsDB.SetFriends(id, (FriendsList)val, (data) => {
 						callBack(data);
 					});
 				}
 			},
 			{
-				"party",
-				defaultSetter
+				"party", defaultSetter
 			},
 			{
-				"onlineStatus",
-				defaultSetter
+				"onlineStatus", defaultSetter
 			},
 			{
-				"avatarURL",
-				defaultSetter
+				"avatarURL", defaultSetter
 			}
 		};
 	}

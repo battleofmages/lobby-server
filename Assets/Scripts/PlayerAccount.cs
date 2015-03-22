@@ -1,14 +1,9 @@
-﻿using uLobby;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 	public static Dictionary<string, PlayerAccount> idToAccount = new Dictionary<string, PlayerAccount>();
-	
-	private Dictionary<string, CallBack> propertyGetters;
-	private Dictionary<string, WriteCallBack> propertySetters;
 
-	// Delegate
-	private delegate void WriteCallBack(object val, WriteAsyncPropertyCallBack callBack);
+	private Dictionary<string, DBProperty> properties = new Dictionary<string, DBProperty>();
 
 	// Private constructor
 	private PlayerAccount(string accountId) {
@@ -17,100 +12,122 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 		// Async properties
 		base.Init(this);
 
-		// Getters
-		propertyGetters = new Dictionary<string, CallBack>() {
-			{
-				"playerName", () => {
-					LobbyGameDB.GetPlayerName(id, data => {
-						if(data == null)
-							data = "";
-
-						playerName.directValue = data;
-					});
-				}
-			},
-			{
-				"email", () => {
-					LobbyGameDB.GetEmail(id, data => {
-						if(data == null)
-							data = "";
-						
-						email.directValue = data;
-					});
-				}
-			},
-			{
-				"avatarURL", () => {
-					email.Get(data => {
-						avatarURL.directValue = "https://www.gravatar.com/avatar/" + GameDB.MD5(data.Trim().ToLower());
-					});
-				}
-			},
-			{
-				"friendsList", () => {
-					FriendsDB.GetFriends(id, data => {
-						if(data == null)
-							data = new FriendsList();
-
-						friendsList.directValue = data;
-					});
-				}
-			},
-			{
-				"party", () => {
-					if(party.value == null) {
-						var newParty = new Party();
-						newParty.accountIds.Add(id);
-
-						party.directValue = newParty;
-					}
-				}
-			},
-			{
-				"onlineStatus", () => {
-					onlineStatus.directValue = onlineStatus.value;
-				}
-			}
-		};
-
 		// Default setter
 		PlayerAccount.WriteCallBack defaultSetter = (val, callBack) => {
 			callBack(val);
 		};
 
-		// Setters
-		propertySetters = new Dictionary<string, WriteCallBack>() {
-			{
-				"playerName", (val, callBack) => {
-					LobbyGameDB.SetPlayerName(id, (string)val, (data) => {
-						callBack(data);
-					});
-				}
+		// Player name
+		AddProperty(
+			"playerName",
+
+			// Get
+			() => {
+				LobbyGameDB.GetPlayerName(id, data => {
+					if(data == null)
+						data = "";
+
+					playerName.directValue = data;
+				});
 			},
-			{
-				"email", (val, callBack) => {
-					LobbyGameDB.SetEmail(id, (string)val, (data) => {
-						callBack(data);
-					});
-				}
-			},
-			{
-				"friendsList", (val, callBack) => {
-					FriendsDB.SetFriends(id, (FriendsList)val, (data) => {
-						callBack(data);
-					});
-				}
-			},
-			{
-				"party", defaultSetter
-			},
-			{
-				"onlineStatus", defaultSetter
-			},
-			{
-				"avatarURL", defaultSetter
+			
+			// Set
+			(val, callBack) => {
+				LobbyGameDB.SetPlayerName(id, (string)val, (data) => {
+					callBack(data);
+				});
 			}
-		};
+		);
+
+		// E-Mail
+		AddProperty(
+			"email",
+			
+			// Get
+			() => {
+				LobbyGameDB.GetEmail(id, data => {
+					if(data == null)
+						data = "";
+					
+					email.directValue = data;
+				});
+			},
+		
+			// Set
+			(val, callBack) => {
+				LobbyGameDB.SetEmail(id, (string)val, (data) => {
+					callBack(data);
+				});
+			}
+		);
+
+		// Avatar URL
+		AddProperty(
+			"avatarURL",
+
+			// Get
+			() => {
+				email.Get(data => {
+					avatarURL.directValue = "https://www.gravatar.com/avatar/" + GameDB.MD5(data.Trim().ToLower());
+				});
+			},
+			
+			// Set
+			defaultSetter
+		);
+
+		// Friends list
+		AddProperty(
+			"friendsList",
+				
+			// Get
+			() => {
+				FriendsDB.GetFriends(id, data => {
+					if(data == null)
+						data = new FriendsList();
+					
+					friendsList.directValue = data;
+				});
+			},
+			
+			// Set
+			(val, callBack) => {
+				FriendsDB.SetFriends(id, (FriendsList)val, (data) => {
+					callBack(data);
+				});
+			}
+		);
+
+		// Party
+		AddProperty(
+			"party",
+			
+			// Get
+			() => {
+				if(party.value == null) {
+					var newParty = new Party();
+					newParty.accountIds.Add(id);
+					
+					party.directValue = newParty;
+				}
+			},
+			
+			// Set
+			defaultSetter
+		);
+
+		// Online status
+		AddProperty(
+			"onlineStatus",
+			
+			// Get
+			() => {
+				onlineStatus.directValue = onlineStatus.value;
+			},
+			
+			// Set
+			defaultSetter
+		);
 	}
 
 	// Get
@@ -127,14 +144,34 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 		return acc;
 	}
 
+	// Delegate
+	private delegate void WriteCallBack(object val, WriteAsyncPropertyCallBack callBack);
+
+	// Property
+	private class DBProperty {
+		// Constructor
+		public DBProperty(CallBack getter, WriteCallBack setter) {
+			get = getter;
+			set = setter;
+		}
+		
+		public WriteCallBack set;
+		public CallBack get;
+	}
+	
+	// AddProperty
+	private void AddProperty(string name, CallBack getter, WriteCallBack setter) {
+		properties[name] = new DBProperty(getter, setter);
+	}
+
 	// RequestAsyncProperty
 	public void RequestAsyncProperty(string propertyName) {
-		propertyGetters[propertyName]();
+		properties[propertyName].get();
 	}
 
 	// WriteAsyncProperty
 	public void WriteAsyncProperty(string propertyName, object val, WriteAsyncPropertyCallBack callBack) {
-		propertySetters[propertyName](val, callBack);
+		properties[propertyName].set(val, callBack);
 	}
 
 	// ToString

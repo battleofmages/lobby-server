@@ -128,6 +128,19 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 			// Set
 			defaultSetter
 		);
+
+		// Country
+		AddProperty (
+			"country", 
+
+			// Get
+			() => {
+			country.directValue = "NO";
+			},
+
+			// Set
+			defaultSetter
+		);
 	}
 
 	// Get

@@ -2,6 +2,7 @@
 using System.Collections;
 using uLobby;
 using BoM;
+using BoM.Friends;
 
 public class FriendsServer : MonoBehaviour {
 	// Start

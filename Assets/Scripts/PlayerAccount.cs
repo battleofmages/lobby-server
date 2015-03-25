@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using BoM.Async;
+using BoM.Friends;
 
 public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 	public static Dictionary<string, PlayerAccount> idToAccount = new Dictionary<string, PlayerAccount>();

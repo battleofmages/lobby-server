@@ -1,6 +1,6 @@
 ﻿using uLobby;
 using System.Collections.Generic;
-using System.Linq;
+using BoM.Friends;
 
 public class LobbyPlayer {
 	public static Dictionary<string, LobbyPlayer> accountIdToLobbyPlayer = new Dictionary<string, LobbyPlayer>();

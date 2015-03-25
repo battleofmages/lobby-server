@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using BoM.Async;
 
 public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 	public static Dictionary<string, PlayerAccount> idToAccount = new Dictionary<string, PlayerAccount>();

@@ -21,9 +21,9 @@ public class RiakAccountManager : IAccountOperations {
 			}
 		));
 		
-		// AccountNameToID
+		// EmailToID
 		yield return GameDB.instance.StartCoroutine(GameDB.Set<string>(
-			"AccountNameToID",
+			"EmailToID",
 			account.name,
 			account.id.value,
 			null
@@ -40,7 +40,7 @@ public class RiakAccountManager : IAccountOperations {
 		} else {
 			// Retrieve account ID
 			yield return GameDB.instance.StartCoroutine(GameDB.Get<string>(
-				"AccountNameToID",
+				"EmailToID",
 				accountName,
 				data => {
 					gameAccountId = data;
@@ -80,7 +80,7 @@ public class RiakAccountManager : IAccountOperations {
 		
 		// Retrieve account ID
 		yield return GameDB.instance.StartCoroutine(GameDB.Get<string>(
-			"AccountNameToID",
+			"EmailToID",
 			accountName,
 			data => {
 				gameAccountId = data;

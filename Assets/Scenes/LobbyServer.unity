@@ -353,6 +353,7 @@ GameObject:
   serializedVersion: 4
   m_Component:
   - 4: {fileID: 1438172982}
+  - 114: {fileID: 1438172983}
   m_Layer: 0
   m_Name: Mailer
   m_TagString: Untagged
@@ -372,6 +373,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 749920604}
   m_RootOrder: 3
+--- !u!114 &1438172983
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1438172981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89137eaa58a0c374b92e97c0190ee699, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  resendActivationMailURL: 
 --- !u!1 &1513010970
 GameObject:
   m_ObjectHideFlags: 0

@@ -10,7 +10,7 @@ public class LobbyServer : SingletonMonoBehaviour<LobbyServer>, Initializable {
 	public int frameRate;
 	public string privateKeyPath;
 	public string loginMessagePath;
-
+	public bool accountActivationNeeded;
 	
 	private string loginMessage;
 	
@@ -219,7 +219,7 @@ public class LobbyServer : SingletonMonoBehaviour<LobbyServer>, Initializable {
 		// Check account activation
 		bool activated = false;
 		
-		if(!GameDB.IsTestAccount(email)) {
+		if(accountActivationNeeded && !GameDB.IsTestAccount(email)) {
 			yield return LobbyGameDB.GetAccountAwaitingActivation(
 				email,
 				(data) => {

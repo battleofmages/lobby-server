@@ -4,7 +4,9 @@ using uLobby;
 using BoM;
 using BoM.Friends;
 
-public class FriendsServer : MonoBehaviour {
+public class FriendsServer : SingletonMonoBehaviour<FriendsServer> {
+	public TextAsset reduceFollowers;
+
 	// Start
 	void Start() {
 		// Make this class listen to lobby events

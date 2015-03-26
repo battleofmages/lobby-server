@@ -11,7 +11,7 @@ public class RiakAccountManager : IAccountOperations {
 	// AddAccountCoroutine
 	IEnumerator IAccountOperations.AddAccountCoroutine(AccountRecord account, Request<AccountRecord> request) {
 		// Accounts
-		yield return GameDB.instance.StartCoroutine(GameDB.Set<GameAccount>(
+		yield return GameDB.Async(GameDB.Set<GameAccount>(
 			"Accounts",
 			account.id.value,
 			new GameAccount(account),
@@ -22,7 +22,7 @@ public class RiakAccountManager : IAccountOperations {
 		));
 		
 		// EmailToID
-		yield return GameDB.instance.StartCoroutine(GameDB.Set<string>(
+		yield return GameDB.Async(GameDB.Set<string>(
 			"EmailToID",
 			account.name,
 			account.id.value,
@@ -39,7 +39,7 @@ public class RiakAccountManager : IAccountOperations {
 			gameAccountId = accountID.value;
 		} else {
 			// Retrieve account ID
-			yield return GameDB.instance.StartCoroutine(GameDB.Get<string>(
+			yield return GameDB.Async(GameDB.Get<string>(
 				"EmailToID",
 				accountName,
 				data => {
@@ -58,7 +58,7 @@ public class RiakAccountManager : IAccountOperations {
 		}
 		
 		// Retrieve game account
-		yield return GameDB.instance.StartCoroutine(GameDB.Get<GameAccount>(
+		yield return GameDB.Async(GameDB.Get<GameAccount>(
 			"Accounts",
 			gameAccountId,
 			data => {
@@ -79,7 +79,7 @@ public class RiakAccountManager : IAccountOperations {
 		string gameAccountId = null;
 		
 		// Retrieve account ID
-		yield return GameDB.instance.StartCoroutine(GameDB.Get<string>(
+		yield return GameDB.Async(GameDB.Get<string>(
 			"EmailToID",
 			accountName,
 			data => {
@@ -93,7 +93,7 @@ public class RiakAccountManager : IAccountOperations {
 		}
 		
 		// Retrieve game account
-		yield return GameDB.instance.StartCoroutine(GameDB.Get<GameAccount>(
+		yield return GameDB.Async(GameDB.Get<GameAccount>(
 			"Accounts",
 			gameAccountId,
 			data => {
@@ -109,7 +109,7 @@ public class RiakAccountManager : IAccountOperations {
 	// GetAccountRecordCoroutine
 	IEnumerator IAccountOperations.GetAccountRecordCoroutine(AccountID accountID, Request<AccountRecord> request) {
 		// Retrieve game account
-		yield return GameDB.instance.StartCoroutine(GameDB.Get<GameAccount>(
+		yield return GameDB.Async(GameDB.Get<GameAccount>(
 			"Accounts",
 			accountID.value,
 			data => {
@@ -167,7 +167,7 @@ public class RiakAccountManager : IAccountOperations {
 		Account updatedAccount = StorageLayerUtility.CreateAccount(record);
 		
 		// Save in accounts database
-		yield return GameDB.instance.StartCoroutine(GameDB.Set<GameAccount>(
+		yield return GameDB.Async(GameDB.Set<GameAccount>(
 			"Accounts",
 			updatedAccount.id.value,
 			new GameAccount(record),

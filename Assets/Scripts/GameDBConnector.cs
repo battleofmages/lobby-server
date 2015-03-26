@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using System.IO;
+﻿using System.IO;
 using uGameDB;
 
 public class GameDBConnector : SingletonMonoBehaviour<GameDBConnector>, Initializable {

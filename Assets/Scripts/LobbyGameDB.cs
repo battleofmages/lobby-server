@@ -9,7 +9,7 @@ public static class LobbyGameDB {
 	
 	// Get the player name
 	public static Coroutine GetPlayerName(string accountId, GameDB.ActionOnResult<string> func) {
-		return GameDB.instance.StartCoroutine(GameDB.Get<string>(
+		return GameDB.Async(GameDB.Get<string>(
 			"AccountToName",
 			accountId,
 			func
@@ -18,7 +18,7 @@ public static class LobbyGameDB {
 
 	// Sets the player name
 	public static Coroutine SetPlayerName(string accountId, string playerName, GameDB.ActionOnResult<string> func = null) {
-		return GameDB.instance.StartCoroutine(GameDB.Set<string>(
+		return GameDB.Async(GameDB.Set<string>(
 			"AccountToName",
 			accountId,
 			playerName,
@@ -30,7 +30,7 @@ public static class LobbyGameDB {
 	
 	// Sets the player name
 	public static Coroutine SetPlayerName(LobbyPlayer player, string playerName) {
-		return GameDB.instance.StartCoroutine(GameDB.Set<string>(
+		return GameDB.Async(GameDB.Set<string>(
 			"AccountToName",
 			player.accountId,
 			playerName,
@@ -48,7 +48,7 @@ public static class LobbyGameDB {
 	
 	// Get stats for a single player
 	public static Coroutine GetPlayerStats(string accountId, GameDB.ActionOnResult<PlayerStats> func) {
-		return GameDB.instance.StartCoroutine(GameDB.Get<PlayerStats>(
+		return GameDB.Async(GameDB.Get<PlayerStats>(
 			"AccountToStats",
 			accountId,
 			func
@@ -57,7 +57,7 @@ public static class LobbyGameDB {
 	
 	// Get stats for a single player
 	public static Coroutine GetPlayerStats(LobbyPlayer player) {
-		return GameDB.instance.StartCoroutine(GameDB.Get<PlayerStats>(
+		return GameDB.Async(GameDB.Get<PlayerStats>(
 			"AccountToStats",
 			player.accountId,
 			data => {
@@ -78,7 +78,7 @@ public static class LobbyGameDB {
 	*/
 	// Sets last login date
 	public static Coroutine SetLastLoginDate(string accountId, System.DateTime timestamp) {
-		return GameDB.instance.StartCoroutine(GameDB.Set<TimeStamp>(
+		return GameDB.Async(GameDB.Set<TimeStamp>(
 			"AccountToLastLoginDate",
 			accountId,
 			new TimeStamp(timestamp),
@@ -90,7 +90,7 @@ public static class LobbyGameDB {
 	
 	// Gets account registration date
 	public static Coroutine GetAccountRegistrationDate(string accountId) {
-		return GameDB.instance.StartCoroutine(GameDB.Get<TimeStamp>(
+		return GameDB.Async(GameDB.Get<TimeStamp>(
 			"AccountToRegistrationDate",
 			accountId,
 			data => {
@@ -104,7 +104,7 @@ public static class LobbyGameDB {
 
 	// Sets account registration date
 	public static Coroutine SetAccountRegistrationDate(string accountId, System.DateTime timestamp) {
-		return GameDB.instance.StartCoroutine(GameDB.Set<TimeStamp>(
+		return GameDB.Async(GameDB.Set<TimeStamp>(
 			"AccountToRegistrationDate",
 			accountId,
 			new TimeStamp(timestamp),
@@ -120,7 +120,7 @@ public static class LobbyGameDB {
 
 	// Get email
 	public static Coroutine GetEmail(string accountId, GameDB.ActionOnResult<string> func) {
-		return GameDB.instance.StartCoroutine(GameDB.Get<string>(
+		return GameDB.Async(GameDB.Get<string>(
 			"AccountToEmail",
 			accountId,
 			func
@@ -129,7 +129,7 @@ public static class LobbyGameDB {
 
 	// Set email
 	public static Coroutine SetEmail(string accountId, string email, GameDB.ActionOnResult<string> func) {
-		return GameDB.instance.StartCoroutine(GameDB.Set<string>(
+		return GameDB.Async(GameDB.Set<string>(
 			"AccountToEmail",
 			accountId,
 			email,
@@ -168,7 +168,7 @@ public static class LobbyGameDB {
 	public static Coroutine PutAccountAwaitingActivation(string email, GameDB.ActionOnResult<string> func) {
 		var token = GameDB.GetUniqueKey();
 		
-		return GameDB.instance.StartCoroutine(GameDB.Set<string>(
+		return GameDB.Async(GameDB.Set<string>(
 			"AccountsAwaitingActivation",
 			email,
 			token,
@@ -178,7 +178,7 @@ public static class LobbyGameDB {
 	
 	// Is the account in the activation wait list?
 	public static Coroutine GetAccountAwaitingActivation(string email, GameDB.ActionOnResult<string> func) {
-		return GameDB.instance.StartCoroutine(GameDB.Get<string>(
+		return GameDB.Async(GameDB.Get<string>(
 			"AccountsAwaitingActivation",
 			email,
 			func
@@ -192,7 +192,7 @@ public static class LobbyGameDB {
 	
 	// Get account ID by player name
 	public static Coroutine GetAccountIdByPlayerName(string playerName, GameDB.ActionOnResult<string> func) {
-		return GameDB.instance.StartCoroutine(GameDB.MapReduce<KeyValue<string>>(
+		return GameDB.Async(GameDB.MapReduce<KeyValue<string>>(
 			"AccountToName",
 			GameDB.GetSearchMapFunction("v"),
 			GameDB.GetSearchReduceFunction(),
@@ -209,7 +209,7 @@ public static class LobbyGameDB {
 
 	// Get account ID by Email
 	public static Coroutine GetAccountIdByEmail(string email, GameDB.ActionOnResult<string> func) {
-		return GameDB.instance.StartCoroutine(GameDB.MapReduce<KeyValue<string>>(
+		return GameDB.Async(GameDB.MapReduce<KeyValue<string>>(
 			"AccountToEmail",
 			GameDB.GetSearchMapFunction("v"),
 			GameDB.GetSearchReduceFunction(),
@@ -227,7 +227,7 @@ public static class LobbyGameDB {
 	/*
 	// Get last logins
 	public static Coroutine GetLastLogins(uint numPlayers, GameDB.ActionOnResult<KeyValue<TimeStamp>[]> func) {
-		return GameDB.instance.StartCoroutine(GameDB.MapReduce<KeyValue<TimeStamp>>(
+		return GameDB.Async(GameDB.MapReduce<KeyValue<TimeStamp>>(
 			"AccountToLastLoginDate",
 			GameDB.keyValueMapFunction,
 			timeStampReduceFunction,
@@ -238,7 +238,7 @@ public static class LobbyGameDB {
 	
 	// Get last registrations
 	public static Coroutine GetLastRegistrations(uint numPlayers, GameDB.ActionOnResult<KeyValue<TimeStamp>[]> func) {
-		return GameDB.instance.StartCoroutine(GameDB.MapReduce<KeyValue<TimeStamp>>(
+		return GameDB.Async(GameDB.MapReduce<KeyValue<TimeStamp>>(
 			"AccountToRegistrationDate",
 			GameDB.keyValueMapFunction,
 			timeStampReduceFunction,

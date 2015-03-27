@@ -13,12 +13,7 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 
 		// Async properties
 		base.Init(this);
-
-		// Default setter
-		PlayerAccount.WriteCallBack defaultSetter = (val, callBack) => {
-			callBack(val);
-		};
-
+		
 		// Player name
 		AddProperty(
 			"playerName",
@@ -72,10 +67,7 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 				email.Get(data => {
 					avatarURL.directValue = "https://www.gravatar.com/avatar/" + GameDB.MD5(data.Trim().ToLower());
 				});
-			},
-			
-			// Set
-			defaultSetter
+			}
 		);
 
 		// Friends list
@@ -112,10 +104,7 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 					
 					party.directValue = newParty;
 				}
-			},
-			
-			// Set
-			defaultSetter
+			}
 		);
 
 		// Online status
@@ -125,10 +114,7 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 			// Get
 			() => {
 				onlineStatus.directValue = onlineStatus.value;
-			},
-			
-			// Set
-			defaultSetter
+			}
 		);
 
 		// Country
@@ -138,10 +124,17 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 			// Get
 			() => {
 				country.directValue = "NO";
-			},
+			}
+		);
 
-			// Set
-			defaultSetter
+		// Country
+		AddProperty (
+			"followers", 
+			
+			// Get
+			() => {
+				followers.directValue = new string[] {"test 1", "test 2"};
+			}
 		);
 	}
 
@@ -175,7 +168,14 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 	}
 	
 	// AddProperty
-	private void AddProperty(string name, CallBack getter, WriteCallBack setter) {
+	private void AddProperty(string name, CallBack getter, WriteCallBack setter = null) {
+		// Default setter
+		if(setter == null) {
+			setter = (val, callBack) => {
+				callBack(val);
+			};
+		}
+
 		properties[name] = new DBProperty(getter, setter);
 	}
 

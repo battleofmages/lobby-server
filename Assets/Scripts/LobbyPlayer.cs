@@ -43,8 +43,14 @@ public class LobbyPlayer {
 				SubscribeToOnlineStatus(friend.account);
 			}
 
-			// Send friends list to owner
+			// Send friends list
 			this.RPC("ReceiveAccountInfo", account.id, "friendsList", friendsList.GetType().FullName, Jboy.Json.WriteObject(friendsList));
+		});
+
+		// Followers
+		account.followers.Connect(this, followers => {
+			// Send followers
+			this.RPC("ReceiveAccountInfo", account.id, "followers", followers.GetType().FullName, Jboy.Json.WriteObject(followers));
 		});
 
 		// Online status

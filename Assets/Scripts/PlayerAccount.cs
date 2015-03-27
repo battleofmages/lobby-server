@@ -133,7 +133,7 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 			
 			// Get
 			() => {
-				followers.directValue = new string[] {"test 1", "test 2"};
+				followers.directValue = new List<string>(new string[] {"test 1", "test 2"});
 			}
 		);
 	}

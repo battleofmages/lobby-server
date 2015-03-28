@@ -179,6 +179,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb16018736c4dc4409a9485ddd377ac0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mapFollowers: {fileID: 4900000, guid: e615bee0a6ed805419256518e2610619, type: 3}
   reduceFollowers: {fileID: 4900000, guid: 659fcc3f6b72d334e9781fdd8ef6d590, type: 3}
 --- !u!1 &307643801
 GameObject:

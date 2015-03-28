@@ -33,7 +33,7 @@ public static class FriendsDB {
 	public static Coroutine GetFollowers(string accountId, GameDB.ActionOnResult<string[]> func = null) {
 		return GameDB.Async(GameDB.MapReduce<string>(
 			"AccountToFriends",
-			GameDB.GetSearchMapFunction("groups"),
+			FriendsServer.instance.mapFollowers.text,
 			FriendsServer.instance.reduceFollowers.text,
 			accountId,
 			func

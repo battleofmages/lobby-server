@@ -1,0 +1,7 @@
+function(accounts, friendId) {
+	return accounts.filter(function(account) {
+		return account.friends.indexOf(friendId) !== -1;
+	}).map(function(account) {
+		return account.id;
+	});
+}

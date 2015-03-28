@@ -5,6 +5,7 @@ using BoM;
 using BoM.Friends;
 
 public class FriendsServer : SingletonMonoBehaviour<FriendsServer> {
+	public TextAsset mapFollowers;
 	public TextAsset reduceFollowers;
 
 	// Start

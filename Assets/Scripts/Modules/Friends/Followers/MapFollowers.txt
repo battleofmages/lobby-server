@@ -1,0 +1,18 @@
+function(entry) {
+	var data = JSON.parse(entry.values[0].data);
+	
+	// Array of arrays of IDs
+	var groups = data.groups.map(function(group) {
+		return group.friends.map(function(friend) {
+			return friend.accountId;
+		});
+	});
+	
+	// Flatten
+	var friends = [].concat.apply([], groups);
+	
+	return [{
+		id: entry.key,
+		friends: friends
+	}];
+}

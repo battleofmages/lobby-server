@@ -133,7 +133,12 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 			
 			// Get
 			() => {
-				followers.directValue = new List<string>(new string[] {"test 1", "test 2"});
+				FriendsDB.GetFollowers(id, data => {
+					if(data == null)
+						data = new string[0];
+					
+					followers.directValue = new List<string>(data);
+				});
 			}
 		);
 	}

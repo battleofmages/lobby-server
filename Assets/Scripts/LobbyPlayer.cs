@@ -58,8 +58,8 @@ public class LobbyPlayer {
 		}, false);
 
 		// Online status
-		SubscribeToOnlineStatus(account);
 		account.onlineStatus.value = OnlineStatus.Online;
+		SubscribeToOnlineStatus(account);
 	}
 
 	// Get

@@ -153,8 +153,8 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 			
 			// Get
 			() => {
-			traits.directValue = new Traits();
-		}
+				traits.directValue = new Traits();
+			}
 		);
 	}
 

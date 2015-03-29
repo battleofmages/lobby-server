@@ -148,6 +148,14 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 				);
 			}
 		);
+		AddProperty (
+			"traits",
+			
+			// Get
+			() => {
+			traits.directValue = new Traits();
+		}
+		);
 	}
 
 	// Get

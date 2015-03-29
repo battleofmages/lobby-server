@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
+using System.Collections.Generic;
 using BoM.Async;
 using BoM.Friends;
 
@@ -133,12 +134,18 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 			
 			// Get
 			() => {
-				FriendsDB.GetFollowers(id, data => {
-					if(data == null)
-						data = new string[0];
-					
-					followers.directValue = new List<string>(data);
-				});
+				friendsList.Get(
+					data => {
+						FriendsDB.GetFollowers(id, allFollowers => {
+							if(allFollowers == null) {
+								followers.directValue = new List<string>(0);
+							} else {
+								// Remove people who are already in the friends list
+								followers.directValue = allFollowers.Except(data.allFriends.Select(friend => friend.accountId)).ToList();
+							}
+						});
+					}
+				);
 			}
 		);
 	}

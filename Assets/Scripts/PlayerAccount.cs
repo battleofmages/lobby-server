@@ -141,7 +141,7 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 								followers.directValue = new List<string>(0);
 							} else {
 								// Remove people who are already in the friends list
-								followers.directValue = allFollowers.Except(data.allFriends.Select(friend => friend.accountId)).ToList();
+								followers.directValue = allFollowers.Except(data.allFriendIds).ToList();
 							}
 						});
 					}

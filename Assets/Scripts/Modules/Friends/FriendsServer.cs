@@ -75,6 +75,13 @@ public class FriendsServer : SingletonMonoBehaviour<FriendsServer> {
 		
 		// Save friends list in database
 		player.account.friendsList.value = friends;
+
+		// Update followers for the player who was added
+		var friendPlayer = LobbyPlayer.Get(friendAccountId);
+
+		if(friendPlayer != null) {
+			friendPlayer.account.followers.Update();
+		}
 	}
 
 	[RPC]
@@ -92,6 +99,12 @@ public class FriendsServer : SingletonMonoBehaviour<FriendsServer> {
 		}
 
 		StartCoroutine(RemoveFriendAccountFromGroup(friendAccountId, groupName, info));
+
+		// Update followers for the player who was removed
+		var friendPlayer = LobbyPlayer.Get(friendAccountId);
+		
+		if(friendPlayer != null)
+			friendPlayer.account.followers.Update();
 	}
 
 	[RPC]
@@ -122,6 +135,12 @@ public class FriendsServer : SingletonMonoBehaviour<FriendsServer> {
 		
 		// Save friends list in database
 		player.account.friendsList.value = friends;
+
+		// Update followers for the player who was removed
+		var friendPlayer = LobbyPlayer.Get(friendAccountId);
+		
+		if(friendPlayer != null)
+			friendPlayer.account.followers.Update();
 	}
 
 	/*

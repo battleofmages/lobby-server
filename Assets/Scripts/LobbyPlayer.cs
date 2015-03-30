@@ -47,8 +47,7 @@ public class LobbyPlayer {
 			this.RPC("ReceiveAccountInfo", account.id, "friendsList", friendsList.GetType().FullName, Jboy.Json.WriteObject(friendsList));
 
 			// Update followers
-			account.followers.Clear();
-			account.followers.Request();
+			account.followers.Update();
 		});
 
 		// Followers

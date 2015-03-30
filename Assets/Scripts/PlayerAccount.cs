@@ -148,12 +148,24 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 				);
 			}
 		);
-		AddProperty (
+		AddProperty(
 			"traits",
-			
+
 			// Get
 			() => {
-				traits.directValue = new Traits();
+				TraitsDB.GetTraits(id, data => {
+					if(data == null)
+						traits.directValue = new Traits();
+
+					traits.directValue = data;
+				});
+			},
+
+			// Set
+			(val, callBack) => {
+				TraitsDB.SetTraits(id, (Traits)val, (data) => {
+					callBack(data);
+				});
 			}
 		);
 	}

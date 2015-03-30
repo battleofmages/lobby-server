@@ -176,6 +176,9 @@ public class LobbyPlayer {
 		account.friendsList.Disconnect(this);
 		account.followers.Disconnect(this);
 
+		// Clear
+		account.followers.Clear();
+
 		// Offline status
 		account.onlineStatus.Disconnect(this);
 		account.onlineStatus.value = OnlineStatus.Offline;

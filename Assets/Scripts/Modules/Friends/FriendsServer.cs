@@ -80,6 +80,7 @@ public class FriendsServer : SingletonMonoBehaviour<FriendsServer> {
 		var friendPlayer = LobbyPlayer.Get(friendAccountId);
 
 		if(friendPlayer != null) {
+			friendPlayer.RPC("NewFollower", player.account.id);
 			friendPlayer.account.followers.Update();
 		}
 	}

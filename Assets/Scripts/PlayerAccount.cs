@@ -155,7 +155,7 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 			() => {
 				TraitsDB.GetTraits(id, data => {
 					if(data == null)
-						traits.directValue = new Traits();
+						data = new Traits();
 
 					traits.directValue = data;
 				});

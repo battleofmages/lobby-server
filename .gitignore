@@ -4,6 +4,8 @@
 /[Ll]ogs/
 
 /Assets/UnityTestTools/Examples/
+/Assets/UnityTestTools/Common/Settings.meta
+/Assets/UnityTestTools/Common/Settings/
 /ProjectSettings/EditorBuildSettings.asset
 
 /Assets/Scripts/Shared/

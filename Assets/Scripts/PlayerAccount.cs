@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
+using BoM;
 using BoM.Async;
 using BoM.Friends;
 

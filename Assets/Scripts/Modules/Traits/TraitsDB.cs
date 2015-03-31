@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using BoM;
 
 public static class TraitsDB {
 	// --------------------------------------------------------------------------------

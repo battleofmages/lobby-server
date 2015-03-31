@@ -3,6 +3,9 @@
 /[Oo]bj/
 /[Ll]ogs/
 
+/Assets/UnityTestTools/Examples/
+/ProjectSettings/EditorBuildSettings.asset
+
 /Assets/Scripts/Shared/
 
 /config/private-key.txt

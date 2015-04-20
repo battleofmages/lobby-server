@@ -52,6 +52,11 @@ public class LobbyPlayer {
 
 		// Followers
 		account.followers.Connect(this, followers => {
+			// Subscribe to online status
+			foreach(var followerId in followers) {
+				SubscribeToOnlineStatus(followerId);
+			}
+
 			// Send followers
 			this.RPC("ReceiveAccountInfo", account.id, "followers", followers.GetType().FullName, Jboy.Json.WriteObject(followers));
 		}, false);
@@ -160,6 +165,13 @@ public class LobbyPlayer {
 		account.friendsList.Get(data => {
 			foreach(var friend in data.allFriends) {
 				friend.account.onlineStatus.Disconnect(this);
+			}
+		});
+
+		// Followers: Remove event listeners
+		account.followers.Get(data => {
+			foreach(var followerId in data) {
+				PlayerAccount.Get(followerId).onlineStatus.Disconnect(this);
 			}
 		});
 

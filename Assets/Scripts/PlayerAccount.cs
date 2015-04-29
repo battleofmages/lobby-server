@@ -121,11 +121,16 @@ public class PlayerAccount : PlayerAccountBase, AsyncRequester {
 
 		// Country
 		AddProperty (
-			"country", 
+			"country",
 
 			// Get
 			() => {
-				country.directValue = "NO";
+				string countryAPI = "http://battleofmages.com/api/country/";
+				
+				// Get country from player IP
+				NetworkHelper.Get(countryAPI + "127.0.0.1", countryCode => {
+					country.directValue = countryCode;
+				});
 			}
 		);
 
